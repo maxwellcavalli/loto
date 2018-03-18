@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.estabelecimento.EstabelecimentoListController">
+   <children>
+      <HBox maxHeight="93.0" maxWidth="1.7976931348623157E308" prefHeight="93.0" style="-fx-background-color: #19b38a;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <VBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="93.0" prefWidth="418.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" text="Estabelecimento" textFill="WHITE">
+                     <font>
+                        <Font name="Segoe UI" size="25.0" />
+                     </font>
+                     <padding>
+                        <Insets left="50.0" />
+                     </padding>
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="93.0" prefWidth="404.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                     <children>
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="18.0" prefWidth="308.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </JFXTextField>
+                        <JFXButton buttonType="RAISED" defaultButton="true" onAction="#pesquisar" ripplerFill="WHITE" style="-fx-background-color: #41c146;" text="Pesquisar" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                        </JFXButton>
+                        <JFXButton buttonType="RAISED" onAction="#adicionar" ripplerFill="WHITE" style="-fx-background-color: #4096c1;" text="Adicionar" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </JFXButton>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <AnchorPane layoutX="25.0" layoutY="81.0" maxWidth="1.7976931348623157E308" prefHeight="470.0" prefWidth="974.0" style="-fx-background-color: #fff;" AnchorPane.bottomAnchor="11.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="81.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <children>
+            <TableView fx:id="datatable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

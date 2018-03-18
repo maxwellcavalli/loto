@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="rootPanel" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="464.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.modal.MensagemController">
+   <children>
+      <VBox alignment="CENTER" layoutY="5.0" prefHeight="464.0" prefWidth="850.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="464.0" prefWidth="789.0">
+               <children>
+                  <HBox style="-fx-background-color: #19b38a;">
+                     <children>
+                        <VBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="93.0" prefWidth="850.0" style="fx-op: 1;" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label alignment="CENTER" contentDisplay="CENTER" text="Mensagens" textFill="WHITE">
+                                 <font>
+                                    <Font name="Segoe UI" size="25.0" />
+                                 </font>
+                                 <padding>
+                                    <Insets left="50.0" />
+                                 </padding>
+                                 <effect>
+                                    <DropShadow />
+                                 </effect>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <AnchorPane layoutX="24.0" layoutY="66.0" prefHeight="367.0" prefWidth="781.0" style="-fx-background-color: #fff;" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="24.0">
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                     <children>
+                        <TextArea fx:id="txtMensagens" editable="false" layoutX="148.0" layoutY="84.0" prefHeight="316.0" prefWidth="802.0" style="fx-op: 1.0;" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <font>
+                              <Font name="Segoe UI Bold" size="14.0" />
+                           </font>
+                        </TextArea>
+                        <HBox alignment="TOP_RIGHT" fillHeight="false" layoutY="329.0" prefHeight="38.0" prefWidth="781.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="329.0">
+                           <children>
+                              <JFXButton onAction="#close" style="-fx-background-color: #efa226;" text="Voltar" textFill="WHITE">
+                                 <font>
+                                    <Font name="Segoe UI" size="14.0" />
+                                 </font>
+                                 <opaqueInsets>
+                                    <Insets left="5.0" />
+                                 </opaqueInsets>
+                                 <effect>
+                                    <DropShadow />
+                                 </effect>
+                              </JFXButton>
+                           </children>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
