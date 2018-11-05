@@ -10,11 +10,8 @@ import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.interfaces.ITableColumnValue;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
 
 /**
  *
@@ -30,16 +27,22 @@ public class TableColumnUtil {
         tableColumn.setPrefWidth(prefWidth);
         return tableColumn;
     }
-    
-    public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, int prefWidth, TableView<T> tableView, IActionColumn iActionColumn){
+
+    public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, int prefWidth,
+            TableView<T> tableView, IActionColumn iActionColumn) {
+        return createButtonColumn(title, "Delete", prefWidth, tableView, iActionColumn);
+    }
+
+    public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, String buttonTitle, int prefWidth,
+            TableView<T> tableView, IActionColumn iActionColumn) {
         TableColumn<T, Boolean> actionColumn = new TableColumn<>(title);
         actionColumn.setPrefWidth(80);
         actionColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, Boolean> features) -> new SimpleBooleanProperty(features.getValue() != null));
 
-        actionColumn.setCellFactory((TableColumn<T, Boolean> personBooleanTableColumn) -> new ActionColumn<>(tableView, (T t) -> {
+        actionColumn.setCellFactory((TableColumn<T, Boolean> personBooleanTableColumn) -> new ActionColumn<>(tableView, buttonTitle, (T t) -> {
             iActionColumn.onAction(t);
         }));
-        
+
         return actionColumn;
     }
 

@@ -15,8 +15,10 @@ import br.com.loto.admin.service.ClientePropagandaService;
 import br.com.loto.admin.service.ClienteService;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -172,8 +174,43 @@ public class ClienteFormController implements Initializable {
                     processaDatatablePropagandas();
                 });
 
+        TableColumn<ClientePropaganda, Boolean> actionViewColumn = TableColumnUtil.createButtonColumn("View", "View", 80, tablePropaganda,
+                (IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
+
+                    FileOutputStream fOut = null;
+                    try {
+                        Propaganda p = t.getPropaganda();
+                        String fileName = p.getNomeArquivo();
+                        byte[] conteudo = p.getConteudo();
+                        String tmpPath = System.getProperty("java.io.tmpdir");
+                        File f = new File(tmpPath + File.separatorChar + fileName);
+                        fOut = new FileOutputStream(f);
+                        fOut.write(conteudo);
+                        fOut.flush();
+                        fOut.close();
+                        
+                        
+                         Desktop desktop = Desktop.getDesktop();
+                         desktop.open(f);
+                        
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
+                        try {
+                            if (fOut != null) {
+                                fOut.close();
+                            }
+                        } catch (Exception ex) {
+                            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                });
+
         tablePropaganda.getColumns().clear();
-        tablePropaganda.getColumns().setAll(descricaoColumn, actionColumn);
+        tablePropaganda.getColumns().setAll(descricaoColumn, ativoColumn, actionColumn, actionViewColumn);
         tablePropaganda.setItems(FXCollections.observableArrayList(this.propagandas));
     }
 

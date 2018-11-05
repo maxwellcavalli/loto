@@ -64,7 +64,7 @@ public class ClienteListController implements Initializable {
             try {
                 datatable.setOnMouseClicked((MouseEvent event) -> {
                     if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.ESTABELECIMENTO_FORM));
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.CLIENTE_FORM));
 
                         AnchorPane p;
                         try {

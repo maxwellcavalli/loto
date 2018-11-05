@@ -9,7 +9,6 @@ import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
@@ -31,16 +30,21 @@ public class ActionColumn<T> extends TableCell<T, Boolean> {
     // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
     final DoubleProperty buttonY = new SimpleDoubleProperty();
 
-    
     public ActionColumn(final TableView<T> table, IActionColumn<T> action) {
+        this(table, "Delete", action);
+    }
+
+    public ActionColumn(final TableView<T> table, String title, IActionColumn<T> action) {
         paddedButton.setPadding(new Insets(3));
+        addButton.setText(title);
+        
         paddedButton.getChildren().add(addButton);
         addButton.setOnMousePressed((MouseEvent mouseEvent) -> {
             buttonY.set(mouseEvent.getScreenY());
         });
         addButton.setOnAction((ActionEvent actionEvent) -> {
             table.getSelectionModel().select(getTableRow().getIndex());
-            
+
             if (action != null) {
                 action.onAction(table.getSelectionModel().getSelectedItem());
             }
