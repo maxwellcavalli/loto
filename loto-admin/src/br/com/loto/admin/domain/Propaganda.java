@@ -34,6 +34,10 @@ public class Propaganda {
     @Campo(name = "DATA")
     private Date data = new Date();
 
+    public String getAtivoStr() {
+        return this.ativo == true ? "Sim" : "Não";
+    }
+
     public Long getId() {
         return id;
     }

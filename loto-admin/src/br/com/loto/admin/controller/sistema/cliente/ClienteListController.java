@@ -3,14 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.loto.admin.controller.sistema.estabelecimento;
-
+package br.com.loto.admin.controller.sistema.cliente;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
+import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.util.FxmlUtil;
-import br.com.loto.admin.domain.Estabelecimento;
-import br.com.loto.admin.service.EstabelecimentoService;
+import br.com.loto.admin.service.ClienteService;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import com.jfoenix.controls.JFXTextField;
 import java.io.IOException;
@@ -35,13 +34,13 @@ import javafx.scene.layout.AnchorPane;
  *
  * @author maxwe
  */
-public class EstabelecimentoListController implements Initializable {
+public class ClienteListController implements Initializable {
 
     @FXML
     public JFXTextField txtFiltro;
 
     @FXML
-    public TableView<Estabelecimento> datatable;
+    public TableView<Cliente> datatable;
 
     /**
      * Initializes the controller class.
@@ -53,10 +52,10 @@ public class EstabelecimentoListController implements Initializable {
     public void pesquisar(ActionEvent acEvent) {
         try {
             String descricao = txtFiltro.getText();
-            List<Estabelecimento> list = EstabelecimentoService.getInstance().pesquisar(descricao);
+            List<Cliente> list = ClienteService.getInstance().pesquisar(descricao);
             
-            TableColumn<Estabelecimento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 750, (Estabelecimento s) -> s.getDescricao());
-            TableColumn<Estabelecimento, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Estabelecimento s) -> s.getAtivoStr());
+            TableColumn<Cliente, String> descricaoColumn = TableColumnUtil.createStringColumn("Nome", 750, (Cliente s) -> s.getNome());
+            TableColumn<Cliente, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Cliente s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
             datatable.getColumns().setAll(descricaoColumn, ativoColumn);
@@ -69,18 +68,18 @@ public class EstabelecimentoListController implements Initializable {
 
                         AnchorPane p;
                         try {
-                            Estabelecimento estabelecimento = (Estabelecimento) datatable.getSelectionModel().getSelectedItem();
+                            Cliente cliente = (Cliente) datatable.getSelectionModel().getSelectedItem();
 
                             p = (AnchorPane) fxmlLoader.load();
 
-                            EstabelecimentoFormController controller = fxmlLoader.<EstabelecimentoFormController>getController();
+                            ClienteFormController controller = fxmlLoader.<ClienteFormController>getController();
 
-                            controller.initData(estabelecimento);
+                            controller.initData(cliente);
 
                             LotoAdmin.centerContainer.getChildren().clear();
                             LotoAdmin.centerContainer.getChildren().add(p);
                         } catch (IOException ex) {
-                            Logger.getLogger(EstabelecimentoListController.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
 
                             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
                         }
@@ -92,26 +91,26 @@ public class EstabelecimentoListController implements Initializable {
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(EstabelecimentoListController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
         }
     }
 
     public void adicionar(ActionEvent acEvent) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.ESTABELECIMENTO_FORM));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.CLIENTE_FORM));
         try {
             AnchorPane p = (AnchorPane) fxmlLoader.load();
 
-            EstabelecimentoFormController controller = fxmlLoader.<EstabelecimentoFormController>getController();
+            ClienteFormController controller = fxmlLoader.<ClienteFormController>getController();
 
-            controller.initData(new Estabelecimento());
+            controller.initData(new Cliente());
 
             LotoAdmin.centerContainer.getChildren().clear();
             LotoAdmin.centerContainer.getChildren().add(p);
 
         } catch (IOException ex) {
-            Logger.getLogger(EstabelecimentoListController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
         }

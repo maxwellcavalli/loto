@@ -71,7 +71,7 @@ public class EstabelecimentoFormController implements Initializable {
 
     @FXML
     public TableView<EstabelecimentoEquipamento> tableEquipamento;
-
+   
     //variaveis globais
     private Estabelecimento estabelecimento;
 

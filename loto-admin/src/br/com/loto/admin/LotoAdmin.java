@@ -18,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -70,8 +69,9 @@ public class LotoAdmin extends Application {
 
         MenuItem menuEquipamento = createMenuItem("Equipamento", FxmlFiles.EQUIPAMENTO_LIST);
         MenuItem menuEstabelecimento = createMenuItem("Estabelecimento", FxmlFiles.ESTABELECIMENTO_LIST);
+        MenuItem menuCliente = createMenuItem("Cliente", FxmlFiles.CLIENTE_LIST);
         
-        menuCadastros.getItems().addAll(menuEquipamento, menuEstabelecimento);
+        menuCadastros.getItems().addAll(menuEquipamento, menuEstabelecimento, menuCliente);
 
         //Create SubMenu Help.
         Menu help = new Menu("Help");

@@ -22,7 +22,14 @@ public class Cliente {
 
     @Campo(name = "NOME")
     private String nome = "";
-    
+
+    @Campo(name = "ATIVO")
+    private boolean ativo = true;
+
+    public String getAtivoStr() {
+        return this.ativo == true ? "Sim" : "Não";
+    }
+
     private List<ClientePropaganda> listClientePropaganda;
 
     public List<ClientePropaganda> getListClientePropaganda() {
@@ -47,6 +54,14 @@ public class Cliente {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
 }
