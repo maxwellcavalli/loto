@@ -7,12 +7,17 @@ package br.com.loto.admin.controller.sistema.cliente;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
+import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
+import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.domain.ClientePropaganda;
+import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Propaganda;
+import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.service.ClientePropagandaService;
 import br.com.loto.admin.service.ClienteService;
+import br.com.loto.admin.service.EstadoService;
 import br.com.loto.core.fx.datatable.ActionColumnButton;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
@@ -40,6 +45,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -49,6 +55,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.StringConverter;
 
 /**
  * FXML Controller class
@@ -62,6 +69,12 @@ public class ClienteFormController implements Initializable {
 
     @FXML
     public CheckBox ckAtivo;
+
+    @FXML
+    public ComboBox<Estado> cbEstado;
+
+    @FXML
+    public ComboBox<Cidade> cbCidade;
 
     //propaganda
     @FXML
@@ -107,8 +120,15 @@ public class ClienteFormController implements Initializable {
         this.cliente.setNome(txtDescricao.getText());
         this.cliente.setAtivo(ckAtivo.selectedProperty().getValue());
 
+        Cidade cidade = cbCidade.getSelectionModel().getSelectedItem();
+        this.cliente.setCidade(cidade);
+
         if ("".equals(this.cliente.getNome().trim())) {
             messages.add("Nome Inválido");
+        }
+        
+        if (this.cliente.getCidade() == null || this.cliente.getCidade().getId() == null){
+            messages.add("Estado/Cidade Inválidos");
         }
 
         if (messages.isEmpty()) {
@@ -152,6 +172,22 @@ public class ClienteFormController implements Initializable {
 
         this.cliente = cliente;
 
+        this.popularPropagandas();
+
+        this.popularEstados();
+        cbEstado.getSelectionModel().clearSelection();
+        cbCidade.getSelectionModel().clearSelection();
+
+        if (cliente.getCidade() != null) {
+            cbEstado.getSelectionModel().select(cliente.getCidade().getEstado());
+
+            popularCidade();
+
+            cbCidade.getSelectionModel().select(cliente.getCidade());
+        }
+    }
+
+    private void popularPropagandas() {
         try {
             this.propagandas = ClientePropagandaService.getInstance().pesquisar(cliente);
             if (this.propagandas == null) {
@@ -177,6 +213,67 @@ public class ClienteFormController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void popularEstados() {
+        List<Estado> listEstado;
+        try {
+            cbEstado.getItems().add(new Estado());
+
+            listEstado = EstadoService.getInstance().pesquisar("");
+            listEstado.stream().forEach(el -> cbEstado.getItems().add(el));
+
+            cbEstado.setConverter(new StringConverter<Estado>() {
+                @Override
+                public String toString(Estado object) {
+                    return object.getSigla();
+                }
+
+                @Override
+                public Estado fromString(String string) {
+                    return null;
+                }
+            });
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void popularCidade() {
+        cbCidade.getItems().clear();
+
+        Estado e = cbEstado.getSelectionModel().getSelectedItem();
+
+        if (e != null && e.getId() != null) {
+            List<Cidade> listCidade;
+            try {
+                cbCidade.getItems().add(new Cidade());
+
+                listCidade = CidadeService.getInstance().pesquisar("", e.getId());
+                listCidade.stream().forEach(el -> cbCidade.getItems().add(el));
+
+                cbCidade.setConverter(new StringConverter<Cidade>() {
+                    @Override
+                    public String toString(Cidade object) {
+                        return object.getNome();
+                    }
+
+                    @Override
+                    public Cidade fromString(String string) {
+                        return null;
+                    }
+                });
+
+            } catch (SQLException ex) {
+                Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public void changeEstado(ActionEvent event) {
+        cbCidade.getSelectionModel().clearSelection();
+        popularCidade();
     }
 
     private void viewContent(ClientePropaganda t) {
@@ -214,8 +311,8 @@ public class ClienteFormController implements Initializable {
 
         TableColumn<ClientePropaganda, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 520, (ClientePropaganda s) -> s.getPropaganda().getDescricao());
         TableColumn<ClientePropaganda, String> dataColumn = TableColumnUtil.createStringColumn("Data", 115, (ClientePropaganda s) -> sdf.format(s.getPropaganda().getData()));
-        TableColumn<ClientePropaganda, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Inativação", 115, (ClientePropaganda s) -> 
-                s.getPropaganda().getDataInativacao() != null ? sdf.format(s.getPropaganda().getData()) : "");
+        TableColumn<ClientePropaganda, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Inativação", 115, (ClientePropaganda s)
+                -> s.getPropaganda().getDataInativacao() != null ? sdf.format(s.getPropaganda().getData()) : "");
 
         TableColumn<ClientePropaganda, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (ClientePropaganda s) -> s.getPropaganda().getAtivoStr());
 

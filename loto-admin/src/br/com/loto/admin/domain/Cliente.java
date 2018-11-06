@@ -8,6 +8,7 @@ package br.com.loto.admin.domain;
 
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
+import br.com.loto.core.database.annotation.Relacionamento;
 import java.util.List;
 
 /**
@@ -26,11 +27,15 @@ public class Cliente {
     @Campo(name = "ATIVO")
     private boolean ativo = true;
 
+    @Relacionamento(relationColumnName = "id_cidade")
+    private Cidade cidade;
+
+    //usado para retorno
+    private List<ClientePropaganda> listClientePropaganda;
+
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
     }
-
-    private List<ClientePropaganda> listClientePropaganda;
 
     public List<ClientePropaganda> getListClientePropaganda() {
         return listClientePropaganda;
@@ -62,6 +67,14 @@ public class Cliente {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Cidade getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(Cidade cidade) {
+        this.cidade = cidade;
     }
 
 }

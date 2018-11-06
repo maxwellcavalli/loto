@@ -26,7 +26,6 @@ public class ClientePropaganda {
     @Relacionamento(relationColumnName = "id_propaganda")
     private Propaganda propaganda;
     
-    
 
     public Long getId() {
         return id;

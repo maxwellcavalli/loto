@@ -41,8 +41,8 @@ public class ClienteService {
         return cliente;
     }
 
-    public List<Cliente> pesquisar(String nome) throws SQLException {
-        return ClienteDAO.getInstance().pesquisar(nome);
+    public List<Cliente> pesquisar(String nome, Long cidade, Long estado) throws SQLException {
+        return ClienteDAO.getInstance().pesquisar(nome, cidade, estado);
     }
 
 }
