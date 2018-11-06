@@ -28,6 +28,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.StringConverter;
 
 /**
  * FXML Controller class
@@ -110,10 +111,20 @@ public class CidadeFormController implements Initializable {
     }
 
     public void initData(Cidade cidade) {
-        txtDescricao.setText(estado.getNome());
-        ckAtivo.setSelected(estado.isAtivo());
+        txtDescricao.setText(cidade.getNome());
+        ckAtivo.setSelected(cidade.isAtivo());
         
-        List<Estado> listEstado;
+        popularEstados();
+        
+        cbEstado.getSelectionModel().select(cidade.getEstado());
+
+        this.cidade = cidade;
+        this.estado = this.cidade.getEstado();
+
+    }
+    
+    private void popularEstados(){
+         List<Estado> listEstado;
         try {
             listEstado = EstadoService.getInstance().pesquisar("");
             listEstado.stream().forEach(el -> cbEstado.getItems().add(el));
@@ -121,10 +132,16 @@ public class CidadeFormController implements Initializable {
             Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        cbEstado.getSelectionModel().select(cidade.getEstado());
+         cbEstado.setConverter(new StringConverter<Estado>() {
+                @Override
+                public String toString(Estado object) {
+                    return object.getSigla();
+                }
 
-        this.cidade = cidade;
-        this.estado = this.cidade.getEstado();
-
+                @Override
+                public Estado fromString(String string) {
+                    return null;
+                }
+            });
     }
 }

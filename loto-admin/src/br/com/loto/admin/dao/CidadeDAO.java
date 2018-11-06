@@ -58,7 +58,7 @@ public class CidadeDAO extends BaseDAO<Cidade> {
             parameters.add("%" + nome.toUpperCase() + "%");
         }
         
-        if (estado != null && estado > 0){
+        if (estado != null){
             sql.append("  AND _est.id = ? ");
             parameters.add(estado);
         }

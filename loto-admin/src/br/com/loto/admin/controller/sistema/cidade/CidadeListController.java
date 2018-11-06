@@ -13,6 +13,7 @@ import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.service.EstadoService;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import java.io.IOException;
 import java.net.URL;
@@ -26,12 +27,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.StringConverter;
 
 /**
  * FXML Controller class
@@ -44,7 +45,7 @@ public class CidadeListController implements Initializable {
     public JFXTextField txtFiltro;
 
     @FXML
-    public ComboBox<Estado> cbEstado;
+    public JFXComboBox<Estado> cbEstado;
 
     @FXML
     public TableView<Cidade> datatable;
@@ -55,10 +56,29 @@ public class CidadeListController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
+        loadEstados();
+    }
+
+    private void loadEstados() {
         List<Estado> listEstado;
         try {
+            cbEstado.getItems().add(new Estado());
+            
             listEstado = EstadoService.getInstance().pesquisar("");
             listEstado.stream().forEach(el -> cbEstado.getItems().add(el));
+
+            cbEstado.setConverter(new StringConverter<Estado>() {
+                @Override
+                public String toString(Estado object) {
+                    return object.getSigla();
+                }
+
+                @Override
+                public Estado fromString(String string) {
+                    return null;
+                }
+            });
+
         } catch (SQLException ex) {
             Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -68,8 +88,8 @@ public class CidadeListController implements Initializable {
         try {
             String descricao = txtFiltro.getText();
             Estado estadoO = cbEstado.getSelectionModel().getSelectedItem();
-            Long estado = estadoO == null ? 0 : estadoO.getId();
-            
+            Long estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
+
             List<Cidade> list = CidadeService.getInstance().pesquisar(descricao, estado);
 
             TableColumn<Cidade, String> estadoColumn = TableColumnUtil.createStringColumn("Estado", 100, (Cidade s) -> s.getEstado().getSigla());
