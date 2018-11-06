@@ -22,5 +22,8 @@ public class FxmlFiles {
     
     public static String ESTADO_LIST = "/br/com/loto/admin/view/sistema/estado/EstadoList.fxml";
     public static String ESTADO_FORM = "/br/com/loto/admin/view/sistema/estado/EstadoForm.fxml";
+    
+    public static String CIDADE_LIST = "/br/com/loto/admin/view/sistema/cidade/CidadeList.fxml";
+    public static String CIDADE_FORM = "/br/com/loto/admin/view/sistema/cidade/CidadeForm.fxml";
 
 }

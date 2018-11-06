@@ -8,13 +8,14 @@ package br.com.loto.admin.domain;
 
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
+import br.com.loto.core.database.annotation.Relacionamento;
 
 /**
  *
  * @author maxwe
  */
-@Entidade(name = "ESTADO")
-public class Estado {
+@Entidade(name = "CIDADE")
+public class Cidade {
 
     @Campo(name = "ID", autoIncrement = true, primaryKey = true)
     private Long id;
@@ -22,8 +23,8 @@ public class Estado {
     @Campo(name = "NOME")
     private String nome = "";
 
-    @Campo(name = "SIGLA")
-    private String sigla = "";
+    @Relacionamento(relationColumnName = "id_estado")
+    private Estado estado;
 
     @Campo(name = "ATIVO")
     private boolean ativo = true;
@@ -56,12 +57,12 @@ public class Estado {
         this.ativo = ativo;
     }
 
-    public String getSigla() {
-        return sigla;
+    public Estado getEstado() {
+        return estado;
     }
 
-    public void setSigla(String sigla) {
-        this.sigla = sigla;
+    public void setEstado(Estado estado) {
+        this.estado = estado;
     }
 
 }
