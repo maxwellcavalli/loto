@@ -7,10 +7,7 @@ package br.com.loto.admin.dao;
 
 import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.domain.ClientePropaganda;
-import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.core.dao.BaseDAO;
-import br.com.loto.admin.domain.Estabelecimento;
-import br.com.loto.admin.domain.EstabelecimentoEquipamento;
 import br.com.loto.admin.domain.Propaganda;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,7 +52,8 @@ public class ClientePropagandaDAO extends BaseDAO<ClientePropaganda> {
         sql.append("        _prop.ativo as _prop_ativo, ");
         sql.append("        _prop.nome_arquivo as _prop_nome_arquivo, ");
         sql.append("        _prop.conteudo as _prop_conteudo, ");
-        sql.append("        _prop.data as _prop_data ");
+        sql.append("        _prop.data as _prop_data, ");
+         sql.append("       _prop.data_inativacao as _prop_data_inativacao ");
 
         sql.append("   from cliente_propaganda _cliprop ");
         sql.append("  inner join propaganda _prop on _prop.id = _cliprop.id_propaganda ");
@@ -74,8 +72,10 @@ public class ClientePropagandaDAO extends BaseDAO<ClientePropaganda> {
             p.setAtivo(rs.getBoolean("_prop_ativo"));
             p.setConteudo(rs.getBytes("_prop_conteudo"));
             p.setNomeArquivo(rs.getString("_prop_nome_arquivo"));
-            p.setData(rs.getDate("_prop_data"));
-
+            p.setData(rs.getTimestamp("_prop_data"));
+            
+            p.setDataInativacao(rs.getTimestamp("_prop_data_inativacao"));
+            
             ClientePropaganda clientePropaganda = new ClientePropaganda();
             clientePropaganda.setId(rs.getLong("_cliprop_id"));
             clientePropaganda.setCliente(c);

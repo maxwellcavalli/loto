@@ -66,12 +66,14 @@ public class LotoAdmin extends Application {
 
         //Create SubMenu File.
         Menu menuCadastros = new Menu("Cadastros");
+        
+         MenuItem menuEstado = createMenuItem("Estado", FxmlFiles.ESTADO_LIST);
 
         MenuItem menuEquipamento = createMenuItem("Equipamento", FxmlFiles.EQUIPAMENTO_LIST);
         MenuItem menuEstabelecimento = createMenuItem("Estabelecimento", FxmlFiles.ESTABELECIMENTO_LIST);
         MenuItem menuCliente = createMenuItem("Cliente", FxmlFiles.CLIENTE_LIST);
         
-        menuCadastros.getItems().addAll(menuEquipamento, menuEstabelecimento, menuCliente);
+        menuCadastros.getItems().addAll(menuEstado, menuEquipamento, menuEstabelecimento, menuCliente);
 
         //Create SubMenu Help.
         Menu help = new Menu("Help");

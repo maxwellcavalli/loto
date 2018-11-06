@@ -13,6 +13,7 @@ import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Propaganda;
 import br.com.loto.admin.service.ClientePropagandaService;
 import br.com.loto.admin.service.ClienteService;
+import br.com.loto.core.fx.datatable.ActionColumnButton;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import java.awt.Desktop;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +38,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -73,12 +76,18 @@ public class ClienteFormController implements Initializable {
     @FXML
     public CheckBox cbPropaganda;
 
+    @FXML
+    public Button btAdicionarPropaganda;
+
     //variaveis globais
     private Cliente cliente;
 
+    private ClientePropaganda selectedClientePropaganda;
     private List<ClientePropaganda> propagandas;
 
     private File file;
+
+    final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     //--
     /**
@@ -108,6 +117,7 @@ public class ClienteFormController implements Initializable {
 
                 this.propagandas = this.cliente.getListClientePropaganda();
 
+                this.btAdicionarPropaganda.setText("Adicionar");
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -154,8 +164,13 @@ public class ClienteFormController implements Initializable {
                 if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                     ClientePropaganda clientePropaganda = (ClientePropaganda) tablePropaganda.getSelectionModel().getSelectedItem();
 
-                    System.out.println(clientePropaganda);
+                    this.selectedClientePropaganda = clientePropaganda;
 
+                    this.txtDescricaoPropaganda.setText(selectedClientePropaganda.getPropaganda().getDescricao());
+                    this.txtNomeArquivo.setText(selectedClientePropaganda.getPropaganda().getNomeArquivo());
+                    this.cbPropaganda.setSelected(selectedClientePropaganda.getPropaganda().isAtivo());
+
+                    this.btAdicionarPropaganda.setText("Alterar");
                 }
             });
 
@@ -164,53 +179,65 @@ public class ClienteFormController implements Initializable {
         }
     }
 
+    private void viewContent(ClientePropaganda t) {
+        FileOutputStream fOut = null;
+        try {
+            Propaganda p = t.getPropaganda();
+            String fileName = p.getNomeArquivo();
+            byte[] conteudo = p.getConteudo();
+            String tmpPath = System.getProperty("java.io.tmpdir");
+            File f = new File(tmpPath + File.separatorChar + fileName);
+            fOut = new FileOutputStream(f);
+            fOut.write(conteudo);
+            fOut.flush();
+            fOut.close();
+
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(f);
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (fOut != null) {
+                    fOut.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
     private void processaDatatablePropagandas() {
 
-        TableColumn<ClientePropaganda, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 750, (ClientePropaganda s) -> s.getPropaganda().getDescricao());
+        TableColumn<ClientePropaganda, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 520, (ClientePropaganda s) -> s.getPropaganda().getDescricao());
+        TableColumn<ClientePropaganda, String> dataColumn = TableColumnUtil.createStringColumn("Data", 115, (ClientePropaganda s) -> sdf.format(s.getPropaganda().getData()));
+        TableColumn<ClientePropaganda, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Inativação", 115, (ClientePropaganda s) -> 
+                s.getPropaganda().getDataInativacao() != null ? sdf.format(s.getPropaganda().getData()) : "");
+
         TableColumn<ClientePropaganda, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (ClientePropaganda s) -> s.getPropaganda().getAtivoStr());
-        TableColumn<ClientePropaganda, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tablePropaganda,
-                (IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
-                    propagandas.remove(t);
-                    processaDatatablePropagandas();
-                });
 
-        TableColumn<ClientePropaganda, Boolean> actionViewColumn = TableColumnUtil.createButtonColumn("View", "View", 80, tablePropaganda,
-                (IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
+        ActionColumnButton<ClientePropaganda> acView = new ActionColumnButton<>("View");
+        acView.setAction((IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
+            viewContent(t);
+        });
 
-                    FileOutputStream fOut = null;
-                    try {
-                        Propaganda p = t.getPropaganda();
-                        String fileName = p.getNomeArquivo();
-                        byte[] conteudo = p.getConteudo();
-                        String tmpPath = System.getProperty("java.io.tmpdir");
-                        File f = new File(tmpPath + File.separatorChar + fileName);
-                        fOut = new FileOutputStream(f);
-                        fOut.write(conteudo);
-                        fOut.flush();
-                        fOut.close();
-                        
-                        
-                         Desktop desktop = Desktop.getDesktop();
-                         desktop.open(f);
-                        
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
-                    } finally {
-                        try {
-                            if (fOut != null) {
-                                fOut.close();
-                            }
-                        } catch (Exception ex) {
-                            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
+        ActionColumnButton<ClientePropaganda> acDelete = new ActionColumnButton<>("Delete");
+        acDelete.setAction((IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
+            propagandas.remove(t);
+            processaDatatablePropagandas();
+        });
 
-                });
+        List<ActionColumnButton<ClientePropaganda>> actionsColumnButton = new ArrayList<>(2);
+        actionsColumnButton.add(acView);
+        actionsColumnButton.add(acDelete);
+
+        TableColumn<ClientePropaganda, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 140, tablePropaganda, actionsColumnButton);
 
         tablePropaganda.getColumns().clear();
-        tablePropaganda.getColumns().setAll(descricaoColumn, ativoColumn, actionColumn, actionViewColumn);
+        tablePropaganda.getColumns().setAll(descricaoColumn, dataColumn, dataInativacaoColumn, ativoColumn, actionColumn);
         tablePropaganda.setItems(FXCollections.observableArrayList(this.propagandas));
     }
 
@@ -237,20 +264,54 @@ public class ClienteFormController implements Initializable {
                 }
             }
 
-            if (propaganda.getConteudo() == null || propaganda.getConteudo().length == 0) {
-                FxmlUtil.getInstance().openMessageDialog(event, "Arquivo Inválido");
+            List<String> messages = new ArrayList<>();
+
+            if (propaganda.getDescricao() == null || propaganda.getDescricao().isEmpty()) {
+                messages.add("Descrição Inválida");
+            }
+
+            if ((propaganda.getConteudo() == null || propaganda.getConteudo().length == 0) && this.selectedClientePropaganda == null) {
+                messages.add("Arquivo Inválido");
+            }
+
+            if (!propaganda.isAtivo()) {
+                propaganda.setDataInativacao(new Date());
             } else {
+                propaganda.setDataInativacao(null);
+            }
 
-                ClientePropaganda clientePropaganda = new ClientePropaganda();
-                clientePropaganda.setCliente(cliente);
-                clientePropaganda.setPropaganda(propaganda);
+            if (!messages.isEmpty()) {
+                FxmlUtil.getInstance().openMessageDialog(event, messages);
+            } else {
+                if (this.selectedClientePropaganda != null) {
+                    this.selectedClientePropaganda.getPropaganda().setAtivo(propaganda.isAtivo());
+                    this.selectedClientePropaganda.getPropaganda().setDescricao(propaganda.getDescricao());
+                    this.selectedClientePropaganda.getPropaganda().setData(new Date());
+                    this.selectedClientePropaganda.getPropaganda().setDataInativacao(propaganda.getDataInativacao());
+                    if (file != null) {
+                        this.selectedClientePropaganda.getPropaganda().setConteudo(propaganda.getConteudo());
+                        this.selectedClientePropaganda.getPropaganda().setNomeArquivo(propaganda.getNomeArquivo());
+                    }
 
-                this.propagandas.add(clientePropaganda);
+                    int index = this.propagandas.indexOf(this.selectedClientePropaganda);
+                    this.propagandas.set(index, selectedClientePropaganda);
+                } else {
+                    ClientePropaganda clientePropaganda = new ClientePropaganda();
+                    clientePropaganda.setCliente(cliente);
+                    clientePropaganda.setPropaganda(propaganda);
+
+                    this.propagandas.add(clientePropaganda);
+                }
+
                 processaDatatablePropagandas();
 
                 txtDescricaoPropaganda.setText("");
                 cbPropaganda.setSelected(true);
                 txtNomeArquivo.setText("");
+
+                this.selectedClientePropaganda = null;
+
+                this.btAdicionarPropaganda.setText("Adicionar");
             }
         } catch (Exception ex) {
             Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
@@ -265,7 +326,7 @@ public class ClienteFormController implements Initializable {
         txtNomeArquivo.setText("");
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Resource File");
+        fileChooser.setTitle("Abrir Arquivo");
         this.file = fileChooser.showOpenDialog(stage);
 
         if (file != null) {
