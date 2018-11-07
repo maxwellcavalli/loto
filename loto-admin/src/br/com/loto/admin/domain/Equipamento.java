@@ -7,6 +7,7 @@ package br.com.loto.admin.domain;
 
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
+import java.util.Date;
 
 /**
  *
@@ -26,8 +27,11 @@ public class Equipamento {
 
     @Campo(name = "ATIVO")
     private boolean ativo;
-    
-    public String getAtivoStr(){
+
+    @Campo(name = "DATA_AQUISICAO")
+    private Date dataAquisicao;
+
+    public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
     }
 
@@ -61,6 +65,14 @@ public class Equipamento {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Date getDataAquisicao() {
+        return dataAquisicao;
+    }
+
+    public void setDataAquisicao(Date dataAquisicao) {
+        this.dataAquisicao = dataAquisicao;
     }
 
 }

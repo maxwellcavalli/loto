@@ -51,8 +51,8 @@ public class EstabelecimentoService {
         return estabelecimento;
     }
     
-    public List<Estabelecimento> pesquisar(String descricao) throws SQLException {
-        return EstabelecimentoDAO.getInstance().pesquisar(descricao);
+    public List<Estabelecimento> pesquisar(String descricao, Long estado, Long cidade) throws SQLException {
+        return EstabelecimentoDAO.getInstance().pesquisar(descricao, estado, cidade);
     }
     
 }

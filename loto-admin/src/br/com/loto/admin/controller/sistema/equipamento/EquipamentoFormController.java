@@ -10,6 +10,7 @@ import br.com.loto.admin.LotoAdmin;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.admin.service.EquipamentoService;
+import br.com.loto.admin.util.DateUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -23,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
@@ -38,9 +40,12 @@ public class EquipamentoFormController implements Initializable {
 
     @FXML
     public TextField txtDescricao;
-    
+
     @FXML
     public CheckBox ckAtivo;
+
+    @FXML
+    public DatePicker dpAquisicao;
 
     private Equipamento equipamento;
 
@@ -54,13 +59,16 @@ public class EquipamentoFormController implements Initializable {
     public void salvar(ActionEvent event) throws Exception {
 
         List<String> messages = new ArrayList<>();
-        if (this.equipamento == null){
+        if (this.equipamento == null) {
             this.equipamento = new Equipamento();
         }
 
         this.equipamento.setSerial(txtSerial.getText());
         this.equipamento.setDescricao(txtDescricao.getText());
         this.equipamento.setAtivo(ckAtivo.selectedProperty().getValue());
+        if (dpAquisicao.getValue() != null) {
+            this.equipamento.setDataAquisicao(DateUtils.asDate(dpAquisicao.getValue()));
+        }
 
         if ("".equals(this.equipamento.getSerial().trim())) {
             messages.add("Serial Inválido");
@@ -75,7 +83,7 @@ public class EquipamentoFormController implements Initializable {
                 this.equipamento = EquipamentoService.getInstance().persistir(this.equipamento);
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(EquipamentoFormController.class.getName()).log(Level.SEVERE, null, ex);
-                
+
                 FxmlUtil.getInstance().openMessageDialog(event, ex);
             }
         } else {
@@ -92,7 +100,7 @@ public class EquipamentoFormController implements Initializable {
             LotoAdmin.centerContainer.getChildren().add(p);
         } catch (IOException ex) {
             Logger.getLogger(EquipamentoFormController.class.getName()).log(Level.SEVERE, null, ex);
-            
+
             FxmlUtil.getInstance().openMessageDialog(event, ex);
         }
     }
@@ -101,6 +109,10 @@ public class EquipamentoFormController implements Initializable {
         txtSerial.setText(equipamento.getSerial());
         txtDescricao.setText(equipamento.getDescricao());
         ckAtivo.setSelected(equipamento.isAtivo());
+
+        if (equipamento.getDataAquisicao() != null) {
+            dpAquisicao.setValue(DateUtils.asLocalDate(equipamento.getDataAquisicao()));
+        }
 
         this.equipamento = equipamento;
     }

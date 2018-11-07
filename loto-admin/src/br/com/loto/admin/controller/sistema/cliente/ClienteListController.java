@@ -130,6 +130,12 @@ public class ClienteListController implements Initializable {
             String descricao = txtFiltro.getText();
             Long cidade = null;
             Long estado = null;
+            
+            Cidade cidadeO = cbCidade.getSelectionModel().getSelectedItem();
+            Estado estadoO = cbEstado.getSelectionModel().getSelectedItem();
+            
+            cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
+            estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
 
             List<Cliente> list = ClienteService.getInstance().pesquisar(descricao, cidade, estado);
 

@@ -3,7 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/mcavalli/projetos/loto/loto-admin/src/br/com/loto/admin/dao/ClienteDAO.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/controller/sistema/estabelecimento/EstabelecimentoListController.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/dao/ClienteDAO.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/service/EstabelecimentoService.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/controller/sistema/cliente/ClienteListController.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/domain/EstabelecimentoEndereco.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/dao/EstabelecimentoEnderecoDAO.java</file>
+            <file>file:/C:/Users/maxwe/OneDrive/Documents/NetBeansProjects/loto-admin/src/br/com/loto/admin/dao/EstabelecimentoDAO.java</file>
         </group>
     </open-files>
 </project-private>

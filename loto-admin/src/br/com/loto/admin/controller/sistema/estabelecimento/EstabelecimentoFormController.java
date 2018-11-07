@@ -7,15 +7,20 @@ package br.com.loto.admin.controller.sistema.estabelecimento;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
+import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
+import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Estabelecimento;
 import br.com.loto.admin.domain.EstabelecimentoEndereco;
 import br.com.loto.admin.domain.EstabelecimentoEquipamento;
+import br.com.loto.admin.domain.Estado;
+import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.service.EquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoEnderecoService;
 import br.com.loto.admin.service.EstabelecimentoEquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoService;
+import br.com.loto.admin.service.EstadoService;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import java.io.IOException;
@@ -60,10 +65,10 @@ public class EstabelecimentoFormController implements Initializable {
     public TextField txtNumero;
 
     @FXML
-    public TextField txtCidade;
+    public ComboBox<Estado> cbEstado;
 
     @FXML
-    public TextField txtEstado;
+    public ComboBox<Cidade> cbCidade;
 
     //equipamento
     @FXML
@@ -71,7 +76,7 @@ public class EstabelecimentoFormController implements Initializable {
 
     @FXML
     public TableView<EstabelecimentoEquipamento> tableEquipamento;
-   
+
     //variaveis globais
     private Estabelecimento estabelecimento;
 
@@ -99,11 +104,16 @@ public class EstabelecimentoFormController implements Initializable {
 
         this.estabelecimentoEndereco.setLogradouro(this.txtLogradouro.getText());
         this.estabelecimentoEndereco.setNumero(this.txtNumero.getText());
-        this.estabelecimentoEndereco.setCidade(this.txtCidade.getText());
-        this.estabelecimentoEndereco.setEstado(this.txtEstado.getText());
+
+        Cidade cidade = cbCidade.getSelectionModel().getSelectedItem();
+        this.estabelecimentoEndereco.setCidade(cidade);
 
         if ("".equals(this.estabelecimento.getDescricao().trim())) {
             messages.add("Descrição Inválida");
+        }
+
+        if (this.estabelecimentoEndereco.getCidade() == null || this.estabelecimentoEndereco.getCidade().getId() == null) {
+            messages.add("Estado/Cidade Inválidos");
         }
 
         if (messages.isEmpty()) {
@@ -151,8 +161,7 @@ public class EstabelecimentoFormController implements Initializable {
             } else {
                 this.txtLogradouro.setText(this.estabelecimentoEndereco.getLogradouro());
                 this.txtNumero.setText(this.estabelecimentoEndereco.getNumero());
-                this.txtCidade.setText(this.estabelecimentoEndereco.getCidade());
-                this.txtEstado.setText(this.estabelecimentoEndereco.getEstado());
+
             }
 
             cbEquipamento.getItems().clear();
@@ -165,6 +174,18 @@ public class EstabelecimentoFormController implements Initializable {
 
             List<Equipamento> listEquipamento = EquipamentoService.getInstance().pesquisar("", Boolean.TRUE);
             listEquipamento.stream().forEach(el -> cbEquipamento.getItems().add(el));
+
+            this.popularEstados();
+            cbEstado.getSelectionModel().clearSelection();
+            cbCidade.getSelectionModel().clearSelection();
+
+            if (estabelecimentoEndereco.getCidade() != null) {
+                cbEstado.getSelectionModel().select(estabelecimentoEndereco.getCidade().getEstado());
+
+                popularCidade();
+
+                cbCidade.getSelectionModel().select(estabelecimentoEndereco.getCidade());
+            }
 
         } catch (SQLException ex) {
             Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
@@ -181,6 +202,67 @@ public class EstabelecimentoFormController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void popularEstados() {
+        List<Estado> listEstado;
+        try {
+            cbEstado.getItems().add(new Estado());
+
+            listEstado = EstadoService.getInstance().pesquisar("");
+            listEstado.stream().forEach(el -> cbEstado.getItems().add(el));
+
+            cbEstado.setConverter(new StringConverter<Estado>() {
+                @Override
+                public String toString(Estado object) {
+                    return object.getSigla();
+                }
+
+                @Override
+                public Estado fromString(String string) {
+                    return null;
+                }
+            });
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void popularCidade() {
+        cbCidade.getItems().clear();
+
+        Estado e = cbEstado.getSelectionModel().getSelectedItem();
+
+        if (e != null && e.getId() != null) {
+            List<Cidade> listCidade;
+            try {
+                cbCidade.getItems().add(new Cidade());
+
+                listCidade = CidadeService.getInstance().pesquisar("", e.getId());
+                listCidade.stream().forEach(el -> cbCidade.getItems().add(el));
+
+                cbCidade.setConverter(new StringConverter<Cidade>() {
+                    @Override
+                    public String toString(Cidade object) {
+                        return object.getNome();
+                    }
+
+                    @Override
+                    public Cidade fromString(String string) {
+                        return null;
+                    }
+                });
+
+            } catch (SQLException ex) {
+                Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public void changeEstado(ActionEvent event) {
+        cbCidade.getSelectionModel().clearSelection();
+        popularCidade();
     }
 
     private void processaDatatableEquipamentos() {

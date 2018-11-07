@@ -36,20 +36,33 @@ public class EstabelecimentoDAO extends BaseDAO<Estabelecimento> {
         return super.persistir(t); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public List<Estabelecimento> pesquisar(String descricao) throws SQLException {
+    public List<Estabelecimento> pesquisar(String descricao, Long estado, Long cidade) throws SQLException {
         StringBuilder sql = new StringBuilder();
-        sql.append(" SELECT ID, DESCRICAO, ATIVO ");
-        sql.append("   FROM ESTABELECIMENTO ");
+        sql.append(" SELECT _e.ID, _e.DESCRICAO, _e.ATIVO ");
+        sql.append("   FROM ESTABELECIMENTO _e");
+        sql.append("   LEFT JOIN ESTABELECIMENTO_ENDERECO _ee ON _ee.id_estabelecimento = _e.ID ");
+        sql.append("   LEFT JOIN CIDADE _cid ON _cid.id = _ee.id_cidade ");
+        sql.append("   LEFT JOIN ESTADO _est ON _est.id = _cid.id_estado ");
         sql.append("  WHERE 1 = 1 ");
 
         List<Object> parameters = new ArrayList<>();
 
         if (descricao != null && !descricao.trim().isEmpty()) {
-            sql.append("  AND UPPER(DESCRICAO) = ? ");
+            sql.append("  AND UPPER(_e.DESCRICAO) = ? ");
             parameters.add(descricao.toUpperCase());
         }
 
-        sql.append(" ORDER BY DESCRICAO ");
+        if (cidade != null) {
+            sql.append("  AND _cid.ID = ? ");
+            parameters.add(cidade);
+        }
+
+        if (estado != null) {
+            sql.append("  AND _est.ID = ? ");
+            parameters.add(estado);
+        }
+
+        sql.append(" ORDER BY _e.DESCRICAO ");
 
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             Estabelecimento e = new Estabelecimento();

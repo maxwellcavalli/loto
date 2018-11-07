@@ -12,7 +12,7 @@
    <children>
       <HBox maxHeight="93.0" maxWidth="1.7976931348623157E308" prefHeight="93.0" style="-fx-background-color: #19b38a;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
-            <VBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="93.0" prefWidth="418.0" HBox.hgrow="ALWAYS">
+            <VBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="93.0" prefWidth="250.0" HBox.hgrow="NEVER">
                <children>
                   <Label alignment="CENTER" contentDisplay="CENTER" text="Estabelecimento" textFill="WHITE">
                      <font>
@@ -31,7 +31,17 @@
                <children>
                   <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
                      <children>
-                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="18.0" prefWidth="308.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
+                        <JFXComboBox fx:id="cbEstado" onAction="#changeEstado" prefHeight="25.0" prefWidth="64.0" promptText="UF">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXComboBox>
+                        <JFXComboBox fx:id="cbCidade" prefHeight="25.0" prefWidth="252.0" promptText="Cidade">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXComboBox>
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="18.0" prefWidth="247.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
                            <font>
                               <Font name="Segoe UI" size="14.0" />
                            </font>

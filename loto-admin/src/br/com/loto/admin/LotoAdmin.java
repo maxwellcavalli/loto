@@ -19,6 +19,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -70,9 +71,9 @@ public class LotoAdmin extends Application {
 
         MenuItem menuEstado = createMenuItem("Estado", FxmlFiles.ESTADO_LIST);
         MenuItem menuCidade = createMenuItem("Cidade", FxmlFiles.CIDADE_LIST);
-        
+
         SeparatorMenuItem separator = new SeparatorMenuItem();
-        
+
         MenuItem menuEquipamento = createMenuItem("Equipamento", FxmlFiles.EQUIPAMENTO_LIST);
         MenuItem menuEstabelecimento = createMenuItem("Estabelecimento", FxmlFiles.ESTABELECIMENTO_LIST);
         MenuItem menuCliente = createMenuItem("Cliente", FxmlFiles.CLIENTE_LIST);
@@ -103,10 +104,13 @@ public class LotoAdmin extends Application {
 
         Scene scene = new Scene(root, width, height);
 
+        primaryStage.getIcons().add(new Image("/br/com/loto/admin/resources/icon.png"));
+
         //Setup the Stage.
         primaryStage.setMaximized(true);
         primaryStage.setTitle("Loto-Admin");
         primaryStage.setScene(scene);
+
         primaryStage.show();
     }
 
@@ -114,17 +118,15 @@ public class LotoAdmin extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        /* String dbUrl = "jdbc:postgresql://localhost/loto";
+        String dbUrl = "jdbc:postgresql://localhost/loto";
         Properties props = new Properties();
         props.setProperty("user", "postgres");
         props.setProperty("password", "apollo");
-         */
 
-        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/dbloto";
-        Properties props = new Properties();
-        props.setProperty("user", "SA");
-        props.setProperty("password", "");
-
+//        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/dbloto";
+//        Properties props = new Properties();
+//        props.setProperty("user", "SA");
+//        props.setProperty("password", "");
 //        props.setProperty("ssl", "true");
         try {
             JdbcUtil.getInstance().init(dbUrl, props);

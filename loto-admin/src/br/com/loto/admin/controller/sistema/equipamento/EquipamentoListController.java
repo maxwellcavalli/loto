@@ -14,6 +14,7 @@ import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import com.jfoenix.controls.JFXTextField;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -41,6 +42,8 @@ public class EquipamentoListController implements Initializable {
 
     @FXML
     public TableView<Equipamento> datatable;
+    
+    final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
      * Initializes the controller class.
@@ -55,15 +58,14 @@ public class EquipamentoListController implements Initializable {
             List<Equipamento> list = EquipamentoService.getInstance().pesquisar(numSerie);
 
             TableColumn<Equipamento, String> serialColumn = TableColumnUtil.createStringColumn("Serial", 150, (Equipamento s) -> s.getSerial());
-            TableColumn<Equipamento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 750, (Equipamento s) -> s.getDescricao());
+            TableColumn<Equipamento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 620, (Equipamento s) -> s.getDescricao());
+            TableColumn<Equipamento, String> dataAquisicaoColumn = TableColumnUtil.createStringColumn("Data Aquisição", 100, (Equipamento s) -> 
+                    s.getDataAquisicao() == null ? "" : sdf.format(s.getDataAquisicao()));
+            
             TableColumn<Equipamento, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Equipamento s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(descricaoColumn, ativoColumn);
-            datatable.setItems(FXCollections.observableArrayList(list));
-
-            datatable.getColumns().clear();
-            datatable.getColumns().setAll(serialColumn, descricaoColumn, ativoColumn);
+            datatable.getColumns().setAll(serialColumn, descricaoColumn, dataAquisicaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {

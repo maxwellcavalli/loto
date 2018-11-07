@@ -64,12 +64,12 @@ public class ClienteDAO extends BaseDAO<Cliente> {
         }
         
         if (cidade != null){
-            sql.append("  AND _cid.ID ? ");
+            sql.append("  AND _cid.ID = ? ");
             parameters.add(cidade);
         }
         
         if (estado != null){
-            sql.append("  AND _est.ID ? ");
+            sql.append("  AND _est.ID = ? ");
             parameters.add(estado);
         }
 
@@ -90,9 +90,9 @@ public class ClienteDAO extends BaseDAO<Cliente> {
             }
             
             Cliente cli = new Cliente();
-            cli.setId(rs.getLong("ID"));
-            cli.setNome(rs.getString("NOME"));
-            cli.setAtivo(rs.getBoolean("ATIVO"));
+            cli.setId(rs.getLong("_cli_ID"));
+            cli.setNome(rs.getString("_cli_NOME"));
+            cli.setAtivo(rs.getBoolean("_cli_ATIVO"));
             cli.setCidade(c);
                 
             return cli;

@@ -22,25 +22,22 @@ public class EstabelecimentoEndereco {
 
     @Relacionamento(relationColumnName = "id_estabelecimento")
     private Estabelecimento estabelecimento;
-    
+
     @Campo(name = "LOGRADOURO")
     private String logradouro;
-    
+
     @Campo(name = "NUMERO")
     private String numero;
-    
-    @Campo(name = "CIDADE")
-    private String cidade;
-    
-    @Campo(name = "ESTADO")
-    private String estado;
-    
+
+    @Relacionamento(relationColumnName = "id_cidade")
+    private Cidade cidade;
+
     @Campo(name = "LATITUDE")
     private BigDecimal latitude;
-    
+
     @Campo(name = "LONGITUDE")
     private BigDecimal longitude;
-    
+
     @Campo(name = "GEO_REFERENCIADO")
     private boolean geoReferenciado;
 
@@ -76,22 +73,6 @@ public class EstabelecimentoEndereco {
         this.numero = numero;
     }
 
-    public String getCidade() {
-        return cidade;
-    }
-
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
     public BigDecimal getLatitude() {
         return latitude;
     }
@@ -116,5 +97,12 @@ public class EstabelecimentoEndereco {
         this.geoReferenciado = geoReferenciado;
     }
 
-    
+    public Cidade getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(Cidade cidade) {
+        this.cidade = cidade;
+    }
+
 }
