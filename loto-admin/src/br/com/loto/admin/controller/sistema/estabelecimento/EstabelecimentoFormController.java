@@ -9,24 +9,31 @@ import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
 import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
 import br.com.loto.admin.domain.Cidade;
+import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Estabelecimento;
+import br.com.loto.admin.domain.EstabelecimentoCliente;
 import br.com.loto.admin.domain.EstabelecimentoEndereco;
 import br.com.loto.admin.domain.EstabelecimentoEquipamento;
 import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.service.EquipamentoService;
+import br.com.loto.admin.service.EstabelecimentoClienteService;
 import br.com.loto.admin.service.EstabelecimentoEnderecoService;
 import br.com.loto.admin.service.EstabelecimentoEquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoService;
 import br.com.loto.admin.service.EstadoService;
+import br.com.loto.components.autocomplete.AutocompletionlTextField;
+
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -77,6 +84,15 @@ public class EstabelecimentoFormController implements Initializable {
     @FXML
     public TableView<EstabelecimentoEquipamento> tableEquipamento;
 
+    //cliente
+    //@FXML
+    //public ComboBox<Cliente> cbCliente;
+    @FXML
+    private AutocompletionlTextField txtCliente;
+
+    @FXML
+    public TableView<EstabelecimentoCliente> tableCliente;
+
     //variaveis globais
     private Estabelecimento estabelecimento;
 
@@ -84,12 +100,33 @@ public class EstabelecimentoFormController implements Initializable {
 
     private List<EstabelecimentoEquipamento> equipamentos;
 
+    private List<EstabelecimentoCliente> clientes;
+
+    final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+    private Long cliCidade = null;
+    private Long cliEstado = null;
+
     //--
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+//        cbCliente.setConverter(new StringConverter<Cliente>() {
+//            @Override
+//            public String toString(Cliente object) {
+//                return object.getNome();
+//            }
+//
+//            @Override
+//            public Cliente fromString(String string) {
+//                return null;
+//            }
+//        });
+//        
+//        
+//        AutoCompleteCliente.bindAutoCompleteToComboBox(cbCliente, cliCidade, cliEstado);
     }
 
     public void salvar(ActionEvent event) {
@@ -161,19 +198,11 @@ public class EstabelecimentoFormController implements Initializable {
             } else {
                 this.txtLogradouro.setText(this.estabelecimentoEndereco.getLogradouro());
                 this.txtNumero.setText(this.estabelecimentoEndereco.getNumero());
-
             }
 
-            cbEquipamento.getItems().clear();
-            this.equipamentos = EstabelecimentoEquipamentoService.getInstance().pesquisar(estabelecimento);
-            if (this.equipamentos == null) {
-                this.equipamentos = new ArrayList<>(1);
-            }
-
-            processaDatatableEquipamentos();
-
-            List<Equipamento> listEquipamento = EquipamentoService.getInstance().pesquisar("", Boolean.TRUE);
-            listEquipamento.stream().forEach(el -> cbEquipamento.getItems().add(el));
+            popularTabelaClientes();
+            popularTabelaEquipamentos();
+            popularComboEquipamentos();
 
             this.popularEstados();
             cbEstado.getSelectionModel().clearSelection();
@@ -190,6 +219,11 @@ public class EstabelecimentoFormController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void popularComboEquipamentos() throws SQLException {
+        List<Equipamento> listEquipamento = EquipamentoService.getInstance().pesquisar("", Boolean.TRUE);
+        listEquipamento.stream().forEach(el -> cbEquipamento.getItems().add(el));
 
         cbEquipamento.setConverter(new StringConverter<Equipamento>() {
             @Override
@@ -202,6 +236,25 @@ public class EstabelecimentoFormController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void popularTabelaEquipamentos() throws SQLException {
+        cbEquipamento.getItems().clear();
+        this.equipamentos = EstabelecimentoEquipamentoService.getInstance().pesquisar(estabelecimento);
+        if (this.equipamentos == null) {
+            this.equipamentos = new ArrayList<>(1);
+        }
+
+        processaDatatableEquipamentos();
+    }
+
+    private void popularTabelaClientes() throws SQLException {
+        this.clientes = EstabelecimentoClienteService.getInstance().pesquisar(estabelecimento);
+        if (this.clientes == null) {
+            this.clientes = new ArrayList<>(1);
+        }
+
+        processaDatatableClientes();
     }
 
     private void popularEstados() {
@@ -280,6 +333,26 @@ public class EstabelecimentoFormController implements Initializable {
         tableEquipamento.setItems(FXCollections.observableArrayList(this.equipamentos));
     }
 
+    private void processaDatatableClientes() {
+
+        TableColumn<EstabelecimentoCliente, String> nomeColumn = TableColumnUtil.createStringColumn("Nome", 600, (EstabelecimentoCliente s) -> s.getCliente().getNome());
+        TableColumn<EstabelecimentoCliente, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 80, (EstabelecimentoCliente s) -> s.getAtivoStr());
+        TableColumn<EstabelecimentoCliente, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Data Inativação", 150, (EstabelecimentoCliente s)
+                -> s.getDataInativacao() == null ? "" : sdf.format(s.getDataInativacao()));
+
+        TableColumn<EstabelecimentoCliente, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tableCliente,
+                (IActionColumn<EstabelecimentoCliente>) (EstabelecimentoCliente t) -> {
+                    t.setAtivo(false);
+                    t.setDataInativacao(new Date());
+
+                    processaDatatableClientes();
+                });
+
+        tableCliente.getColumns().clear();
+        tableCliente.getColumns().setAll(nomeColumn, ativoColumn, dataInativacaoColumn, actionColumn);
+        tableCliente.setItems(FXCollections.observableArrayList(this.clientes));
+    }
+
     public void adicionarEquipamento(ActionEvent event) {
         try {
 
@@ -299,6 +372,31 @@ public class EstabelecimentoFormController implements Initializable {
                 }
             } else {
                 FxmlUtil.getInstance().openMessageDialog(event, "Equipamento já Vinculado a este Estabelecimento");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+
+            FxmlUtil.getInstance().openMessageDialog(event, ex);
+        }
+    }
+
+    public void adicionarCliente(ActionEvent event) {
+        try {
+
+//            Cliente cliente = cbCliente.getSelectionModel().getSelectedItem();
+            Cliente cliente = null;
+
+            EstabelecimentoCliente estabelecimentoCliente = new EstabelecimentoCliente();
+            estabelecimentoCliente.setCliente(cliente);
+
+            long qtd = this.clientes.stream().filter(el -> el.getCliente().getId().longValue() == cliente.getId().longValue()).count();
+            if (qtd == 0) {
+
+                this.clientes.add(estabelecimentoCliente);
+                processaDatatableClientes();
+
+            } else {
+                FxmlUtil.getInstance().openMessageDialog(event, "Cliente já Vinculado a este Estabelecimento");
             }
         } catch (Exception ex) {
             Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);

@@ -33,10 +33,20 @@ import java.util.stream.Collectors;
 public class BaseDAO<T> {
 
     protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord) throws SQLException {
-        return pesquisar(sql, parameters, databaseRecord, true);
+        return pesquisar(sql, parameters, databaseRecord, true, Integer.MAX_VALUE);
     }
 
-    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, boolean rollbackAfterRun) throws SQLException {
+    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, Integer maxValues) throws SQLException {
+        return pesquisar(sql, parameters, databaseRecord, true, maxValues);
+    }
+    
+     protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, boolean rollbackAfterRun) throws SQLException {
+        return pesquisar(sql, parameters, databaseRecord, rollbackAfterRun, Integer.MAX_VALUE);
+    }
+
+    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord,
+            boolean rollbackAfterRun, Integer maxValues) throws SQLException {
+
         Connection conn = JdbcUtil.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql);) {
             int index = 1;
@@ -45,11 +55,18 @@ public class BaseDAO<T> {
             }
 
             try (ResultSet rs = stmt.executeQuery();) {
+                rs.setFetchSize(maxValues.intValue());
+                rs.setFetchDirection(ResultSet.FETCH_FORWARD);
+
                 List<T> ret = new ArrayList<>();
                 while (rs.next()) {
                     T t = databaseRecord.onRecord(rs);
 
                     ret.add(t);
+
+                    if (ret.size() == maxValues) {
+                        break;
+                    }
                 }
 
                 return ret;

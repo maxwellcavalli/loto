@@ -35,7 +35,7 @@ public class Propaganda {
     private Date data = new Date();
 
     @Campo(name = "DATA_INATIVACAO")
-    private Date dataInativacao = new Date();
+    private Date dataInativacao;
 
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";

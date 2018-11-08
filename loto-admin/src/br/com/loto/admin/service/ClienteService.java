@@ -36,13 +36,17 @@ public class ClienteService {
         listClientePropaganda = ClientePropagandaService.getInstance().persistir(cliente, listClientePropaganda);
 
         cliente.setListClientePropaganda(listClientePropaganda);
-        
+
         JdbcUtil.getInstance().commit();
         return cliente;
     }
 
     public List<Cliente> pesquisar(String nome, Long cidade, Long estado) throws SQLException {
         return ClienteDAO.getInstance().pesquisar(nome, cidade, estado);
+    }
+
+    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Integer maxValues) throws SQLException {
+        return ClienteDAO.getInstance().pesquisar(nome, cidade, estado, maxValues);
     }
 
 }

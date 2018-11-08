@@ -37,8 +37,12 @@ public class ClienteDAO extends BaseDAO<Cliente> {
     public Cliente persistir(Cliente t) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
         return super.persistir(t); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
     public List<Cliente> pesquisar(String nome, Long cidade, Long estado) throws SQLException {
+        return pesquisar(nome, cidade, estado, Integer.MAX_VALUE);
+    }
+
+    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Integer maxValues) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT _cli.ID as _cli_ID, ");
         sql.append("        _cli.NOME AS _cli_NOME, ");
