@@ -18,13 +18,13 @@ import br.com.loto.admin.domain.EstabelecimentoEndereco;
 import br.com.loto.admin.domain.EstabelecimentoEquipamento;
 import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.service.CidadeService;
+import br.com.loto.admin.service.ClienteService;
 import br.com.loto.admin.service.EquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoClienteService;
 import br.com.loto.admin.service.EstabelecimentoEnderecoService;
 import br.com.loto.admin.service.EstabelecimentoEquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoService;
 import br.com.loto.admin.service.EstadoService;
-import br.com.loto.components.autocomplete.AutocompletionlTextField;
 
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
@@ -50,6 +50,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.StringConverter;
+import view.action.ConverterObjectToText;
+import view.action.SearchActionListener;
+import view.control.FMXField;
 
 /**
  * FXML Controller class
@@ -88,7 +91,7 @@ public class EstabelecimentoFormController implements Initializable {
     //@FXML
     //public ComboBox<Cliente> cbCliente;
     @FXML
-    private AutocompletionlTextField txtCliente;
+    private FMXField<Cliente> txtCliente;
 
     @FXML
     public TableView<EstabelecimentoCliente> tableCliente;
@@ -113,20 +116,22 @@ public class EstabelecimentoFormController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-//        cbCliente.setConverter(new StringConverter<Cliente>() {
-//            @Override
-//            public String toString(Cliente object) {
-//                return object.getNome();
-//            }
-//
-//            @Override
-//            public Cliente fromString(String string) {
-//                return null;
-//            }
-//        });
-//        
-//        
-//        AutoCompleteCliente.bindAutoCompleteToComboBox(cbCliente, cliCidade, cliEstado);
+
+        txtCliente.setConverterObjectToText((ConverterObjectToText<Cliente>) (Cliente o) -> ((Cliente) o).getNome());
+
+        txtCliente.setSearchActionListener((SearchActionListener<Cliente>) (String query) -> {
+            try {
+                if (query.length() < 3) {
+                    return new ArrayList<>(0);
+                } else {
+                    return ClienteService.getInstance().pesquisar(query, cliCidade, cliEstado, 10);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            return null;
+        });
     }
 
     public void salvar(ActionEvent event) {
@@ -340,10 +345,15 @@ public class EstabelecimentoFormController implements Initializable {
         TableColumn<EstabelecimentoCliente, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Data Inativação", 150, (EstabelecimentoCliente s)
                 -> s.getDataInativacao() == null ? "" : sdf.format(s.getDataInativacao()));
 
-        TableColumn<EstabelecimentoCliente, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tableCliente,
+        TableColumn<EstabelecimentoCliente, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", "(In)Ativar", 80, tableCliente,
                 (IActionColumn<EstabelecimentoCliente>) (EstabelecimentoCliente t) -> {
-                    t.setAtivo(false);
-                    t.setDataInativacao(new Date());
+                    if (t.isAtivo()) {
+                        t.setAtivo(false);
+                        t.setDataInativacao(new Date());
+                    } else {
+                        t.setAtivo(true);
+                        t.setDataInativacao(null);
+                    }
 
                     processaDatatableClientes();
                 });
@@ -373,7 +383,7 @@ public class EstabelecimentoFormController implements Initializable {
             } else {
                 FxmlUtil.getInstance().openMessageDialog(event, "Equipamento já Vinculado a este Estabelecimento");
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(event, ex);
@@ -383,8 +393,7 @@ public class EstabelecimentoFormController implements Initializable {
     public void adicionarCliente(ActionEvent event) {
         try {
 
-//            Cliente cliente = cbCliente.getSelectionModel().getSelectedItem();
-            Cliente cliente = null;
+            Cliente cliente = txtCliente.getObjectSelecionado();
 
             EstabelecimentoCliente estabelecimentoCliente = new EstabelecimentoCliente();
             estabelecimentoCliente.setCliente(cliente);
@@ -398,6 +407,9 @@ public class EstabelecimentoFormController implements Initializable {
             } else {
                 FxmlUtil.getInstance().openMessageDialog(event, "Cliente já Vinculado a este Estabelecimento");
             }
+
+            txtCliente.clean();
+
         } catch (Exception ex) {
             Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
 

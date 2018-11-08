@@ -23,7 +23,7 @@ public class Estabelecimento {
     private String descricao = "";
 
     @Campo(name = "ATIVO")
-    private boolean ativo;
+    private boolean ativo  = true;
 
     private EstabelecimentoEndereco estabelecimentoEndereco;
 

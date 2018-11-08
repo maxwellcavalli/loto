@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import view.control.*?>
 <?import javafx.geometry.*?>
 <?import com.jfoenix.controls.*?>
 <?import javafx.scene.text.*?>
@@ -188,7 +189,7 @@
                                        </font>
                                     </Label>
                                     <Button mnemonicParsing="false" onAction="#adicionarCliente" text="Adicionar" GridPane.columnIndex="2" />
-                                    <TextField fx:id="txtCliente" GridPane.columnIndex="1" />
+                                    <FMXField fx:id="txtCliente" GridPane.columnIndex="1" />
                                  </children>
                                  <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="482.0" minWidth="10.0" prefWidth="99.0" />
