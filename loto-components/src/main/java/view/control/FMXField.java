@@ -28,28 +28,25 @@ import view.action.SearchActionListener;
 /**
  *
  * @author mcavalli
- * @param <T>
  */
 public class FMXField<T extends Object> extends TextField {
 
-    //Local variables
-    //entries to autocomplete
-    private final List<String> entries = new ArrayList<>();
-    //popup GUI
-    private ContextMenu entriesPopup = new ContextMenu();
-
+    private ContextMenu entriesPopup;
+//
     private SearchActionListener searchActionListener;
     private ConverterObjectToText converterObjectToText;
-    
+
     private T objectSelecionado;
-   
+
     @FXML
     public void initialize() {
-
+        entriesPopup = new ContextMenu();
     }
 
     public FMXField() {
         super();
+
+        //entriesPopup = new ContextMenu();
         setListner();
     }
 
@@ -59,6 +56,10 @@ public class FMXField<T extends Object> extends TextField {
     private void setListner() {
         //Add "suggestions" by changing text
         textProperty().addListener((observable, oldValue, newValue) -> {
+            if (entriesPopup == null){
+                entriesPopup = new ContextMenu();
+            }
+            
             String enteredText = getText();
             //always hide suggestion if nothing has been entered (only "spacebars" are dissalowed in TextFieldWithLengthLimit)
             if (enteredText == null || enteredText.isEmpty()) {
@@ -69,13 +70,8 @@ public class FMXField<T extends Object> extends TextField {
                     filteredEntries = searchActionListener.onSearch(enteredText);
                 }
 
-//                //filter all possible suggestions depends on "Text", case insensitive
-//                List<String> filteredEntries = entries.stream()
-//                        .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
-//                        .collect(Collectors.toList());
                 //some suggestions are found
                 if (filteredEntries != null && !filteredEntries.isEmpty()) {
-                    //build popup - list of "CustomMenuItem"
                     populatePopup(filteredEntries, enteredText);
                     if (!entriesPopup.isShowing()) { //optional
                         entriesPopup.show(FMXField.this, Side.BOTTOM, 0, 0); //position of popup
@@ -121,7 +117,7 @@ public class FMXField<T extends Object> extends TextField {
 //            final String result = searchResult.get(i);
             //label with graphic (text flow) to highlight founded subtext in suggestions
             Label entryLabel = new Label();
-            entryLabel.setGraphic(Styles.buildTextFlow(result, searchReauest));
+            entryLabel.setGraphic(buildTextFlow(result, searchReauest));
             entryLabel.setPrefHeight(10);  //don't sure why it's changed with "graphic"
             CustomMenuItem item = new CustomMenuItem(entryLabel, true);
             menuItems.add(item);
@@ -132,7 +128,7 @@ public class FMXField<T extends Object> extends TextField {
             item.setOnAction((ActionEvent actionEvent) -> {
                 setText(tmp);
                 setObjectSelecionado(o);
-                
+
                 positionCaret(tmp.length());
                 entriesPopup.hide();
             });
@@ -142,30 +138,20 @@ public class FMXField<T extends Object> extends TextField {
         entriesPopup.getItems().clear();
         entriesPopup.getItems().addAll(menuItems);
     }
-    
-    public void clean(){
+
+    public void clean() {
         setObjectSelecionado(null);
         setText("");
     }
 
-    public static class Styles {
-
-        /**
-         * Build TextFlow with selected text. Return "case" dependent.
-         *
-         * @param text - string with text
-         * @param filter - string to select in text
-         * @return - TextFlow
-         */
-        public static TextFlow buildTextFlow(String text, String filter) {
-            int filterIndex = text.toLowerCase().indexOf(filter.toLowerCase());
-            Text textBefore = new Text(text.substring(0, filterIndex));
-            Text textAfter = new Text(text.substring(filterIndex + filter.length()));
-            Text textFilter = new Text(text.substring(filterIndex, filterIndex + filter.length())); //instead of "filter" to keep all "case sensitive"
-            textFilter.setFill(Color.ORANGE);
-            textFilter.setFont(Font.font("Helvetica", FontWeight.BOLD, 12));
-            return new TextFlow(textBefore, textFilter, textAfter);
-        }
+    public TextFlow buildTextFlow(String text, String filter) {
+        int filterIndex = text.toLowerCase().indexOf(filter.toLowerCase());
+        Text textBefore = new Text(text.substring(0, filterIndex));
+        Text textAfter = new Text(text.substring(filterIndex + filter.length()));
+        Text textFilter = new Text(text.substring(filterIndex, filterIndex + filter.length())); //instead of "filter" to keep all "case sensitive"
+        textFilter.setFill(Color.ORANGE);
+        textFilter.setFont(Font.font("Helvetica", FontWeight.BOLD, 12));
+        return new TextFlow(textBefore, textFilter, textAfter);
     }
 
     public void setSearchActionListener(SearchActionListener searchActionListener) {
@@ -184,6 +170,4 @@ public class FMXField<T extends Object> extends TextField {
         this.objectSelecionado = objectSelecionado;
     }
 
-    
-    
 }

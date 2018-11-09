@@ -28,6 +28,8 @@ public class Estabelecimento {
     private EstabelecimentoEndereco estabelecimentoEndereco;
 
     private List<EstabelecimentoEquipamento> equipamentos;
+    
+      private List<EstabelecimentoCliente> clientes;
 
     public List<EstabelecimentoEquipamento> getEquipamentos() {
         return equipamentos;
@@ -36,6 +38,16 @@ public class Estabelecimento {
     public void setEquipamentos(List<EstabelecimentoEquipamento> equipamentos) {
         this.equipamentos = equipamentos;
     }
+
+    public List<EstabelecimentoCliente> getClientes() {
+        return clientes;
+    }
+
+    public void setClientes(List<EstabelecimentoCliente> clientes) {
+        this.clientes = clientes;
+    }
+    
+    
 
     public EstabelecimentoEndereco getEstabelecimentoEndereco() {
         return estabelecimentoEndereco;

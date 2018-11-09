@@ -88,13 +88,20 @@ public class EstabelecimentoFormController implements Initializable {
     public TableView<EstabelecimentoEquipamento> tableEquipamento;
 
     //cliente
-    //@FXML
-    //public ComboBox<Cliente> cbCliente;
     @FXML
-    private FMXField<Cliente> txtCliente;
+    public FMXField<Cliente> txtCliente;
 
     @FXML
     public TableView<EstabelecimentoCliente> tableCliente;
+
+    @FXML
+    public ComboBox<Cliente> cbCliente;
+
+    @FXML
+    public ComboBox<Estado> cbEstadoCli;
+
+    @FXML
+    public FMXField<Cidade> txtCidadeCli;
 
     //variaveis globais
     private Estabelecimento estabelecimento;
@@ -117,6 +124,30 @@ public class EstabelecimentoFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
+        configAutoCompleteCliente();
+        configAutoCompleteCidadeCli();
+
+    }
+
+    void configAutoCompleteCidadeCli() {
+        txtCidadeCli.setConverterObjectToText((ConverterObjectToText<Cidade>) (Cidade t) -> t.getNome());
+
+        txtCidadeCli.setSearchActionListener((SearchActionListener<Cidade>) (String query) -> {
+            if (cliEstado == null) {
+                return new ArrayList<>(0);
+            } else {
+                try {
+                    return CidadeService.getInstance().pesquisar(query, cliEstado);
+                } catch (SQLException ex) {
+                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            return null;
+        });
+    }
+
+    private void configAutoCompleteCliente() {
         txtCliente.setConverterObjectToText((ConverterObjectToText<Cliente>) (Cliente o) -> ((Cliente) o).getNome());
 
         txtCliente.setSearchActionListener((SearchActionListener<Cliente>) (String query) -> {
@@ -124,6 +155,16 @@ public class EstabelecimentoFormController implements Initializable {
                 if (query.length() < 3) {
                     return new ArrayList<>(0);
                 } else {
+                    Estado e = cbEstadoCli.getSelectionModel().getSelectedItem();
+                    if (e != null) {
+                        cliEstado = e.getId();
+                    }
+
+                    Cidade c = txtCidadeCli.getObjectSelecionado();
+                    if (c != null) {
+                        cliCidade = c.getId();
+                    }
+
                     return ClienteService.getInstance().pesquisar(query, cliCidade, cliEstado, 10);
                 }
             } catch (SQLException ex) {
@@ -160,10 +201,13 @@ public class EstabelecimentoFormController implements Initializable {
 
         if (messages.isEmpty()) {
             try {
-                this.estabelecimento = EstabelecimentoService.getInstance().persistir(this.estabelecimento, this.estabelecimentoEndereco, this.equipamentos);
+                this.estabelecimento = EstabelecimentoService.getInstance().persistir(this.estabelecimento, 
+                        this.estabelecimentoEndereco, this.equipamentos, this.clientes);
+                
                 this.estabelecimentoEndereco = this.estabelecimento.getEstabelecimentoEndereco();
                 this.equipamentos = this.estabelecimento.getEquipamentos();
-
+                this.clientes = this.estabelecimento.getClientes();
+                
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -268,9 +312,24 @@ public class EstabelecimentoFormController implements Initializable {
             cbEstado.getItems().add(new Estado());
 
             listEstado = EstadoService.getInstance().pesquisar("");
-            listEstado.stream().forEach(el -> cbEstado.getItems().add(el));
+            listEstado.stream().forEach(el -> {
+                cbEstado.getItems().add(el);
+                cbEstadoCli.getItems().add(el);
+            });
 
             cbEstado.setConverter(new StringConverter<Estado>() {
+                @Override
+                public String toString(Estado object) {
+                    return object.getSigla();
+                }
+
+                @Override
+                public Estado fromString(String string) {
+                    return null;
+                }
+            });
+            
+            cbEstadoCli.setConverter(new StringConverter<Estado>() {
                 @Override
                 public String toString(Estado object) {
                     return object.getSigla();
@@ -321,6 +380,12 @@ public class EstabelecimentoFormController implements Initializable {
     public void changeEstado(ActionEvent event) {
         cbCidade.getSelectionModel().clearSelection();
         popularCidade();
+    }
+
+    public void changeEstadoCli(ActionEvent event) {
+        Estado e = cbEstadoCli.getSelectionModel().getSelectedItem();
+        this.cliEstado = e == null ? null : e.getId();
+        this.txtCidadeCli.clean();
     }
 
     private void processaDatatableEquipamentos() {

@@ -8,6 +8,7 @@ package br.com.loto.admin.service;
 import br.com.loto.admin.dao.EstabelecimentoDAO;
 import br.com.loto.core.util.JdbcUtil;
 import br.com.loto.admin.domain.Estabelecimento;
+import br.com.loto.admin.domain.EstabelecimentoCliente;
 import br.com.loto.admin.domain.EstabelecimentoEndereco;
 import br.com.loto.admin.domain.EstabelecimentoEquipamento;
 import java.sql.Connection;
@@ -35,7 +36,8 @@ public class EstabelecimentoService {
     
     public Estabelecimento persistir(Estabelecimento estabelecimento,
             EstabelecimentoEndereco estabelecimentoEndereco,
-            List<EstabelecimentoEquipamento> equipamentos) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
+            List<EstabelecimentoEquipamento> equipamentos,
+            List<EstabelecimentoCliente> clientes) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
         
         Connection conn = JdbcUtil.getInstance().getConnection();
         estabelecimento = EstabelecimentoDAO.getInstance().persistir(estabelecimento);
@@ -45,7 +47,10 @@ public class EstabelecimentoService {
         estabelecimento.setEstabelecimentoEndereco(estabelecimentoEndereco);
         
         equipamentos = EstabelecimentoEquipamentoService.getInstance().persistir(estabelecimento, equipamentos);
+        
+        clientes = EstabelecimentoClienteService.getInstance().persistir(estabelecimento, clientes);
         estabelecimento.setEquipamentos(equipamentos);
+        estabelecimento.setClientes(clientes);
         
         conn.commit();
         return estabelecimento;
