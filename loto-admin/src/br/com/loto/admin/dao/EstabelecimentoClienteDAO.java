@@ -6,11 +6,9 @@
 package br.com.loto.admin.dao;
 
 import br.com.loto.admin.domain.Cliente;
-import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.core.dao.BaseDAO;
 import br.com.loto.admin.domain.Estabelecimento;
 import br.com.loto.admin.domain.EstabelecimentoCliente;
-import br.com.loto.admin.domain.EstabelecimentoEquipamento;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

@@ -7,7 +7,6 @@ package br.com.loto.admin.controller.sistema.estabelecimento;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
-import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
 import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Estabelecimento;
@@ -85,7 +84,7 @@ public class EstabelecimentoListController implements Initializable {
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EstabelecimentoListController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -115,7 +114,7 @@ public class EstabelecimentoListController implements Initializable {
                 });
 
             } catch (SQLException ex) {
-                Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EstabelecimentoListController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

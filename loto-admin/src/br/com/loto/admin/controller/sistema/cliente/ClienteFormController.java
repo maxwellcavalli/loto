@@ -7,7 +7,6 @@ package br.com.loto.admin.controller.sistema.cliente;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
-import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
 import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.domain.ClientePropaganda;
@@ -56,6 +55,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import view.action.ConverterObjectToText;
+import view.action.SearchActionListener;
+import view.control.FMXField;
 
 /**
  * FXML Controller class
@@ -74,7 +76,7 @@ public class ClienteFormController implements Initializable {
     public ComboBox<Estado> cbEstado;
 
     @FXML
-    public ComboBox<Cidade> cbCidade;
+    public FMXField<Cidade> txtCidade;
 
     //propaganda
     @FXML
@@ -108,6 +110,28 @@ public class ClienteFormController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        configAutoCompleteCidade();
+    }
+
+    void configAutoCompleteCidade() {
+        txtCidade.setConverterObjectToText((ConverterObjectToText<Cidade>) (Cidade t) -> t.getNome());
+
+        txtCidade.setSearchActionListener((SearchActionListener<Cidade>) (String query) -> {
+            Estado e = cbEstado.getSelectionModel().getSelectedItem();
+            Long estado = e == null ? null : e.getId();
+
+            if (estado == null) {
+                return new ArrayList<>(0);
+            } else {
+                try {
+                    return CidadeService.getInstance().pesquisar(query, estado, 10);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            return null;
+        });
     }
 
     public void salvar(ActionEvent event) {
@@ -120,14 +144,14 @@ public class ClienteFormController implements Initializable {
         this.cliente.setNome(txtDescricao.getText());
         this.cliente.setAtivo(ckAtivo.selectedProperty().getValue());
 
-        Cidade cidade = cbCidade.getSelectionModel().getSelectedItem();
+        Cidade cidade = txtCidade.getObjectSelecionado();
         this.cliente.setCidade(cidade);
 
         if ("".equals(this.cliente.getNome().trim())) {
             messages.add("Nome Inválido");
         }
-        
-        if (this.cliente.getCidade() == null || this.cliente.getCidade().getId() == null){
+
+        if (this.cliente.getCidade() == null || this.cliente.getCidade().getId() == null) {
             messages.add("Estado/Cidade Inválidos");
         }
 
@@ -176,14 +200,13 @@ public class ClienteFormController implements Initializable {
 
         this.popularEstados();
         cbEstado.getSelectionModel().clearSelection();
-        cbCidade.getSelectionModel().clearSelection();
+        txtCidade.clean();
 
         if (cliente.getCidade() != null) {
             cbEstado.getSelectionModel().select(cliente.getCidade().getEstado());
 
-            popularCidade();
-
-            cbCidade.getSelectionModel().select(cliente.getCidade());
+            txtCidade.setObjectSelecionado(cliente.getCidade());
+            txtCidade.setText(cliente.getCidade().getNome());
         }
     }
 
@@ -236,44 +259,12 @@ public class ClienteFormController implements Initializable {
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void popularCidade() {
-        cbCidade.getItems().clear();
-
-        Estado e = cbEstado.getSelectionModel().getSelectedItem();
-
-        if (e != null && e.getId() != null) {
-            List<Cidade> listCidade;
-            try {
-                cbCidade.getItems().add(new Cidade());
-
-                listCidade = CidadeService.getInstance().pesquisar("", e.getId());
-                listCidade.stream().forEach(el -> cbCidade.getItems().add(el));
-
-                cbCidade.setConverter(new StringConverter<Cidade>() {
-                    @Override
-                    public String toString(Cidade object) {
-                        return object.getNome();
-                    }
-
-                    @Override
-                    public Cidade fromString(String string) {
-                        return null;
-                    }
-                });
-
-            } catch (SQLException ex) {
-                Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void changeEstado(ActionEvent event) {
-        cbCidade.getSelectionModel().clearSelection();
-        popularCidade();
+        txtCidade.clean();
     }
 
     private void viewContent(ClientePropaganda t) {

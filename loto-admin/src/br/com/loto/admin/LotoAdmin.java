@@ -72,13 +72,19 @@ public class LotoAdmin extends Application {
         MenuItem menuEstado = createMenuItem("Estado", FxmlFiles.ESTADO_LIST);
         MenuItem menuCidade = createMenuItem("Cidade", FxmlFiles.CIDADE_LIST);
 
-        SeparatorMenuItem separator = new SeparatorMenuItem();
+        SeparatorMenuItem separator1 = new SeparatorMenuItem();
 
         MenuItem menuEquipamento = createMenuItem("Equipamento", FxmlFiles.EQUIPAMENTO_LIST);
         MenuItem menuEstabelecimento = createMenuItem("Estabelecimento", FxmlFiles.ESTABELECIMENTO_LIST);
         MenuItem menuCliente = createMenuItem("Cliente", FxmlFiles.CLIENTE_LIST);
+        
+        SeparatorMenuItem separator2 = new SeparatorMenuItem();
+        
+        MenuItem menuDeploy = createMenuItem("Deploy", FxmlFiles.DEPLOY_LIST);
 
-        menuCadastros.getItems().addAll(menuEstado, menuCidade, separator, menuEquipamento, menuEstabelecimento, menuCliente);
+        menuCadastros.getItems().addAll(menuEstado, menuCidade, separator1, 
+                menuEquipamento, menuEstabelecimento, menuCliente, separator2,
+                menuDeploy);
 
         //Create SubMenu Help.
         Menu help = new Menu("Help");
@@ -118,16 +124,16 @@ public class LotoAdmin extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String dbUrl = "jdbc:postgresql://localhost/loto";
-        Properties props = new Properties();
-        props.setProperty("user", "postgres");
-        props.setProperty("password", "apollo");
-
-//        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/dbloto";
+//        String dbUrl = "jdbc:postgresql://localhost/loto";
 //        Properties props = new Properties();
-//        props.setProperty("user", "SA");
-//        props.setProperty("password", "");
-//        props.setProperty("ssl", "true");
+//        props.setProperty("user", "postgres");
+//        props.setProperty("password", "apollo");
+
+        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/hsqldb/dbloto";
+        Properties props = new Properties();
+        props.setProperty("user", "SA");
+        props.setProperty("password", "");
+        props.setProperty("ssl", "true");
         try {
             JdbcUtil.getInstance().init(dbUrl, props);
             launch(args);

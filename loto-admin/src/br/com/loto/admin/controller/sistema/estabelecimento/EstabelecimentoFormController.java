@@ -7,7 +7,6 @@ package br.com.loto.admin.controller.sistema.estabelecimento;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
-import br.com.loto.admin.controller.sistema.cidade.CidadeFormController;
 import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Cliente;
 import br.com.loto.admin.domain.Equipamento;
@@ -137,7 +136,7 @@ public class EstabelecimentoFormController implements Initializable {
                 return new ArrayList<>(0);
             } else {
                 try {
-                    return CidadeService.getInstance().pesquisar(query, cliEstado);
+                    return CidadeService.getInstance().pesquisar(query, cliEstado, 10);
                 } catch (SQLException ex) {
                     Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -201,13 +200,13 @@ public class EstabelecimentoFormController implements Initializable {
 
         if (messages.isEmpty()) {
             try {
-                this.estabelecimento = EstabelecimentoService.getInstance().persistir(this.estabelecimento, 
+                this.estabelecimento = EstabelecimentoService.getInstance().persistir(this.estabelecimento,
                         this.estabelecimentoEndereco, this.equipamentos, this.clientes);
-                
+
                 this.estabelecimentoEndereco = this.estabelecimento.getEstabelecimentoEndereco();
                 this.equipamentos = this.estabelecimento.getEquipamentos();
                 this.clientes = this.estabelecimento.getClientes();
-                
+
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -235,12 +234,15 @@ public class EstabelecimentoFormController implements Initializable {
     }
 
     public void initData(Estabelecimento estabelecimento) {
-        txtDescricao.setText(estabelecimento.getDescricao());
-        ckAtivo.setSelected(estabelecimento.isAtivo());
-
-        this.estabelecimento = estabelecimento;
 
         try {
+            estabelecimento = EstabelecimentoService.getInstance().carregar(estabelecimento.getId());
+
+            txtDescricao.setText(estabelecimento.getDescricao());
+            ckAtivo.setSelected(estabelecimento.isAtivo());
+
+            this.estabelecimento = estabelecimento;
+
             this.estabelecimentoEndereco = EstabelecimentoEnderecoService.getInstance().carregar(estabelecimento);
             if (this.estabelecimentoEndereco == null) {
                 this.estabelecimentoEndereco = new EstabelecimentoEndereco();
@@ -328,7 +330,7 @@ public class EstabelecimentoFormController implements Initializable {
                     return null;
                 }
             });
-            
+
             cbEstadoCli.setConverter(new StringConverter<Estado>() {
                 @Override
                 public String toString(Estado object) {
@@ -342,7 +344,7 @@ public class EstabelecimentoFormController implements Initializable {
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -372,7 +374,7 @@ public class EstabelecimentoFormController implements Initializable {
                 });
 
             } catch (SQLException ex) {
-                Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

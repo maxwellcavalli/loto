@@ -39,10 +39,11 @@ public class ClienteDAO extends BaseDAO<Cliente> {
     }
     
     public List<Cliente> pesquisar(String nome, Long cidade, Long estado) throws SQLException {
-        return pesquisar(nome, cidade, estado, Integer.MAX_VALUE);
+        return pesquisar(nome, cidade, estado, null, Integer.MAX_VALUE);
     }
 
-    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Integer maxValues) throws SQLException {
+    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Long estabelecimento, 
+            Integer maxValues) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT _cli.ID as _cli_ID, ");
         sql.append("        _cli.NOME AS _cli_NOME, ");
@@ -75,6 +76,15 @@ public class ClienteDAO extends BaseDAO<Cliente> {
         if (estado != null){
             sql.append("  AND _est.ID = ? ");
             parameters.add(estado);
+        }
+        
+        if (estabelecimento != null){
+            sql.append("  AND EXISTS (SELECT 1 ");
+            sql.append("                FROM ESTABELECIMENTO_CLIENTE _ec ");
+            sql.append("               WHERE _ec.ID_ESTABELECIMENTO = ? ");
+            sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ");  
+            
+            parameters.add(estabelecimento);
         }
 
         sql.append(" ORDER BY _cli.NOME ");

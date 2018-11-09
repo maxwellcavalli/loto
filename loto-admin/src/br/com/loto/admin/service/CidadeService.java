@@ -39,7 +39,11 @@ public class CidadeService {
     }
 
     public List<Cidade> pesquisar(String nome, Long estado) throws SQLException {
-        return CidadeDAO.getInstance().pesquisar(nome, estado);
+        return pesquisar(nome, estado, Integer.MAX_VALUE);
+    }
+
+    public List<Cidade> pesquisar(String nome, Long estado, Integer maxValues) throws SQLException {
+        return CidadeDAO.getInstance().pesquisar(nome, estado, maxValues);
     }
 
 }

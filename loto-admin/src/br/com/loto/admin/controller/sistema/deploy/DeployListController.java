@@ -3,23 +3,27 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.loto.admin.controller.sistema.cliente;
+package br.com.loto.admin.controller.sistema.deploy;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
+import br.com.loto.admin.controller.sistema.estabelecimento.EstabelecimentoFormController;
 import br.com.loto.admin.domain.Cidade;
-import br.com.loto.admin.domain.Cliente;
+import br.com.loto.admin.domain.Deploy;
+import br.com.loto.admin.domain.Estabelecimento;
 import br.com.loto.admin.domain.Estado;
+import br.com.loto.admin.domain.type.SituacaoDeploy;
 import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.util.FxmlUtil;
-import br.com.loto.admin.service.ClienteService;
+import br.com.loto.admin.service.DeployService;
+import br.com.loto.admin.service.EstabelecimentoService;
 import br.com.loto.admin.service.EstadoService;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -30,6 +34,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseButton;
@@ -45,19 +50,26 @@ import view.control.JFXAutoComplete;
  *
  * @author maxwe
  */
-public class ClienteListController implements Initializable {
+public class DeployListController implements Initializable {
 
     @FXML
     public JFXTextField txtFiltro;
 
     @FXML
-    public TableView<Cliente> datatable;
+    public TableView<Deploy> datatable;
 
+    //filtros
     @FXML
-    public JFXComboBox<Estado> cbEstado;
+    public ComboBox<Estado> cbEstado;
 
     @FXML
     public JFXAutoComplete<Cidade> txtCidade;
+
+    @FXML
+    public JFXAutoComplete<Estabelecimento> txtEstabelecimento;
+
+    final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    final SimpleDateFormat sdfNH = new SimpleDateFormat("dd/MM/yyyy");
 
     /**
      * Initializes the controller class.
@@ -65,31 +77,56 @@ public class ClienteListController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         popularEstados();
+
         configAutoCompleteCidade();
+        configuraAutocompleteEstabelecimento();
     }
-    
+
     void configAutoCompleteCidade() {
         txtCidade.setConverterObjectToText((ConverterObjectToText<Cidade>) (Cidade t) -> t.getNome());
 
         txtCidade.setSearchActionListener((SearchActionListener<Cidade>) (String query) -> {
             Estado e = cbEstado.getSelectionModel().getSelectedItem();
             Long estado = e == null ? null : e.getId();
-            
-            
+
             if (estado == null) {
                 return new ArrayList<>(0);
             } else {
                 try {
-                    return CidadeService.getInstance().pesquisar(query, estado, 10);
+                    return CidadeService.getInstance().pesquisar(query, estado);
                 } catch (SQLException ex) {
-                    Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
             return null;
         });
     }
-    
+
+    private void configuraAutocompleteEstabelecimento() {
+        txtEstabelecimento.setConverterObjectToText((ConverterObjectToText<Estabelecimento>) (Estabelecimento t) -> t.getDescricao());
+
+        txtEstabelecimento.setSearchActionListener((SearchActionListener<Estabelecimento>) (String query) -> {
+            Cidade c = txtCidade.getObjectSelecionado();
+            Estado e = cbEstado.getSelectionModel().getSelectedItem();
+
+            Long cidade = c == null ? null : c.getId();
+            Long estado = e == null ? null : e.getId();
+
+            if (cidade == null) {
+                return new ArrayList<>(0);
+            } else {
+                try {
+                    return EstabelecimentoService.getInstance().pesquisar(query, estado, cidade, 10);
+                } catch (SQLException ex) {
+                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            return null;
+        });
+
+    }
 
     private void popularEstados() {
         List<Estado> listEstado;
@@ -112,12 +149,13 @@ public class ClienteListController implements Initializable {
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DeployFormController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void changeEstado(ActionEvent event) {
-          txtCidade.clean();
+        txtCidade.clean();
+        txtEstabelecimento.clean();
     }
 
     public void pesquisar(ActionEvent acEvent) {
@@ -125,47 +163,57 @@ public class ClienteListController implements Initializable {
             String descricao = txtFiltro.getText();
             Long cidade = null;
             Long estado = null;
-            
+            Long estabelecimento = null;
+
             Cidade cidadeO = txtCidade.getObjectSelecionado();
             Estado estadoO = cbEstado.getSelectionModel().getSelectedItem();
-            
+            Estabelecimento estabelecimentoO = txtEstabelecimento.getObjectSelecionado();
+
             cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
             estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
+            estabelecimento = estabelecimento == null ? null : estabelecimentoO.getId();
 
-            List<Cliente> list = ClienteService.getInstance().pesquisar(descricao, cidade, estado);
+            List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estabelecimento);
 
-            TableColumn<Cliente, String> descricaoColumn = TableColumnUtil.createStringColumn("Nome", 550, (Cliente s) -> s.getNome());
-            TableColumn<Cliente, String> cidadeColumn = TableColumnUtil.createStringColumn("Cidade", 250, (Cliente s)
-                    -> s.getCidade() == null ? "" : s.getCidade().getNome());
+            TableColumn<Deploy, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 300, (Deploy s) -> s.getDescricao());
+            TableColumn<Deploy, String> estabelecimentoColumn = TableColumnUtil.createStringColumn("Estabelecimento", 300, (Deploy s) -> 
+                    s.getEstabelecimento().getDescricao());
+            
+            
+            TableColumn<Deploy, String> dataColumn = TableColumnUtil.createStringColumn("Data", 150, (Deploy s)
+                    -> sdf.format(s.getData()));
 
-            TableColumn<Cliente, String> estadoColumn = TableColumnUtil.createStringColumn("UF", 80, (Cliente s)
-                    -> s.getCidade() == null ? "" : s.getCidade().getEstado().getSigla());
+            TableColumn<Deploy, String> dataValidadeColumn = TableColumnUtil.createStringColumn("Data Validade", 160, (Deploy s)
+                    -> s.getDataValidade() == null ? "" : sdfNH.format(s.getDataValidade()));
 
-            TableColumn<Cliente, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Cliente s) -> s.getAtivoStr());
+            TableColumn<Deploy, String> situacaoColumn = TableColumnUtil.createStringColumn("Situação", 100, (Deploy s)
+                    -> SituacaoDeploy.get(s.getSituacao()).getDescription());
+
+            TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(descricaoColumn, cidadeColumn, estadoColumn, ativoColumn);
+            datatable.getColumns().setAll(descricaoColumn, estabelecimentoColumn, dataColumn, dataValidadeColumn, situacaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {
                 datatable.setOnMouseClicked((MouseEvent event) -> {
                     if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.CLIENTE_FORM));
+                        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.DEPLOY_FORM));
 
                         AnchorPane p;
                         try {
-                            Cliente cliente = (Cliente) datatable.getSelectionModel().getSelectedItem();
+                            Deploy deploy = (Deploy) datatable.getSelectionModel().getSelectedItem();
 
                             p = (AnchorPane) fxmlLoader.load();
 
-                            ClienteFormController controller = fxmlLoader.<ClienteFormController>getController();
+                            DeployFormController controller = fxmlLoader.<DeployFormController>getController();
 
-                            controller.initData(cliente);
+                            controller.initData(deploy);
 
                             LotoAdmin.centerContainer.getChildren().clear();
                             LotoAdmin.centerContainer.getChildren().add(p);
                         } catch (IOException ex) {
-                            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(DeployListController.class.getName()).log(Level.SEVERE, null, ex);
 
                             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
                         }
@@ -177,26 +225,26 @@ public class ClienteListController implements Initializable {
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DeployListController.class.getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
         }
     }
 
     public void adicionar(ActionEvent acEvent) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.CLIENTE_FORM));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FxmlFiles.DEPLOY_FORM));
         try {
             AnchorPane p = (AnchorPane) fxmlLoader.load();
 
-            ClienteFormController controller = fxmlLoader.<ClienteFormController>getController();
+            DeployFormController controller = fxmlLoader.<DeployFormController>getController();
 
-            controller.initData(new Cliente());
+            controller.initData(new Deploy());
 
             LotoAdmin.centerContainer.getChildren().clear();
             LotoAdmin.centerContainer.getChildren().add(p);
 
         } catch (IOException ex) {
-            Logger.getLogger(ClienteListController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DeployListController.class.getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
         }

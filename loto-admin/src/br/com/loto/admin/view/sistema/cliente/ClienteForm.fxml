@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import view.control.*?>
 <?import javafx.geometry.*?>
 <?import com.jfoenix.controls.*?>
 <?import javafx.scene.text.*?>
@@ -66,12 +67,12 @@
                      </font>
                   </Label>
                   <ComboBox fx:id="cbEstado" onAction="#changeEstado" prefHeight="25.0" prefWidth="72.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <ComboBox fx:id="cbCidade" prefHeight="25.0" prefWidth="869.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="3">
                      <font>
                         <Font name="Segoe UI" size="14.0" />
                      </font>
                   </Label>
+                  <FMXField fx:id="txtCidade" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <CheckBox fx:id="ckAtivo" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                </children>
                <padding>

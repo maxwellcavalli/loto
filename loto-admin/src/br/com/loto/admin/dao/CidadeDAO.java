@@ -38,6 +38,10 @@ public class CidadeDAO extends BaseDAO<Cidade> {
     }
 
     public List<Cidade> pesquisar(String nome, Long estado) throws SQLException {
+        return pesquisar(nome, estado, Integer.MAX_VALUE);
+    }
+
+    public List<Cidade> pesquisar(String nome, Long estado, Integer maxValues) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT _cid.ID as _cid_id, ");
         sql.append("        _cid.NOME as _cid_nome, ");
@@ -46,7 +50,7 @@ public class CidadeDAO extends BaseDAO<Cidade> {
         sql.append("        _est.nome as _est_nome, ");
         sql.append("        _est.sigla as _est_sigla, ");
         sql.append("        _est.ativo as _est_ativo ");
-                
+
         sql.append("   FROM CIDADE _cid ");
         sql.append("  INNER JOIN ESTADO _est ON _est.id = _cid.id_estado ");
         sql.append("  WHERE 1 = 1 ");
@@ -57,8 +61,8 @@ public class CidadeDAO extends BaseDAO<Cidade> {
             sql.append("  AND UPPER(_cid.NOME) LIKE ? ");
             parameters.add("%" + nome.toUpperCase() + "%");
         }
-        
-        if (estado != null){
+
+        if (estado != null) {
             sql.append("  AND _est.id = ? ");
             parameters.add(estado);
         }
@@ -70,16 +74,16 @@ public class CidadeDAO extends BaseDAO<Cidade> {
             c.setId(rs.getLong("_cid_id"));
             c.setNome(rs.getString("_cid_nome"));
             c.setAtivo(rs.getBoolean("_cid_ativo"));
-                    
+
             Estado e = new Estado();
             e.setId(rs.getLong("_est_id"));
             e.setNome(rs.getString("_est_nome"));
             e.setSigla(rs.getString("_est_sigla"));
             e.setAtivo(rs.getBoolean("_est_ativo"));
-            
+
             c.setEstado(e);
-            
+
             return c;
-        });
+        }, maxValues);
     }
 }
