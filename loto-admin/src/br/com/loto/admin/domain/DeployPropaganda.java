@@ -6,6 +6,8 @@
  */
 package br.com.loto.admin.domain;
 
+import br.com.loto.admin.domain.type.TipoMidia;
+import br.com.loto.admin.domain.type.TipoTransicao;
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
 import br.com.loto.core.database.annotation.Relacionamento;
@@ -30,16 +32,16 @@ public class DeployPropaganda {
     private Integer ordem;
 
     @Campo(name = "ID_TIPO_TRANSICAO")
-    private Integer idTipoTransicao;
+    private Integer idTipoTransicao = TipoTransicao.FADE_IN.getKey();
 
     @Campo(name = "DURACAO_TRANSICAO")
-    private Integer duracaoTransicao;
+    private Integer duracaoTransicao = 2000;
 
     @Campo(name = "DURACAO_PROPAGANDA")
-    private Integer duracaoPropaganda;
+    private Integer duracaoPropaganda = 15000;
 
     @Campo(name = "ID_TIPO_MIDIA")
-    private Integer idTipoMidia;
+    private Integer idTipoMidia = TipoMidia.ESTATICA.getKey();
 
     public Long getId() {
         return id;

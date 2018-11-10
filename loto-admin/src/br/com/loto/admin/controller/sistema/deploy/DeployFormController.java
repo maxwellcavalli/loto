@@ -24,6 +24,7 @@ import br.com.loto.admin.domain.type.SituacaoDeploy;
 import br.com.loto.admin.domain.type.TipoMidia;
 import br.com.loto.admin.domain.type.TipoTransicao;
 import br.com.loto.admin.service.CidadeService;
+import br.com.loto.admin.service.ClientePropagandaService;
 import br.com.loto.admin.service.ClienteService;
 import br.com.loto.admin.service.DeployPropagandaService;
 import br.com.loto.admin.service.DeployService;
@@ -34,6 +35,7 @@ import br.com.loto.admin.util.DateUtils;
 import br.com.loto.core.fx.datatable.ActionColumnButton;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
+import com.jfoenix.controls.JFXButton;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -120,6 +122,12 @@ public class DeployFormController implements Initializable {
     @FXML
     public Button btAdicionarPropaganda;
 
+    @FXML
+    public Button btCancelar;
+
+    @FXML
+    public JFXButton btSalvar;
+
     //variaveis globais
     private Deploy deploy;
 
@@ -129,6 +137,8 @@ public class DeployFormController implements Initializable {
     private List<ComboHelper> tiposTransicao;
     private List<ComboHelper> tiposMidia;
     private List<ComboHelper> situacoesDeploy;
+
+    private boolean disabled = false;
 
     final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -145,7 +155,91 @@ public class DeployFormController implements Initializable {
         configAutoCompleteCidade();
         configuraAutocompleteEstabelecimento();
         configuraAutocompleteCliente();
+        configAutoCompletePropagandaCliente();
 
+        inicializaDadosPropaganda();
+
+    }
+
+    public void cancelarPropaganda(ActionEvent event) {
+        this.txtCliente.clean();
+        this.txtClientePropaganda.clean();
+        this.txtDuracaoPropaganda.clear();
+        this.txtDuracaoTransicao.clear();
+        this.cbTipoMidia.getSelectionModel().clearSelection();
+        this.cbTipoTransicao.getSelectionModel().clearSelection();
+        this.txtOrdem.clear();
+
+        this.selectedDeployPropaganda = null;
+
+        this.btAdicionarPropaganda.setText("Adicionar");
+        this.btCancelar.setVisible(false);
+
+        inicializaDadosPropaganda();
+    }
+
+    void validaDisableEstabelecimento(SituacaoDeploy situacaoDeploy) {
+        boolean disable = !situacaoDeploy.equals(SituacaoDeploy.CADASTRANDO)
+                || (this.deployPropagandas != null && !this.deployPropagandas.isEmpty());
+
+        this.cbEstado.setDisable(disable);
+        this.txtCidade.setDisable(disable);
+        this.txtEstabelecimento.setDisable(disable);
+    }
+
+    void alterarSituacaoComponentes(SituacaoDeploy situacaoDeploy) {
+        disabled = !situacaoDeploy.equals(SituacaoDeploy.CADASTRANDO);
+
+        boolean disabledSituacao = situacaoDeploy.equals(SituacaoDeploy.LIBERADO_DEPLOY)
+                || situacaoDeploy.equals(SituacaoDeploy.IMPLANTADO);
+
+        this.cbSituacao.setDisable(disabledSituacao);
+        this.btSalvar.setDisable(disabledSituacao);
+
+        this.txtDescricao.setDisable(disabled);
+        this.ckAtivo.setDisable(disabled);
+        this.dpValidade.setDisable(disabled);
+        this.cbEstado.setDisable(disabled);
+        this.txtCidade.setDisable(disabled);
+        this.txtEstabelecimento.setDisable(disabled);
+        this.txtCliente.setDisable(disabled);
+        this.txtClientePropaganda.setDisable(disabled);
+        this.cbTipoTransicao.setDisable(disabled);
+        this.cbTipoMidia.setDisable(disabled);
+        this.txtDuracaoTransicao.setDisable(disabled);
+        this.txtDuracaoPropaganda.setDisable(disabled);
+        this.txtOrdem.setDisable(disabled);
+
+//        this.tablePropaganda.getC setDisable(disabled);
+        this.btAdicionarPropaganda.setDisable(disabled);
+        this.btCancelar.setDisable(disabled);
+
+        validaDisableEstabelecimento(situacaoDeploy);
+
+    }
+
+    void configAutoCompletePropagandaCliente() {
+        txtClientePropaganda.setConverterObjectToText((ConverterObjectToText<ClientePropaganda>) (ClientePropaganda t)
+                -> t.getPropaganda().getDescricao());
+
+        txtClientePropaganda.setSearchActionListener((SearchActionListener<ClientePropaganda>) (String query) -> {
+            Cliente c = txtCliente.getObjectSelecionado();
+            Long cliente = c == null ? null : c.getId();
+
+            if (cliente == null) {
+                return new ArrayList<>(0);
+            } else {
+                try {
+                    return ClientePropagandaService.getInstance().pesquisar(c, query, 10);
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(EstabelecimentoFormController.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            return null;
+        });
     }
 
     void configAutoCompleteCidade() {
@@ -160,8 +254,10 @@ public class DeployFormController implements Initializable {
             } else {
                 try {
                     return CidadeService.getInstance().pesquisar(query, estado);
+
                 } catch (SQLException ex) {
-                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EstabelecimentoFormController.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -184,8 +280,10 @@ public class DeployFormController implements Initializable {
             } else {
                 try {
                     return EstabelecimentoService.getInstance().pesquisar(query, estado, cidade, 10);
+
                 } catch (SQLException ex) {
-                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EstabelecimentoFormController.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -207,8 +305,10 @@ public class DeployFormController implements Initializable {
             } else {
                 try {
                     return ClienteService.getInstance().pesquisar(query, null, null, estabelecimento, 10);
+
                 } catch (SQLException ex) {
-                    Logger.getLogger(EstabelecimentoFormController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EstabelecimentoFormController.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -223,8 +323,9 @@ public class DeployFormController implements Initializable {
         this.situacoesDeploy = new ArrayList<>(SituacaoDeploy.values().length);
 
         this.situacoesDeploy.add(new ComboHelper(SituacaoDeploy.CADASTRANDO.getKey(), SituacaoDeploy.CADASTRANDO.getDescription()));
-        this.situacoesDeploy.add(new ComboHelper(SituacaoDeploy.PRONTO_DEPLOY.getKey(), SituacaoDeploy.PRONTO_DEPLOY.getDescription()));
-        cbSituacao.getItems().addAll(this.tiposTransicao);
+        this.situacoesDeploy.add(new ComboHelper(SituacaoDeploy.BLOQUEADO_DEPLOY.getKey(), SituacaoDeploy.BLOQUEADO_DEPLOY.getDescription()));
+        this.situacoesDeploy.add(new ComboHelper(SituacaoDeploy.LIBERADO_DEPLOY.getKey(), SituacaoDeploy.LIBERADO_DEPLOY.getDescription()));
+        cbSituacao.getItems().addAll(this.situacoesDeploy);
 
         cbSituacao.setConverter(new StringConverter<ComboHelper>() {
             @Override
@@ -270,9 +371,9 @@ public class DeployFormController implements Initializable {
         for (TipoMidia tt : TipoMidia.values()) {
             this.tiposMidia.add(new ComboHelper(tt.getKey(), tt.getDescription()));
         }
-        cbTipoTransicao.getItems().addAll(this.tiposMidia);
+        cbTipoMidia.getItems().addAll(this.tiposMidia);
 
-        cbTipoTransicao.setConverter(new StringConverter<ComboHelper>() {
+        cbTipoMidia.setConverter(new StringConverter<ComboHelper>() {
             @Override
             public String toString(ComboHelper object) {
                 return object.getDescricao();
@@ -296,7 +397,9 @@ public class DeployFormController implements Initializable {
         this.deploy.setDescricao(txtDescricao.getText());
         this.deploy.setAtivo(ckAtivo.selectedProperty().getValue());
 
-        this.deploy.setDataValidade(DateUtils.asDate(dpValidade.getValue()));
+        if (dpValidade.getValue() != null) {
+            this.deploy.setDataValidade(DateUtils.asDate(dpValidade.getValue()));
+        }
         this.deploy.setEstabelecimento(txtEstabelecimento.getObjectSelecionado());
         this.deploy.setSituacao(cbSituacao.getSelectionModel().getSelectedItem().getCodigo());
 
@@ -318,13 +421,22 @@ public class DeployFormController implements Initializable {
 
                 this.deployPropagandas = this.deploy.getDeployPropagandas();
 
-                this.btAdicionarPropaganda.setText("Adicionar");
+                SituacaoDeploy sd = SituacaoDeploy.get(this.deploy.getSituacao());
+                alterarSituacaoComponentes(sd);
+                processaDatatablePropagandas();
+
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
-                Logger.getLogger(DeployFormController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DeployFormController.class
+                        .getName()).log(Level.SEVERE, null, ex);
 
                 FxmlUtil.getInstance().openMessageDialog(event, ex);
+
             } catch (Exception ex) {
-                Logger.getLogger(DeployFormController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DeployFormController.class
+                        .getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                this.btAdicionarPropaganda.setText("Adicionar");
+                this.btCancelar.setVisible(false);
             }
         } else {
             FxmlUtil.getInstance().openMessageDialog(event, messages);
@@ -338,8 +450,10 @@ public class DeployFormController implements Initializable {
 
             LotoAdmin.centerContainer.getChildren().clear();
             LotoAdmin.centerContainer.getChildren().add(p);
+
         } catch (IOException ex) {
-            Logger.getLogger(DeployFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DeployFormController.class
+                    .getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(event, ex);
         }
@@ -373,9 +487,15 @@ public class DeployFormController implements Initializable {
                 cbEstado.getSelectionModel().select(ee.getCidade().getEstado());
 
             } catch (SQLException ex) {
-                Logger.getLogger(DeployFormController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DeployFormController.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+        this.deploy = deploy;
+
+        SituacaoDeploy sd = SituacaoDeploy.get(deploy.getSituacao());
+        alterarSituacaoComponentes(sd);
 
         if (deploy != null && deploy.getId() != null) {
             this.popularPropagandas();
@@ -384,7 +504,21 @@ public class DeployFormController implements Initializable {
         if (this.deployPropagandas == null) {
             this.deployPropagandas = new ArrayList<>(1);
         }
+        
+        validaDisableEstabelecimento(sd);
 
+    }
+
+    void inicializaDadosPropaganda() {
+        DeployPropaganda dp = new DeployPropaganda();
+
+        ComboHelper tipoTransicao = this.tiposTransicao.stream().filter(el -> el.getCodigo() == dp.getIdTipoTransicao()).findFirst().get();
+        ComboHelper tipoMidia = this.tiposMidia.stream().filter(el -> el.getCodigo() == dp.getIdTipoMidia()).findFirst().get();
+
+        this.cbTipoTransicao.getSelectionModel().select(tipoTransicao);
+        this.cbTipoMidia.getSelectionModel().select(tipoMidia);
+        this.txtDuracaoPropaganda.setText(dp.getDuracaoPropaganda().toString());
+        this.txtDuracaoTransicao.setText(dp.getDuracaoTransicao().toString());
     }
 
     private void popularPropagandas() {
@@ -402,18 +536,27 @@ public class DeployFormController implements Initializable {
                     ComboHelper tipoTransicao = this.tiposTransicao.stream().filter(el -> el.getCodigo() == deployPropaganda.getIdTipoTransicao()).findFirst().get();
                     ComboHelper tipoMidia = this.tiposMidia.stream().filter(el -> el.getCodigo() == deployPropaganda.getIdTipoMidia()).findFirst().get();
 
+                    this.txtCliente.setObjectSelecionado(deployPropaganda.getClientePropaganda().getCliente());
+                    this.txtCliente.setText(deployPropaganda.getClientePropaganda().getCliente().getNome());
+
                     this.txtClientePropaganda.setObjectSelecionado(deployPropaganda.getClientePropaganda());
+                    this.txtClientePropaganda.setText(deployPropaganda.getClientePropaganda().getPropaganda().getDescricao());
+
                     this.cbTipoTransicao.getSelectionModel().select(tipoTransicao);
-                    this.cbTipoMidia.getSelectionModel().select(deployPropaganda.getIdTipoMidia());
+                    this.cbTipoMidia.getSelectionModel().select(tipoMidia);
                     this.txtDuracaoPropaganda.setText(deployPropaganda.getDuracaoPropaganda().toString());
                     this.txtDuracaoTransicao.setText(deployPropaganda.getDuracaoTransicao().toString());
 
+                    this.txtOrdem.setText(deployPropaganda.getOrdem().toString());
+
                     this.btAdicionarPropaganda.setText("Alterar");
+                    this.btCancelar.setVisible(true);
                 }
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClienteFormController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -438,7 +581,8 @@ public class DeployFormController implements Initializable {
             });
 
         } catch (SQLException ex) {
-            Logger.getLogger(CidadeFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CidadeFormController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -449,12 +593,18 @@ public class DeployFormController implements Initializable {
 
     private void processaDatatablePropagandas() {
 
-        TableColumn<DeployPropaganda, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 520, (DeployPropaganda s) -> s.getClientePropaganda().getPropaganda().getDescricao());
+        TableColumn<DeployPropaganda, String> ordemColumn = TableColumnUtil.createStringColumn("Ordem", 80, (DeployPropaganda s)
+                -> s.getOrdem().toString());
 
-        TableColumn<DeployPropaganda, String> tipoTransicaoColumn = TableColumnUtil.createStringColumn("Tipo Transicao", 115, (DeployPropaganda s)
+        TableColumn<DeployPropaganda, String> clienteColumn = TableColumnUtil.createStringColumn("Cliente", 200, (DeployPropaganda s)
+                -> s.getClientePropaganda().getCliente().getNome());
+
+        TableColumn<DeployPropaganda, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 200, (DeployPropaganda s) -> s.getClientePropaganda().getPropaganda().getDescricao());
+
+        TableColumn<DeployPropaganda, String> tipoTransicaoColumn = TableColumnUtil.createStringColumn("Tipo Transicao", 90, (DeployPropaganda s)
                 -> TipoTransicao.get(s.getIdTipoTransicao()).getDescription());
 
-        TableColumn<DeployPropaganda, String> tipoMidiaColumn = TableColumnUtil.createStringColumn("Tipo Midia", 115, (DeployPropaganda s)
+        TableColumn<DeployPropaganda, String> tipoMidiaColumn = TableColumnUtil.createStringColumn("Tipo Midia", 80, (DeployPropaganda s)
                 -> TipoMidia.get(s.getIdTipoMidia()).getDescription());
 
         TableColumn<DeployPropaganda, String> tempoPropagandaColumn = TableColumnUtil.createStringColumn("Tempo Propagnda", 115, (DeployPropaganda s)
@@ -464,9 +614,16 @@ public class DeployFormController implements Initializable {
                 -> s.getDuracaoTransicao().toString());
 
         ActionColumnButton<DeployPropaganda> acDelete = new ActionColumnButton<>("Delete");
+        acDelete.setDisabled(this.disabled);
         acDelete.setAction((IActionColumn<DeployPropaganda>) (DeployPropaganda t) -> {
             deployPropagandas.remove(t);
             processaDatatablePropagandas();
+
+            inicializaDadosPropaganda();
+
+            SituacaoDeploy situacaoDeploy = SituacaoDeploy.get(this.deploy.getSituacao());
+            validaDisableEstabelecimento(situacaoDeploy);
+
         });
 
         List<ActionColumnButton<DeployPropaganda>> actionsColumnButton = new ArrayList<>(1);
@@ -475,7 +632,7 @@ public class DeployFormController implements Initializable {
         TableColumn<DeployPropaganda, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tablePropaganda, actionsColumnButton);
 
         tablePropaganda.getColumns().clear();
-        tablePropaganda.getColumns().setAll(descricaoColumn, tipoTransicaoColumn, tipoMidiaColumn, tempoPropagandaColumn, tempoTransicaoColumn, actionColumn);
+        tablePropaganda.getColumns().setAll(ordemColumn, clienteColumn, descricaoColumn, tipoTransicaoColumn, tipoMidiaColumn, tempoPropagandaColumn, tempoTransicaoColumn, actionColumn);
         tablePropaganda.setItems(FXCollections.observableArrayList(this.deployPropagandas));
     }
 
@@ -485,11 +642,27 @@ public class DeployFormController implements Initializable {
             DeployPropaganda dp = new DeployPropaganda();
             dp.setDeploy(this.deploy);
             dp.setClientePropaganda(this.txtClientePropaganda.getObjectSelecionado());
-            dp.setDuracaoPropaganda(Integer.parseInt(this.txtDuracaoPropaganda.getText()));
-            dp.setDuracaoTransicao(Integer.parseInt(this.txtDuracaoTransicao.getText()));
+
+            if (!"".equals(this.txtDuracaoPropaganda.getText())) {
+                dp.setDuracaoPropaganda(Integer.parseInt(this.txtDuracaoPropaganda.getText()));
+            } else {
+                dp.setDuracaoPropaganda(null);
+            }
+
+            if (!"".equals(this.txtDuracaoTransicao.getText())) {
+                dp.setDuracaoTransicao(Integer.parseInt(this.txtDuracaoTransicao.getText()));
+            } else {
+                dp.setDuracaoTransicao(null);
+            }
+
+            if (!"".equals(txtOrdem.getText())) {
+                dp.setOrdem(Integer.parseInt(txtOrdem.getText()));
+            } else {
+                dp.setOrdem(null);
+            }
+
             dp.setIdTipoMidia(cbTipoMidia.getSelectionModel().getSelectedItem().getCodigo());
             dp.setIdTipoTransicao(cbTipoTransicao.getSelectionModel().getSelectedItem().getCodigo());
-            dp.setOrdem(Integer.parseInt(txtOrdem.getText()));
 
             List<String> messages = new ArrayList<>();
 
@@ -497,15 +670,15 @@ public class DeployFormController implements Initializable {
                 messages.add("Propaganda Inválida");
             }
 
-            if (dp.getDuracaoPropaganda() <= 0) {
+            if (dp.getDuracaoPropaganda() == null || dp.getDuracaoPropaganda() <= 0) {
                 messages.add("Duração Propaganda Inválida");
             }
 
-            if (dp.getDuracaoTransicao() <= 0) {
+            if (dp.getDuracaoTransicao() == null || dp.getDuracaoTransicao() <= 0) {
                 messages.add("Duração Transição Inválida");
             }
 
-            if (dp.getOrdem() <= 0) {
+            if (dp.getOrdem() == null || dp.getOrdem() <= 0) {
                 messages.add("Ordem Inválida");
             }
 
@@ -528,6 +701,7 @@ public class DeployFormController implements Initializable {
 
                 processaDatatablePropagandas();
 
+                this.txtCliente.clean();
                 this.txtClientePropaganda.clean();
                 this.txtDuracaoPropaganda.clear();
                 this.txtDuracaoTransicao.clear();
@@ -538,9 +712,17 @@ public class DeployFormController implements Initializable {
                 this.selectedDeployPropaganda = null;
 
                 this.btAdicionarPropaganda.setText("Adicionar");
+                this.btCancelar.setVisible(false);
+
+                inicializaDadosPropaganda();
+
+                SituacaoDeploy situacaoDeploy = SituacaoDeploy.get(this.deploy.getSituacao());
+                validaDisableEstabelecimento(situacaoDeploy);
+
             }
         } catch (NumberFormatException ex) {
-            Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClienteFormController.class
+                    .getName()).log(Level.SEVERE, null, ex);
 
             FxmlUtil.getInstance().openMessageDialog(event, ex);
         }

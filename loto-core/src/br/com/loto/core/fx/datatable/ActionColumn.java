@@ -66,7 +66,8 @@ public class ActionColumn<T> extends TableCell<T, Boolean> {
         if (actionsColumnButton != null) {
             for (ActionColumnButton ac : actionsColumnButton) {
                 Button b = new Button(ac.getTitle());
-
+                b.setDisable(ac.isDisabled());
+                
                 hbox.getChildren().add(b);
                 b.setOnMousePressed((MouseEvent mouseEvent) -> {
                     buttonY.set(mouseEvent.getScreenY());

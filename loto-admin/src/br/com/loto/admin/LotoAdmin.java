@@ -124,16 +124,16 @@ public class LotoAdmin extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//        String dbUrl = "jdbc:postgresql://localhost/loto";
-//        Properties props = new Properties();
-//        props.setProperty("user", "postgres");
-//        props.setProperty("password", "apollo");
-
-        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/hsqldb/dbloto";
+        String dbUrl = "jdbc:postgresql://localhost/loto";
         Properties props = new Properties();
-        props.setProperty("user", "SA");
-        props.setProperty("password", "");
-        props.setProperty("ssl", "true");
+        props.setProperty("user", "postgres");
+        props.setProperty("password", "apollo");
+
+//        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/hsqldb/dbloto";
+//        Properties props = new Properties();
+//        props.setProperty("user", "SA");
+//        props.setProperty("password", "");
+//        props.setProperty("ssl", "true");
         try {
             JdbcUtil.getInstance().init(dbUrl, props);
             launch(args);

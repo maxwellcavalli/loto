@@ -15,11 +15,12 @@ public class ActionColumnButton<T> {
 
     private String title;
     private IActionColumn<T> action;
+    private boolean disabled = false;
 
     public ActionColumnButton(String title) {
         this.title = title;
     }
-    
+
     public String getTitle() {
         return title;
     }
@@ -35,7 +36,13 @@ public class ActionColumnButton<T> {
     public void setAction(IActionColumn<T> action) {
         this.action = action;
     }
-    
-    
-    
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
 }

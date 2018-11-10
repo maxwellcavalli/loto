@@ -33,7 +33,7 @@ public class ClientePropagandaService {
     }
 
     public List<ClientePropaganda> persistir(Cliente cliente, List<ClientePropaganda> listClientePropaganda) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
-        List<ClientePropaganda> listDB = pesquisar(cliente, false);
+        List<ClientePropaganda> listDB = pesquisar(cliente, "", false);
 
         for (ClientePropaganda clientePropagandaDB : listDB) {
             boolean exists = false;
@@ -78,8 +78,12 @@ public class ClientePropagandaService {
         PropagandaService.getInstance().delete(propaganda);
     }
 
-    public List<ClientePropaganda> pesquisar(Cliente cliente, boolean rollbackAfterRun) throws SQLException {
-        return ClientePropagandaDAO.getInstance().pesquisar(cliente, rollbackAfterRun);
+    public List<ClientePropaganda> pesquisar(Cliente cliente, String propaganda, boolean rollbackAfterRun) throws SQLException {
+        return ClientePropagandaDAO.getInstance().pesquisar(cliente, propaganda, rollbackAfterRun, Integer.MAX_VALUE);
+    }
+    
+    public List<ClientePropaganda> pesquisar(Cliente cliente, String propaganda, Integer maxResults) throws SQLException {
+        return ClientePropagandaDAO.getInstance().pesquisar(cliente, propaganda, true, maxResults);
     }
 
     public List<ClientePropaganda> pesquisar(Cliente cliente) throws SQLException {

@@ -36,16 +36,19 @@ public class BaseDAO<T> {
         return pesquisar(sql, parameters, databaseRecord, true, Integer.MAX_VALUE);
     }
 
-    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, Integer maxValues) throws SQLException {
-        return pesquisar(sql, parameters, databaseRecord, true, maxValues);
+    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, Integer maxResults) throws SQLException {
+        return pesquisar(sql, parameters, databaseRecord, true, maxResults);
     }
-    
-     protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, boolean rollbackAfterRun) throws SQLException {
+
+    protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, boolean rollbackAfterRun) throws SQLException {
         return pesquisar(sql, parameters, databaseRecord, rollbackAfterRun, Integer.MAX_VALUE);
     }
 
+//     protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord, boolean rollbackAfterRun, Integer maxResults) throws SQLException {
+//        return pesquisar(sql, parameters, databaseRecord, rollbackAfterRun, Integer.MAX_VALUE);
+//    }
     protected List<T> pesquisar(String sql, List<Object> parameters, DatabaseRecord<T> databaseRecord,
-            boolean rollbackAfterRun, Integer maxValues) throws SQLException {
+            boolean rollbackAfterRun, Integer maxResults) throws SQLException {
 
         Connection conn = JdbcUtil.getInstance().getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql);) {
@@ -55,7 +58,7 @@ public class BaseDAO<T> {
             }
 
             try (ResultSet rs = stmt.executeQuery();) {
-                rs.setFetchSize(maxValues.intValue());
+                rs.setFetchSize(maxResults.intValue());
                 rs.setFetchDirection(ResultSet.FETCH_FORWARD);
 
                 List<T> ret = new ArrayList<>();
@@ -64,7 +67,7 @@ public class BaseDAO<T> {
 
                     ret.add(t);
 
-                    if (ret.size() == maxValues) {
+                    if (ret.size() == maxResults) {
                         break;
                     }
                 }

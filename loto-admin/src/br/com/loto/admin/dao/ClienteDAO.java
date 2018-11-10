@@ -82,7 +82,7 @@ public class ClienteDAO extends BaseDAO<Cliente> {
             sql.append("  AND EXISTS (SELECT 1 ");
             sql.append("                FROM ESTABELECIMENTO_CLIENTE _ec ");
             sql.append("               WHERE _ec.ID_ESTABELECIMENTO = ? ");
-            sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ");  
+            sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ) ");  
             
             parameters.add(estabelecimento);
         }

@@ -12,8 +12,9 @@ package br.com.loto.admin.domain.type;
 public enum SituacaoDeploy {
 
     CADASTRANDO(1, "Cadastrando"),
-    PRONTO_DEPLOY(2, "Pronto para Deploy"),
-    IMPLANTADO(3, "Implantado");
+    BLOQUEADO_DEPLOY(2, "Bloqueado para Deploy"),
+    LIBERADO_DEPLOY(3, "Liberado para Deploy"),
+    IMPLANTADO(4, "Deploy Implantado");
 
     private int key;
     private String description;

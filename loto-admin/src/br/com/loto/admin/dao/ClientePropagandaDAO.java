@@ -39,32 +39,42 @@ public class ClientePropagandaDAO extends BaseDAO<ClientePropaganda> {
     }
 
     public List<ClientePropaganda> pesquisar(Cliente cliente) throws SQLException {
-        return pesquisar(cliente, true);
+        return pesquisar(cliente, null, true, Integer.MAX_VALUE);
     }
 
-    public List<ClientePropaganda> pesquisar(Cliente cliente, boolean rollbackAfterRun) throws SQLException {
+    public List<ClientePropaganda> pesquisar(Cliente cliente, String propaganda, boolean rollbackAfterRun, Integer maxResults) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" select _cliprop.id as _cliprop_id, ");
         sql.append("        _cliprop.id_cliente as _cliprop_id_cliente, ");
-
+        sql.append("        _cli.id as _cli_id, ");
+        sql.append("        _cli.nome as _cli_nome, ");
         sql.append("        _prop.id as _prop_id, ");
         sql.append("        _prop.descricao as _prop_descricao, ");
         sql.append("        _prop.ativo as _prop_ativo, ");
         sql.append("        _prop.nome_arquivo as _prop_nome_arquivo, ");
         sql.append("        _prop.conteudo as _prop_conteudo, ");
         sql.append("        _prop.data as _prop_data, ");
-         sql.append("       _prop.data_inativacao as _prop_data_inativacao ");
+        sql.append("        _prop.data_inativacao as _prop_data_inativacao ");
 
         sql.append("   from cliente_propaganda _cliprop ");
         sql.append("  inner join propaganda _prop on _prop.id = _cliprop.id_propaganda ");
+        sql.append("  inner join cliente _cli on _cli.id = _cliprop.id_cliente ");
         sql.append("  where _cliprop.id_cliente = ? ");
 
         List<Object> parameters = new ArrayList<>();
         parameters.add(cliente.getId());
 
+        if (propaganda != null && !"".equals(propaganda)) {
+            sql.append("  and upper(_prop.descricao) like ? ");
+            parameters.add("%" + propaganda.toUpperCase() + "%");
+        }
+
+        sql.append("  order by _prop.descricao ");
+        
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             Cliente c = new Cliente();
-            c.setId(rs.getLong("_cliprop_id_cliente"));
+            c.setId(rs.getLong("_cli_id"));
+            c.setNome(rs.getString("_cli_nome"));
 
             Propaganda p = new Propaganda();
             p.setId(rs.getLong("_prop_id"));
@@ -73,16 +83,16 @@ public class ClientePropagandaDAO extends BaseDAO<ClientePropaganda> {
             p.setConteudo(rs.getBytes("_prop_conteudo"));
             p.setNomeArquivo(rs.getString("_prop_nome_arquivo"));
             p.setData(rs.getTimestamp("_prop_data"));
-            
+
             p.setDataInativacao(rs.getTimestamp("_prop_data_inativacao"));
-            
+
             ClientePropaganda clientePropaganda = new ClientePropaganda();
             clientePropaganda.setId(rs.getLong("_cliprop_id"));
             clientePropaganda.setCliente(c);
             clientePropaganda.setPropaganda(p);
 
             return clientePropaganda;
-        }, rollbackAfterRun);
+        }, rollbackAfterRun, maxResults);
     }
 
     @Override

@@ -94,6 +94,9 @@ public class ClienteFormController implements Initializable {
     @FXML
     public Button btAdicionarPropaganda;
 
+    @FXML
+    public Button btCancelar;
+
     //variaveis globais
     private Cliente cliente;
 
@@ -111,6 +114,17 @@ public class ClienteFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configAutoCompleteCidade();
+    }
+
+    public void cancelarPropaganda(ActionEvent event) {
+        txtDescricaoPropaganda.setText("");
+        cbPropaganda.setSelected(true);
+        txtNomeArquivo.setText("");
+
+        this.selectedClientePropaganda = null;
+
+        this.btCancelar.setVisible(false);
+        this.btAdicionarPropaganda.setText("Adicionar");
     }
 
     void configAutoCompleteCidade() {
@@ -161,13 +175,15 @@ public class ClienteFormController implements Initializable {
 
                 this.propagandas = this.cliente.getListClientePropaganda();
 
-                this.btAdicionarPropaganda.setText("Adicionar");
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
 
                 FxmlUtil.getInstance().openMessageDialog(event, ex);
             } catch (Exception ex) {
                 Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                this.btCancelar.setVisible(false);
+                this.btAdicionarPropaganda.setText("Adicionar");
             }
         } else {
             FxmlUtil.getInstance().openMessageDialog(event, messages);
@@ -230,6 +246,7 @@ public class ClienteFormController implements Initializable {
                     this.cbPropaganda.setSelected(selectedClientePropaganda.getPropaganda().isAtivo());
 
                     this.btAdicionarPropaganda.setText("Alterar");
+                    this.btCancelar.setVisible(true);
                 }
             });
 
@@ -400,6 +417,7 @@ public class ClienteFormController implements Initializable {
                 this.selectedClientePropaganda = null;
 
                 this.btAdicionarPropaganda.setText("Adicionar");
+                this.btCancelar.setVisible(false);
             }
         } catch (Exception ex) {
             Logger.getLogger(ClienteFormController.class.getName()).log(Level.SEVERE, null, ex);

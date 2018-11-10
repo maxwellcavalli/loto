@@ -180,13 +180,13 @@ public class DeployListController implements Initializable {
                     s.getEstabelecimento().getDescricao());
             
             
-            TableColumn<Deploy, String> dataColumn = TableColumnUtil.createStringColumn("Data", 150, (Deploy s)
+            TableColumn<Deploy, String> dataColumn = TableColumnUtil.createStringColumn("Data", 120, (Deploy s)
                     -> sdf.format(s.getData()));
 
-            TableColumn<Deploy, String> dataValidadeColumn = TableColumnUtil.createStringColumn("Data Validade", 160, (Deploy s)
+            TableColumn<Deploy, String> dataValidadeColumn = TableColumnUtil.createStringColumn("Data Validade", 120, (Deploy s)
                     -> s.getDataValidade() == null ? "" : sdfNH.format(s.getDataValidade()));
 
-            TableColumn<Deploy, String> situacaoColumn = TableColumnUtil.createStringColumn("Situação", 100, (Deploy s)
+            TableColumn<Deploy, String> situacaoColumn = TableColumnUtil.createStringColumn("Situação", 140, (Deploy s)
                     -> SituacaoDeploy.get(s.getSituacao()).getDescription());
 
             TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
