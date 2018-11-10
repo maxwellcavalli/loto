@@ -11,6 +11,7 @@ import br.com.loto.admin.domain.DeployPropaganda;
 import br.com.loto.core.util.JdbcUtil;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -32,6 +33,10 @@ public class DeployService {
     }
 
     public Deploy persistir(Deploy deploy, List<DeployPropaganda> deployPropagandas) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
+        if (deploy.getUuid() == null){
+            deploy.setUuid(UUID.randomUUID().toString());
+        }
+        
         deploy = DeployDAO.getInstance().persistir(deploy);
         deployPropagandas = DeployPropagandaService.getInstance().persistir(deploy, deployPropagandas);
 

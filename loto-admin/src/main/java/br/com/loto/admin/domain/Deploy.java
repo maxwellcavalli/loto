@@ -41,6 +41,9 @@ public class Deploy {
     @Campo(name = "SITUACAO")
     private Integer situacao = SituacaoDeploy.CADASTRANDO.getKey();
 
+    @Campo(name = "UUID")
+    private String uuid;
+
     //usado para retorno
     private List<DeployPropaganda> deployPropagandas;
 
@@ -110,6 +113,14 @@ public class Deploy {
 
     public void setSituacao(Integer situacao) {
         this.situacao = situacao;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
 }

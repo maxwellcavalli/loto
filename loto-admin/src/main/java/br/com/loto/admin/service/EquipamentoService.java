@@ -10,6 +10,7 @@ import br.com.loto.core.util.JdbcUtil;
 import br.com.loto.admin.domain.Equipamento;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -31,6 +32,10 @@ public class EquipamentoService {
     }
 
     public Equipamento persistir(Equipamento equipamento) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
+        if (equipamento.getUuid() == null || "".equals(equipamento.getUuid())) {
+            equipamento.setUuid(UUID.randomUUID().toString());
+        }
+
         equipamento = EquipamentoDAO.getInstance().persistir(equipamento);
 
         JdbcUtil.getInstance().commit();

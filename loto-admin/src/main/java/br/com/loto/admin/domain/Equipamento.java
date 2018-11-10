@@ -31,6 +31,9 @@ public class Equipamento {
     @Campo(name = "DATA_AQUISICAO")
     private Date dataAquisicao;
 
+    @Campo(name = "UUID")
+    private String uuid;
+
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
     }
@@ -73,6 +76,14 @@ public class Equipamento {
 
     public void setDataAquisicao(Date dataAquisicao) {
         this.dataAquisicao = dataAquisicao;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
 }

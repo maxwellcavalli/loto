@@ -58,14 +58,16 @@ public class EquipamentoListController implements Initializable {
             List<Equipamento> list = EquipamentoService.getInstance().pesquisar(numSerie);
 
             TableColumn<Equipamento, String> serialColumn = TableColumnUtil.createStringColumn("Serial", 150, (Equipamento s) -> s.getSerial());
-            TableColumn<Equipamento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 620, (Equipamento s) -> s.getDescricao());
+             TableColumn<Equipamento, String> uuidColumn = TableColumnUtil.createStringColumn("UUID", 220, (Equipamento s) -> s.getUuid());
+            
+            TableColumn<Equipamento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 420, (Equipamento s) -> s.getDescricao());
             TableColumn<Equipamento, String> dataAquisicaoColumn = TableColumnUtil.createStringColumn("Data Aquisição", 100, (Equipamento s) -> 
                     s.getDataAquisicao() == null ? "" : sdf.format(s.getDataAquisicao()));
             
             TableColumn<Equipamento, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Equipamento s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(serialColumn, descricaoColumn, dataAquisicaoColumn, ativoColumn);
+            datatable.getColumns().setAll(serialColumn, uuidColumn, descricaoColumn, dataAquisicaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {

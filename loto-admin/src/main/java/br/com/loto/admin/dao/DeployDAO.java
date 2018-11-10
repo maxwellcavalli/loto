@@ -49,6 +49,7 @@ public class DeployDAO extends BaseDAO<Deploy> {
         sql.append("    _d.DATA as _d_DATA, ");
         sql.append("    _d.DATA_VALIDADE as _d_DATA_VALIDADE, ");
         sql.append("    _d.SITUACAO AS _d_SITUACAO, ");
+        sql.append("    _d.UUID AS _d_UUID, ");
 
         sql.append("    _e.id as _e_id,  ");
         sql.append("    _e.descricao as _e_descricao,  ");
@@ -127,6 +128,7 @@ public class DeployDAO extends BaseDAO<Deploy> {
             d.setData(rs.getTimestamp("_d_DATA"));
             d.setDataValidade(rs.getTimestamp("_d_DATA_VALIDADE"));
             d.setSituacao(rs.getInt("_d_SITUACAO"));
+            d.setUuid(rs.getString("_d_UUID"));
             d.setEstabelecimento(e);
 
             return d;

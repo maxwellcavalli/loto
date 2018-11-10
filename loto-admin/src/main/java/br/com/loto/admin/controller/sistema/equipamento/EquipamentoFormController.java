@@ -46,6 +46,9 @@ public class EquipamentoFormController implements Initializable {
 
     @FXML
     public DatePicker dpAquisicao;
+    
+    @FXML
+    public TextField txtUuid;
 
     private Equipamento equipamento;
 
@@ -109,6 +112,7 @@ public class EquipamentoFormController implements Initializable {
         txtSerial.setText(equipamento.getSerial());
         txtDescricao.setText(equipamento.getDescricao());
         ckAtivo.setSelected(equipamento.isAtivo());
+        txtUuid.setText(equipamento.getUuid());
 
         if (equipamento.getDataAquisicao() != null) {
             dpAquisicao.setValue(DateUtils.asLocalDate(equipamento.getDataAquisicao()));

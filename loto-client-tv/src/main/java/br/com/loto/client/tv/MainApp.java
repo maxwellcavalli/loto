@@ -1,5 +1,14 @@
 package br.com.loto.client.tv;
 
+import br.com.loto.client.tv.thread.ClientThread;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
@@ -13,6 +22,8 @@ import javafx.util.Duration;
 
 public class MainApp extends Application {
 
+    static ClientThread clientThread;
+    
     class SimpleSlideShow {
 
         StackPane root = new StackPane();
@@ -25,8 +36,6 @@ public class MainApp extends Application {
             Image image3 = new Image(ClassLoader.getSystemResource("images/coca_cola.jpg").toExternalForm());
             Image image4 = new Image(ClassLoader.getSystemResource("images/war.jpg").toExternalForm());
             Image image5 = new Image(ClassLoader.getSystemResource("images/wonder_woman.jpg").toExternalForm());
-            
-            
 
             slides[0] = new ImageView(image1);
             slides[1] = new ImageView(image2);
@@ -75,15 +84,47 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+
+//        String uuid = "e31f7de6-f4bb-4596-a3a7-7faf3fae7afd";
+        try {
+            String configFilePath = System.getProperty("config.file");
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(new File(configFilePath)));
+
+            String uuid = properties.getProperty("uuid");
+            String address = properties.getProperty("address");
+            String directory = properties.getProperty("directory");
+            
+            InetAddress addr = InetAddress.getByName(address);
+            clientThread = new ClientThread(uuid, directory, addr);
+            clientThread.start();
+
+            launch(args);
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(0);
+        } catch (IOException ex) {
+            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
         SimpleSlideShow simpleSlideShow = new SimpleSlideShow();
         Scene scene = new Scene(simpleSlideShow.getRoot());
         primaryStage.setScene(scene);
         primaryStage.show();
         simpleSlideShow.start();
+    }  
+
+    @Override
+    public void stop() throws Exception {
+        super.stop(); //To change body of generated methods, choose Tools | Templates.
+        if (clientThread != null){
+            clientThread.interrupt();
+        }
     }
+    
+    
 }

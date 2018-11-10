@@ -38,7 +38,7 @@ public class EquipamentoDAO extends BaseDAO<Equipamento> {
 
     public List<Equipamento> pesquisar(String numSerie, Boolean ativo) throws SQLException {
         StringBuilder sql = new StringBuilder();
-        sql.append(" SELECT ID, NUM_SERIE, DESCRICAO, ATIVO, DATA_AQUISICAO ");
+        sql.append(" SELECT ID, NUM_SERIE, DESCRICAO, ATIVO, DATA_AQUISICAO, UUID ");
         sql.append("   FROM EQUIPAMENTO ");
         sql.append("  WHERE 1 = 1 ");
 
@@ -63,6 +63,7 @@ public class EquipamentoDAO extends BaseDAO<Equipamento> {
             e.setDescricao(rs.getString("DESCRICAO"));
             e.setAtivo(rs.getBoolean("ATIVO"));
             e.setDataAquisicao(rs.getDate("DATA_AQUISICAO"));
+            e.setUuid(rs.getString("UUID"));
 
             return e;
         });
