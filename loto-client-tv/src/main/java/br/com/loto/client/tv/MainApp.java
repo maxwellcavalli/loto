@@ -11,7 +11,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SimpleSlideShowTest extends Application {
+public class MainApp extends Application {
 
     class SimpleSlideShow {
 
@@ -20,11 +20,11 @@ public class SimpleSlideShowTest extends Application {
 
         public SimpleSlideShow() {
             this.slides = new ImageView[5];
-            Image image1 = new Image(ClassLoader.getSystemResource("batman_robin.jpg").toExternalForm());
-            Image image2 = new Image(ClassLoader.getSystemResource("caixa_economica.jpg").toExternalForm());
-            Image image3 = new Image(ClassLoader.getSystemResource("coca_cola.jpg").toExternalForm());
-            Image image4 = new Image(ClassLoader.getSystemResource("war.jpg").toExternalForm());
-            Image image5 = new Image(ClassLoader.getSystemResource("wonder_woman.jpg").toExternalForm());
+            Image image1 = new Image(ClassLoader.getSystemResource("images/batman_robin.jpg").toExternalForm());
+            Image image2 = new Image(ClassLoader.getSystemResource("images/caixa_economica.jpg").toExternalForm());
+            Image image3 = new Image(ClassLoader.getSystemResource("images/coca_cola.jpg").toExternalForm());
+            Image image4 = new Image(ClassLoader.getSystemResource("images/war.jpg").toExternalForm());
+            Image image5 = new Image(ClassLoader.getSystemResource("images/wonder_woman.jpg").toExternalForm());
             
             
 
