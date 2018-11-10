@@ -41,8 +41,8 @@ public class DeployService {
         return deploy;
     }
 
-    public List<Deploy> pesquisar(String descricao, Long estabelecimento) throws SQLException {
-        return DeployDAO.getInstance().pesquisar(descricao, estabelecimento);
+    public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento) throws SQLException {
+        return DeployDAO.getInstance().pesquisar(descricao, estado, cidade, estabelecimento);
     }
 
 }

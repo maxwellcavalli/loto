@@ -37,25 +37,25 @@ public class ClienteDAO extends BaseDAO<Cliente> {
     public Cliente persistir(Cliente t) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
         return super.persistir(t); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     public List<Cliente> pesquisar(String nome, Long cidade, Long estado) throws SQLException {
         return pesquisar(nome, cidade, estado, null, Integer.MAX_VALUE);
     }
 
-    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Long estabelecimento, 
+    public List<Cliente> pesquisar(String nome, Long cidade, Long estado, Long estabelecimento,
             Integer maxValues) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT _cli.ID as _cli_ID, ");
         sql.append("        _cli.NOME AS _cli_NOME, ");
         sql.append("        _cli.ATIVO AS _cli_ATIVO, ");
-        
+
         sql.append("        _cid.ID AS _cid_ID, ");
         sql.append("        _cid.NOME AS _cid_NOME, ");
-        
+
         sql.append("        _est.ID AS _est_ID, ");
         sql.append("        _est.NOME AS _est_NOME, ");
         sql.append("        _est.SIGLA AS _est_SIGLA ");
-        
+
         sql.append("   FROM CLIENTE _cli ");
         sql.append("  LEFT JOIN CIDADE _cid ON _cid.id = _cli.id_cidade ");
         sql.append("  LEFT JOIN ESTADO _est ON _est.id = _cid.id_estado ");
@@ -67,48 +67,71 @@ public class ClienteDAO extends BaseDAO<Cliente> {
             sql.append("  AND UPPER(_cli.NOME) LIKE ? ");
             parameters.add("%" + nome.toUpperCase() + "%");
         }
-        
-        if (cidade != null){
+
+        if (cidade != null) {
             sql.append("  AND _cid.ID = ? ");
             parameters.add(cidade);
         }
-        
-        if (estado != null){
+
+        if (estado != null) {
             sql.append("  AND _est.ID = ? ");
             parameters.add(estado);
         }
-        
-        if (estabelecimento != null){
+
+        if (estabelecimento != null) {
             sql.append("  AND EXISTS (SELECT 1 ");
             sql.append("                FROM ESTABELECIMENTO_CLIENTE _ec ");
             sql.append("               WHERE _ec.ID_ESTABELECIMENTO = ? ");
-            sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ) ");  
+            sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ) ");
             
             parameters.add(estabelecimento);
         }
 
-        sql.append(" ORDER BY _cli.NOME ");
+        sql.append(" UNION  ");
+
+        sql.append(" SELECT _cli1.ID as _cli_ID, ");
+        sql.append("        _cli1.NOME AS _cli_NOME, ");
+        sql.append("        _cli1.ATIVO AS _cli_ATIVO, ");
+
+        sql.append("        _cid1.ID AS _cid_ID, ");
+        sql.append("        _cid1.NOME AS _cid_NOME, ");
+
+        sql.append("        _est1.ID AS _est_ID, ");
+        sql.append("        _est1.NOME AS _est_NOME, ");
+        sql.append("        _est1.SIGLA AS _est_SIGLA ");
+
+        sql.append("   FROM CLIENTE _cli1 ");
+        sql.append("   LEFT JOIN CIDADE _cid1 ON _cid1.id = _cli1.id_cidade ");
+        sql.append("   LEFT JOIN ESTADO _est1 ON _est1.id = _cid1.id_estado ");
+        sql.append("   WHERE UPPER(_cli1.NOME) LIKE ? ");
+        sql.append("     AND UPPER(_cli1.NOME) = ? ");
+
+        parameters.add("%"+nome.toUpperCase()+"%");
+        parameters.add("CAIXA ECONOMICA FEDERAL");
+        
+        
+        sql.append(" ORDER BY 2 ");
 
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             Cidade c = null;
-            if (rs.getObject("_cid_ID") != null){
+            if (rs.getObject("_cid_ID") != null) {
                 Estado e = new Estado();
                 e.setId(rs.getLong("_est_ID"));
                 e.setNome(rs.getString("_est_NOME"));
                 e.setSigla(rs.getString("_est_SIGLA"));
-                
+
                 c = new Cidade();
                 c.setId(rs.getLong("_cid_ID"));
                 c.setEstado(e);
                 c.setNome(rs.getString("_cid_NOME"));
             }
-            
+
             Cliente cli = new Cliente();
             cli.setId(rs.getLong("_cli_ID"));
             cli.setNome(rs.getString("_cli_NOME"));
             cli.setAtivo(rs.getBoolean("_cli_ATIVO"));
             cli.setCidade(c);
-                
+
             return cli;
         });
     }

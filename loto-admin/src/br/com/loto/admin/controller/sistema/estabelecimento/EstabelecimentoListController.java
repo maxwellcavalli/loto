@@ -127,23 +127,27 @@ public class EstabelecimentoListController implements Initializable {
     public void pesquisar(ActionEvent acEvent) {
         try {
             String descricao = txtFiltro.getText();
-
-            Long cidade = null;
-            Long estado = null;
-
+            
             Cidade cidadeO = cbCidade.getSelectionModel().getSelectedItem();
             Estado estadoO = cbEstado.getSelectionModel().getSelectedItem();
 
-            cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
-            estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
+            Long cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
+            Long estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
 
             List<Estabelecimento> list = EstabelecimentoService.getInstance().pesquisar(descricao, estado, cidade);
 
-            TableColumn<Estabelecimento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 750, (Estabelecimento s) -> s.getDescricao());
+            TableColumn<Estabelecimento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 600, (Estabelecimento s) -> s.getDescricao());
+            
+            TableColumn<Estabelecimento, String> estadoColumn = TableColumnUtil.createStringColumn("UF", 60, (Estabelecimento s) -> 
+                    s.getEstabelecimentoEndereco() == null ? "" : s.getEstabelecimentoEndereco().getCidade().getEstado().getSigla());
+            
+            TableColumn<Estabelecimento, String> cidadeColumn = TableColumnUtil.createStringColumn("Cidade", 200, (Estabelecimento s) -> 
+                    s.getEstabelecimentoEndereco() == null ? "" : s.getEstabelecimentoEndereco().getCidade().getNome());
+            
             TableColumn<Estabelecimento, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Estabelecimento s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(descricaoColumn, ativoColumn);
+            datatable.getColumns().setAll(descricaoColumn, cidadeColumn, estadoColumn,  ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {

@@ -13,6 +13,8 @@ import br.com.loto.admin.domain.DeployPropaganda;
 import br.com.loto.admin.domain.Propaganda;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,6 +67,14 @@ public class DeployPropagandaService {
 
             ret.add(deployPropaganda);
         }
+
+        Collections.sort(ret, new Comparator<DeployPropaganda>() {
+            @Override
+            public int compare(DeployPropaganda o1, DeployPropaganda o2) {
+                return o1.getOrdem().compareTo(o2.getOrdem());
+            }
+
+        });
 
         return ret;
     }

@@ -161,25 +161,27 @@ public class DeployListController implements Initializable {
     public void pesquisar(ActionEvent acEvent) {
         try {
             String descricao = txtFiltro.getText();
-            Long cidade = null;
-            Long estado = null;
-            Long estabelecimento = null;
-
             Cidade cidadeO = txtCidade.getObjectSelecionado();
             Estado estadoO = cbEstado.getSelectionModel().getSelectedItem();
             Estabelecimento estabelecimentoO = txtEstabelecimento.getObjectSelecionado();
 
-            cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
-            estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
-            estabelecimento = estabelecimento == null ? null : estabelecimentoO.getId();
+            Long cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
+            Long estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
+            Long estabelecimento = estabelecimentoO == null ? null : estabelecimentoO.getId();
 
-            List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estabelecimento);
+            List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estado, cidade, estabelecimento);
 
-            TableColumn<Deploy, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 300, (Deploy s) -> s.getDescricao());
-            TableColumn<Deploy, String> estabelecimentoColumn = TableColumnUtil.createStringColumn("Estabelecimento", 300, (Deploy s) -> 
-                    s.getEstabelecimento().getDescricao());
-            
-            
+            TableColumn<Deploy, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 200, (Deploy s) -> s.getDescricao());
+            TableColumn<Deploy, String> estabelecimentoColumn = TableColumnUtil.createStringColumn("Estabelecimento", 200, (Deploy s)
+                    -> s.getEstabelecimento().getDescricao());
+
+            TableColumn<Deploy, String> cidadeColumn = TableColumnUtil.createStringColumn("Cidade", 200, (Deploy s)
+                    -> s.getEstabelecimento().getEstabelecimentoEndereco() == null ? "" : s.getEstabelecimento().getEstabelecimentoEndereco().getCidade().getNome());
+
+            TableColumn<Deploy, String> estadoColumn = TableColumnUtil.createStringColumn("UF", 60, (Deploy s)
+                    -> s.getEstabelecimento().getEstabelecimentoEndereco() == null ? ""
+                    : s.getEstabelecimento().getEstabelecimentoEndereco().getCidade().getEstado().getSigla());
+
             TableColumn<Deploy, String> dataColumn = TableColumnUtil.createStringColumn("Data", 120, (Deploy s)
                     -> sdf.format(s.getData()));
 
@@ -192,7 +194,8 @@ public class DeployListController implements Initializable {
             TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(descricaoColumn, estabelecimentoColumn, dataColumn, dataValidadeColumn, situacaoColumn, ativoColumn);
+            datatable.getColumns().setAll(descricaoColumn, estabelecimentoColumn, cidadeColumn, estadoColumn,
+                    dataColumn, dataValidadeColumn, situacaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {

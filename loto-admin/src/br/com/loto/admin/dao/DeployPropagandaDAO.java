@@ -67,6 +67,7 @@ public class DeployPropagandaDAO extends BaseDAO<DeployPropaganda> {
         sql.append("  inner join propaganda _prop on _prop.id = _cp.id_propaganda ");
         sql.append("  inner join cliente _cli on _cli.id = _cp.id_cliente "); 
         sql.append("  where _dp.id_deploy = ? ");
+        sql.append("  order by _dp.ordem ");
 
         List<Object> parameters = new ArrayList<>();
         parameters.add(deploy.getId());

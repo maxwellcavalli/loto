@@ -462,17 +462,22 @@ public class EstabelecimentoFormController implements Initializable {
 
             Cliente cliente = txtCliente.getObjectSelecionado();
 
-            EstabelecimentoCliente estabelecimentoCliente = new EstabelecimentoCliente();
-            estabelecimentoCliente.setCliente(cliente);
-
-            long qtd = this.clientes.stream().filter(el -> el.getCliente().getId().longValue() == cliente.getId().longValue()).count();
-            if (qtd == 0) {
-
-                this.clientes.add(estabelecimentoCliente);
-                processaDatatableClientes();
-
+            if (cliente == null) {
+                FxmlUtil.getInstance().openMessageDialog(event, "Cliente Inválido");
             } else {
-                FxmlUtil.getInstance().openMessageDialog(event, "Cliente já Vinculado a este Estabelecimento");
+
+                EstabelecimentoCliente estabelecimentoCliente = new EstabelecimentoCliente();
+                estabelecimentoCliente.setCliente(cliente);
+
+                long qtd = this.clientes.stream().filter(el -> el.getCliente().getId().longValue() == cliente.getId().longValue()).count();
+                if (qtd == 0) {
+
+                    this.clientes.add(estabelecimentoCliente);
+                    processaDatatableClientes();
+
+                } else {
+                    FxmlUtil.getInstance().openMessageDialog(event, "Cliente já Vinculado a este Estabelecimento");
+                }
             }
 
             txtCliente.clean();
