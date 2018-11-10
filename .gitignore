@@ -6,3 +6,6 @@
 /loto-components/target/
 /loto-client-tv/build/
 /loto-client-tv/dist/
+/loto-core/target/
+/loto-admin-2/nbproject/private/
+/loto-admin/target/
