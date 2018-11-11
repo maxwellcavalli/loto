@@ -41,20 +41,26 @@ public class ClientThread extends Thread {
     PrintWriter os = null;
 
     String localUUID;
-    String directory;
+    String jsonFile;
 
     Map<String, LocalTime> map = new HashMap<>();
-    
+
     boolean connected;
 
-    public ClientThread(String localUUID, String directory, InetAddress address) {
+    boolean stopServer = false;
+
+    public ClientThread(String localUUID, String jsonFile, InetAddress address) {
         this.localUUID = localUUID;
         this.address = address;
-        this.directory = directory;
+        this.jsonFile = jsonFile;
     }
-    
-    void tryToConnect(){
+
+    void tryToConnect() {
         while (true) {
+            if (stopServer) {
+                break;
+            }
+
             try {
                 LOG.log(Level.INFO, "Trying to connect: {0}", address);
 
@@ -81,7 +87,7 @@ public class ClientThread extends Thread {
             }
         }
     }
-    
+
     @Override
     public void run() {
 
@@ -89,27 +95,29 @@ public class ClientThread extends Thread {
 
         tryToConnect();
 
-        
-
         if (connected) {
 
             while (true) {
+                if (stopServer) {
+                    break;
+                }
+
                 try {
-                    if (s1.isClosed()){
+                    if (s1.isClosed()) {
                         tryToConnect();
-                    } 
-                    
+                    }
+
                     verify();
 
                     Thread.sleep(1000l);
                 } catch (InterruptedException | IOException ex) {
                     LOG.log(Level.SEVERE, null, ex);
-                    
-                    if (ex instanceof IOException){
+
+                    if (ex instanceof IOException) {
                         try {
                             s1.close();
                         } catch (IOException ex1) {
-                             LOG.log(Level.SEVERE, null, ex1);
+                            LOG.log(Level.SEVERE, null, ex1);
                         }
                     }
                 }
@@ -164,7 +172,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(directory + File.separator + "json" + File.separator + "propagandas.json");
+                    File f = new File(jsonFile);
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();
@@ -205,6 +213,10 @@ public class ClientThread extends Thread {
 
         String response = is.readLine();
         LOG.log(Level.INFO, "Updated {0}", response);
+    }
+
+    public void setStopServer(boolean stopServer) {
+        this.stopServer = stopServer;
     }
 
 }

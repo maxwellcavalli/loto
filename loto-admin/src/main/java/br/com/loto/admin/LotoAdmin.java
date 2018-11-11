@@ -72,19 +72,29 @@ public class LotoAdmin extends Application {
         MenuItem menuEstado = createMenuItem("Estado", FxmlFiles.ESTADO_LIST);
         MenuItem menuCidade = createMenuItem("Cidade", FxmlFiles.CIDADE_LIST);
 
-        SeparatorMenuItem separator1 = new SeparatorMenuItem();
+        SeparatorMenuItem separatorLocalidade = new SeparatorMenuItem();
 
         MenuItem menuEquipamento = createMenuItem("Equipamento", FxmlFiles.EQUIPAMENTO_LIST);
+        SeparatorMenuItem separatorEquipamento = new SeparatorMenuItem();
+
         MenuItem menuEstabelecimento = createMenuItem("Estabelecimento", FxmlFiles.ESTABELECIMENTO_LIST);
         MenuItem menuCliente = createMenuItem("Cliente", FxmlFiles.CLIENTE_LIST);
-        
-        SeparatorMenuItem separator2 = new SeparatorMenuItem();
-        
+
+        SeparatorMenuItem separatorCliente = new SeparatorMenuItem();
+
         MenuItem menuDeploy = createMenuItem("Deploy", FxmlFiles.DEPLOY_LIST);
 
-        menuCadastros.getItems().addAll(menuEstado, menuCidade, separator1, 
-                menuEquipamento, menuEstabelecimento, menuCliente, separator2,
-                menuDeploy);
+        SeparatorMenuItem separatorDeploy = new SeparatorMenuItem();
+
+        MenuItem menuResultadoLoteria = createMenuItem("Resultado Loterias", FxmlFiles.RESULTADO_LOTERIA_LIST);
+
+        menuCadastros.getItems().addAll(
+                menuEstado, menuCidade, separatorLocalidade,
+                menuEquipamento, separatorEquipamento,
+                menuEstabelecimento, menuCliente, separatorCliente,
+                menuDeploy, separatorDeploy,
+                menuResultadoLoteria
+        );
 
         //Create SubMenu Help.
         Menu help = new Menu("Help");

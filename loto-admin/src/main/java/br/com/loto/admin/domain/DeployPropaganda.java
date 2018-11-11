@@ -35,10 +35,10 @@ public class DeployPropaganda {
     private Integer idTipoTransicao = TipoTransicao.FADE_IN.getKey();
 
     @Campo(name = "DURACAO_TRANSICAO")
-    private Integer duracaoTransicao = 2000;
+    private Integer duracaoTransicao = 500;
 
     @Campo(name = "DURACAO_PROPAGANDA")
-    private Integer duracaoPropaganda = 15000;
+    private Integer duracaoPropaganda = 5000;
 
     @Campo(name = "ID_TIPO_MIDIA")
     private Integer idTipoMidia = TipoMidia.ESTATICA.getKey();

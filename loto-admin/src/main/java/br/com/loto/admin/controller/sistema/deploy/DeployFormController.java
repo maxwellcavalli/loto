@@ -42,6 +42,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -466,8 +467,14 @@ public class DeployFormController implements Initializable {
             dpValidade.setValue(DateUtils.asLocalDate(deploy.getDataValidade()));
         }
 
-        ComboHelper situacaoDeploy = situacoesDeploy.stream().filter(el -> el.getCodigo() == deploy.getSituacao()).findFirst().get();
-        cbSituacao.getSelectionModel().select(situacaoDeploy);
+        Optional<ComboHelper> oSituacao = situacoesDeploy.stream().filter(el -> el.getCodigo() == deploy.getSituacao()).findFirst();
+        if (oSituacao.isPresent()) {
+            ComboHelper situacaoDeploy = situacoesDeploy.stream().filter(el -> el.getCodigo() == deploy.getSituacao()).findFirst().get();
+            cbSituacao.getSelectionModel().select(situacaoDeploy);
+            cbSituacao.setDisable(false);
+        } else {
+            cbSituacao.setDisable(true);
+        }
 
         Estabelecimento estabelecimento = deploy.getEstabelecimento();
 
@@ -504,7 +511,7 @@ public class DeployFormController implements Initializable {
         if (this.deployPropagandas == null) {
             this.deployPropagandas = new ArrayList<>(1);
         }
-        
+
         validaDisableEstabelecimento(sd);
 
     }

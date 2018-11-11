@@ -29,4 +29,7 @@ public class FxmlFiles {
     public static String DEPLOY_LIST = "/fxml/sistema/deploy/DeployList.fxml";
     public static String DEPLOY_FORM = "/fxml/sistema/deploy/DeployForm.fxml";
 
+    public static String RESULTADO_LOTERIA_LIST = "/fxml/sistema/resultadoLoteria/ResultadoLoteriaList.fxml";
+    public static String RESULTADO_LOTERIA_FORM = "/fxml/sistema/resultadoLoteria/ResultadoLoteriaForm.fxml";
+
 }

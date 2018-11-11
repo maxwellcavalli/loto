@@ -9,9 +9,11 @@ import br.com.loto.core.dao.BaseDAO;
 import br.com.loto.shared.DeployPropagandaDTO;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -60,18 +62,29 @@ public class DeployPropagandaDAO extends BaseDAO<DeployPropagandaDTO> {
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             byte[] conteudo = rs.getBytes("conteudo");
             String sConteudo = new String(Base64.getEncoder().encode(conteudo));
-            
+
+            String fileName = rs.getString("nome_arquivo");
+            fileName = deAccent(fileName);
+            fileName = fileName.replaceAll("\\s", "");
+
             DeployPropagandaDTO dp = new DeployPropagandaDTO();
             dp.setConteudo(sConteudo);
             dp.setDuracaoPropaganda(rs.getInt("duracao_propaganda"));
             dp.setDuracaoTransicao(rs.getInt("duracao_transicao"));
-            dp.setNomeArquivo(rs.getString("nome_arquivo"));
+            dp.setNomeArquivo(fileName);
             dp.setTipoMidia(rs.getInt("id_tipo_midia"));
             dp.setTipoTransicao(rs.getInt("id_tipo_transicao"));
+            dp.setOrdem(rs.getInt("ordem"));
 
             return dp;
         });
 
+    }
+
+    public static String deAccent(String str) {
+        String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(nfdNormalizedString).replaceAll("");
     }
 
 }
