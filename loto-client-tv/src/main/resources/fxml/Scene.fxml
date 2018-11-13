@@ -8,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="581.0" prefWidth="1067.0" styleClass="app" stylesheets="@../styles/Styles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="br.com.loto.client.tv.FXMLController">
+<AnchorPane id="AnchorPane" prefHeight="581.0" prefWidth="1067.0" styleClass="app" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.client.tv.FXMLController">
    <children>
       <VBox layoutX="193.0" layoutY="32.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="200.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -17,7 +17,7 @@
                <children>
                   <BorderPane prefHeight="200.0" prefWidth="200.0" styleClass="ipad-dark-grey" stylesheets="@../styles/Styles.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <left>
-                        <Label fx:id="lbData" prefHeight="62.0" prefWidth="202.0" text="Data" textFill="WHITE" BorderPane.alignment="CENTER">
+                        <Label fx:id="lbData" prefHeight="62.0" prefWidth="258.0" text="Data" textFill="WHITE" BorderPane.alignment="CENTER">
                            <font>
                               <Font size="42.0" />
                            </font>
