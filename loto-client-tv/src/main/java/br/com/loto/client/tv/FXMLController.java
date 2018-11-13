@@ -48,15 +48,16 @@ import javafx.util.Duration;
 
 public class FXMLController implements Initializable {
 
+    private static final Logger LOG = Logger.getLogger(FXMLController.class.getName());
+
     @FXML
     public Label lbData;
 
     @FXML
     public Label lbHora;
-    
-    @FXML
-    public StackPane panelLoterias;
 
+//    @FXML
+//    public StackPane panelLoterias;
     @FXML
     public StackPane root;
 
@@ -75,6 +76,19 @@ public class FXMLController implements Initializable {
         slideshow.setOnFinished((ActionEvent event) -> {
             try {
                 System.out.println("play...");
+
+                slideshow.getChildren().forEach((animation) -> {
+
+                    if (animation instanceof SequentialTransition) {
+
+                        javafx.animation.FadeTransition ft = (javafx.animation.FadeTransition) ((SequentialTransition) animation).getChildren().get(0);
+                        Node n = ft.getNode();
+
+                        if (n instanceof MediaView) {
+                            ((MediaView) n).getMediaPlayer().stop();
+                        }
+                    }
+                });
 
                 loadFromJson(slideshow);
                 slideshow.play();
@@ -150,6 +164,9 @@ public class FXMLController implements Initializable {
             Gson gson = new GsonBuilder().create();
             DeployDTO dTO = gson.fromJson(builder.toString(), DeployDTO.class);
 
+            builder = null;
+            gson = null;
+
             boolean importar = false;
             if (lastUuidCheck == null || lastUuidCheck.isEmpty()) {
                 importar = true;
@@ -165,6 +182,10 @@ public class FXMLController implements Initializable {
                 return;
             }
 
+            LOG.log(Level.INFO, "lastUuidCheck : {0}", lastUuidCheck);
+            LOG.log(Level.INFO, "dTO.getUuidDeploy() : {0}", dTO.getUuidDeploy());
+            LOG.log(Level.INFO, "importar : {0}", importar);
+
             LOG.log(Level.INFO, "Iniciando a troca de propagandas...");
 
             List<Node> nodesToRemove = new ArrayList<>();
@@ -174,63 +195,84 @@ public class FXMLController implements Initializable {
 
             slideshow.stop();
 
+            nodesToRemove.forEach((node) -> {
+                if (node instanceof MediaView) {
+                    ((MediaView) node).getMediaPlayer().dispose();
+                }
+            });
+
             this.root.getChildren().removeAll(nodesToRemove);
             slideshow.getChildren().clear();
+
+            nodesToRemove.clear();
 
             dTO.getPropagandas().forEach((dp) -> {
                 String conteudo = dp.getConteudo();
                 byte[] arquivoBytes = Base64.getDecoder().decode(conteudo);
 
                 Node node = null;
-                InputStream in = new ByteArrayInputStream(arquivoBytes);
-                if (dp.getTipoMidia() == 1) {
-                    ImageView imageView = new ImageView(new Image(in));
-                    imageView.setOpacity(0);
+                try (InputStream in = new ByteArrayInputStream(arquivoBytes)) {
 
-                    imageView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
-                    imageView.setFitHeight(Screen.getPrimary().getBounds().getHeight() - 100);
+                    if (dp.getTipoMidia() == 1) {
+                        ImageView imageView = new ImageView(new Image(in));
+                        imageView.setOpacity(0);
 
-                    //imageView.setPreserveRatio(true);
-                    imageView.setSmooth(true);
-                    imageView.setCache(true);
+                        imageView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
+                        imageView.setFitHeight(Screen.getPrimary().getBounds().getHeight() - 100);
 
-                    node = imageView;
-                } else {
-                    try {
-                        String fName = baseDirectory + File.separator + "midia" + File.separator
-                                + dp.getOrdem().toString() + "_" + dp.getNomeArquivo();
-                        File fVideo = new File(fName);
-                        if (!fVideo.exists()) {
-                            try {
-                                try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fVideo))) {
-                                    outputStream.write(arquivoBytes);
-                                    outputStream.flush();
+                        //imageView.setPreserveRatio(true);
+                        imageView.setSmooth(true);
+                        imageView.setCache(true);
+
+                        node = imageView;
+                    } else {
+                        try {
+                            String fName = baseDirectory + File.separator + "midia" + File.separator
+                                    + dp.getOrdem().toString() + "_" + dp.getNomeArquivo();
+                            File fVideo = new File(fName);
+                            if (!fVideo.exists()) {
+                                try {
+                                    try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fVideo))) {
+                                        outputStream.write(arquivoBytes);
+                                        outputStream.flush();
+                                    }
+
+                                } catch (FileNotFoundException ex) {
+                                    LOG.log(Level.SEVERE, null, ex);
+                                } catch (IOException ex) {
+                                    LOG.log(Level.SEVERE, null, ex);
                                 }
-
-                            } catch (FileNotFoundException ex) {
-                                LOG.log(Level.SEVERE, null, ex);
-                            } catch (IOException ex) {
-                                LOG.log(Level.SEVERE, null, ex);
                             }
+
+                            MediaPlayer player = new MediaPlayer(new javafx.scene.media.Media(fVideo.toURI().toURL().toExternalForm()));
+                            MediaView mediaView = new MediaView(player);
+                            mediaView.setOpacity(0);
+
+                            mediaView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
+                            mediaView.setFitHeight(Screen.getPrimary().getBounds().getHeight() - 100);
+                            mediaView.setSmooth(false);
+                            mediaView.setPreserveRatio(false);
+                            mediaView.setCache(false);
+
+                            player.stop();
+
+                            player.statusProperty().addListener((observable, oldValue, newValue) -> {
+                                LOG.log(Level.INFO, "oldValue {0}", oldValue);
+                                LOG.log(Level.INFO, "newValue {0}", newValue);
+
+                            });
+
+                            //player.setAutoPlay(true);
+                            node = mediaView;
+                        } catch (MalformedURLException ex) {
+                            LOG.log(Level.SEVERE, null, ex);
                         }
-
-                        MediaPlayer player = new MediaPlayer(new javafx.scene.media.Media(fVideo.toURI().toURL().toExternalForm()));
-                        MediaView mediaView = new MediaView(player);
-                        mediaView.setOpacity(0);
-
-                        mediaView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
-                        mediaView.setFitHeight(Screen.getPrimary().getBounds().getHeight() - 100);
-                        mediaView.setSmooth(true);
-                        mediaView.setPreserveRatio(false);
-                        mediaView.setCache(true);
-
-                        //player.setAutoPlay(true);
-
-                        node = mediaView;
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
                 }
+                
+               
 
                 if (node != null) {
 
@@ -247,15 +289,17 @@ public class FXMLController implements Initializable {
                     sequentialTransition.statusProperty().addListener((ObservableValue<? extends Animation.Status> observable, Animation.Status oldValue, Animation.Status newValue) -> {
                         ReadOnlyObjectProperty r = (ReadOnlyObjectProperty) observable;
                         SequentialTransition st = (SequentialTransition) r.getBean();
-                        
+
                         javafx.animation.FadeTransition ft = (javafx.animation.FadeTransition) st.getChildren().get(0);
                         Node n = ft.getNode();
-                        
+
                         if (n instanceof MediaView) {
                             if (newValue.equals(Animation.Status.RUNNING)) {
+                                LOG.log(Level.INFO, "Play midia player");
+
                                 ((MediaView) n).getMediaPlayer().stop();
                                 ((MediaView) n).getMediaPlayer().play();
-                            } 
+                            }
                         }
                     });
 
@@ -264,10 +308,10 @@ public class FXMLController implements Initializable {
                 }
             });
 
+             dTO = null;
             LOG.log(Level.INFO, "Troca de propagandas finalizada");
         }
     }
-    private static final Logger LOG = Logger.getLogger(FXMLController.class.getName());
 
     // the method in the Transition helper class:
     public FadeTransition getFadeTransition(Node node, double fromValue, double toValue, int durationInMilliseconds) {

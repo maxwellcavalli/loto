@@ -75,8 +75,6 @@ public class ResultadoLoteriaFormController implements Initializable {
             this.resultadoLoteria.setConcurso(Integer.parseInt(txtConcurso.getText()));
         }
 
-        this.resultadoLoteria.setNumeros(txtNumeros.getText());
-
         if ("".equals(txtValorAcumulado.getText())) {
             messages.add("Valor Acumulado Inválido");
         } else {
@@ -115,7 +113,6 @@ public class ResultadoLoteriaFormController implements Initializable {
     public void initData(ResultadoLoteria resultadoLoteria) {
         txtDescricao.setText(resultadoLoteria.getNome());
         txtConcurso.setText(resultadoLoteria.getConcurso().toString());
-        txtNumeros.setText(resultadoLoteria.getNumeros());
         txtValorAcumulado.setText(resultadoLoteria.getValorAcumulado().toBigInteger().toString());
 
         this.resultadoLoteria = resultadoLoteria;

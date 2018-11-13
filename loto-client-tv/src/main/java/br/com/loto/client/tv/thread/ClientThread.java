@@ -74,6 +74,10 @@ public class ClientThread extends Thread {
 
                 break;
             } catch (IOException e) {
+                s1 =  null;
+                os = null;
+                is = null;
+                
                 LOG.log(Level.SEVERE, "Connection error: {0}", address);
 
 //                Logger.getLogger(ClientThread.class.getName()).log(Level.INFO, null, e);
@@ -84,7 +88,7 @@ public class ClientThread extends Thread {
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, null, ex);
                 }
-            }
+            } 
         }
     }
 
@@ -190,6 +194,8 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify has not data");
             }
         }
+        
+        gson = null;
     }
 
     void updateDeploy(String uuidDeploy) throws IOException {
@@ -213,6 +219,8 @@ public class ClientThread extends Thread {
 
         String response = is.readLine();
         LOG.log(Level.INFO, "Updated {0}", response);
+        
+        gson = null;
     }
 
     public void setStopServer(boolean stopServer) {

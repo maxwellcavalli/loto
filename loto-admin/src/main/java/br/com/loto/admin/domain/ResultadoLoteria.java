@@ -26,9 +26,6 @@ public class ResultadoLoteria {
     @Campo(name = "CONCURSO")
     private Integer concurso;
 
-    @Campo(name = "NUMEROS")
-    private String numeros = "";
-
     @Campo(name = "VALOR_ACUMULADO")
     private BigDecimal valorAcumulado;
 
@@ -54,14 +51,6 @@ public class ResultadoLoteria {
 
     public void setConcurso(Integer concurso) {
         this.concurso = concurso;
-    }
-
-    public String getNumeros() {
-        return numeros;
-    }
-
-    public void setNumeros(String numeros) {
-        this.numeros = numeros;
     }
 
     public BigDecimal getValorAcumulado() {

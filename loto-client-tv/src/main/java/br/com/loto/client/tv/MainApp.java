@@ -14,6 +14,8 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -57,10 +59,9 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
-        
 
         AnchorPane p = (AnchorPane) fxmlLoader.load();
-        
+
         //Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
         FXMLController controller = fxmlLoader.<FXMLController>getController();
         controller.init(baseDirectory);
@@ -68,11 +69,22 @@ public class MainApp extends Application {
         Scene scene = new Scene(p);
         scene.getStylesheets().add("/styles/Styles.css");
 
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                if (primaryStage.isFullScreen()){
+                    primaryStage.setFullScreen(false);
+                } else {
+                    primaryStage.setFullScreen(true);
+                }
+            }
+        });
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
         primaryStage.setFullScreenExitHint("");
         primaryStage.setFullScreen(true);
+        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
 
         primaryStage.setOnCloseRequest((WindowEvent t) -> {
             if (clientThread != null) {
