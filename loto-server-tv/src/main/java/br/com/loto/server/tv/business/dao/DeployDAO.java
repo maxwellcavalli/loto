@@ -70,6 +70,46 @@ public class DeployDAO extends BaseDAO<DeployDTO> {
             return d;
         });
     }
+    
+    public DeployDTO loadLastDeployByUuid(String uuid) throws SQLException {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" ");
+
+        sql.append(" select _eq.num_serie, ");
+        sql.append("        _eq.uuid, ");
+        sql.append("        _d.data_validade, ");
+        sql.append("        _d.id, ");
+        sql.append("        _d.uuid as _d_uuid ");
+
+        sql.append("  from deploy _d ");
+        sql.append(" inner join estabelecimento _e on _e.id = _d.id_estabelecimento ");
+        sql.append(" inner join estabelecimento_equipamento _ee on _ee.id_estabelecimento = _e.id ");
+        sql.append(" inner join equipamento _eq on _eq.id = _ee.id_equipamento ");
+
+        sql.append(" where 1 = 1 ");
+        sql.append("   and _d.id = ( select max(_d1.id) ");
+        sql.append("                   from deploy _d1 ");
+        sql.append("                  where 1 = 1 ");          
+        sql.append("                    and _d1.situacao = 4 ");
+        sql.append("                    and _eq.uuid = ? ");
+        sql.append("                    and _d1.ativo = ? ) ");
+
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(uuid);
+        parameters.add(true);
+
+        return super.carregar(sql.toString(), parameters, (ResultSet rs) -> {
+            DeployDTO d = new DeployDTO();
+            d.setId(rs.getLong("id"));
+            d.setDataValidade(rs.getTimestamp("data_validade"));
+            d.setNumSerie(rs.getString("num_serie"));
+            d.setUuid(rs.getString("uuid"));
+            d.setUuidDeploy(rs.getString("_d_uuid"));
+            return d;
+        });
+    }
+    
+    
 
     public void updateDeploy(String uuid) throws SQLException {
         StringBuilder updateCmd = new StringBuilder();

@@ -74,10 +74,10 @@ public class ClientThread extends Thread {
 
                 break;
             } catch (IOException e) {
-                s1 =  null;
+                s1 = null;
                 os = null;
                 is = null;
-                
+
                 LOG.log(Level.SEVERE, "Connection error: {0}", address);
 
 //                Logger.getLogger(ClientThread.class.getName()).log(Level.INFO, null, e);
@@ -88,7 +88,7 @@ public class ClientThread extends Thread {
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, null, ex);
                 }
-            } 
+            }
         }
     }
 
@@ -192,9 +192,60 @@ public class ClientThread extends Thread {
                 }
             } else {
                 LOG.log(Level.INFO, "Running verify has not data");
+
+                File f = new File(jsonFile);
+                if (!f.exists()) {
+                    lastDeploy();
+                }
             }
         }
-        
+
+        gson = null;
+    }
+
+    void lastDeploy() throws IOException {
+
+        LOG.log(Level.INFO, "Running last-deploy...");
+
+        ComandoDTO comando = new ComandoDTO();
+        comando.setUniqueId(localUUID);
+        comando.setComando("last-deploy");
+
+        Gson gson = new GsonBuilder().create();
+        String json = gson.toJson(comando);
+
+        os.println(json);
+        os.flush();
+
+        String response = is.readLine();
+
+        ComandoDTO comandoDTO = gson.fromJson(response, ComandoDTO.class);
+
+        if (comandoDTO != null) {
+            if (comandoDTO.getComando().equals("has-data")) {
+                LOG.log(Level.INFO, "Running last-deploy has data");
+                String data = comandoDTO.getData();
+                try {
+                    File f = new File(jsonFile);
+                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
+                        out.write(data.getBytes());
+                        out.flush();
+
+                        DeployDTO dTO = gson.fromJson(data, DeployDTO.class);
+
+                        LOG.log(Level.INFO, "Data saved");
+
+                        updateDeploy(dTO.getUuidDeploy());
+                    }
+                } catch (IOException e) {
+                    LOG.log(Level.SEVERE, null, e);
+                }
+            } else {
+                LOG.log(Level.INFO, "Running last-deploy has not data");
+
+            }
+        }
+
         gson = null;
     }
 
@@ -219,7 +270,7 @@ public class ClientThread extends Thread {
 
         String response = is.readLine();
         LOG.log(Level.INFO, "Updated {0}", response);
-        
+
         gson = null;
     }
 

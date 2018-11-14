@@ -9,6 +9,7 @@ package br.com.loto.admin.domain;
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  *
@@ -20,14 +21,32 @@ public class ResultadoLoteria {
     @Campo(name = "ID", autoIncrement = true, primaryKey = true)
     private Long id;
 
-    @Campo(name = "NOME")
-    private String nome = "";
-
     @Campo(name = "CONCURSO")
     private Integer concurso;
 
     @Campo(name = "VALOR_ACUMULADO")
     private BigDecimal valorAcumulado;
+
+    @Campo(name = "ID_TIPO_LOTERIA")
+    private Integer idTipoLoteria;
+    
+    private List<ResultadoLoteriaNumeros> numerosLoteria;
+
+    public List<ResultadoLoteriaNumeros> getNumerosLoteria() {
+        return numerosLoteria;
+    }
+
+    public void setNumerosLoteria(List<ResultadoLoteriaNumeros> numerosLoteria) {
+        this.numerosLoteria = numerosLoteria;
+    }
+
+    public Integer getIdTipoLoteria() {
+        return idTipoLoteria;
+    }
+
+    public void setIdTipoLoteria(Integer idTipoLoteria) {
+        this.idTipoLoteria = idTipoLoteria;
+    }
 
     public Long getId() {
         return id;
@@ -35,14 +54,6 @@ public class ResultadoLoteria {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
     }
 
     public Integer getConcurso() {

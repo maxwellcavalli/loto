@@ -5,10 +5,8 @@
  */
 package br.com.loto.admin.dao;
 
-import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.domain.ResultadoLoteria;
 import br.com.loto.core.dao.BaseDAO;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,25 +36,29 @@ public class ResultadoLoteriaDAO extends BaseDAO<ResultadoLoteria> {
         return super.persistir(t); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public List<ResultadoLoteria> pesquisar(String nome) throws SQLException {
+    public List<ResultadoLoteria> pesquisar(Integer tipoLoteria, Integer concurso) throws SQLException {
         StringBuilder sql = new StringBuilder();
-        sql.append(" SELECT ID, CONCURSO, NOME, VALOR_ACUMULADO ");
+        sql.append(" SELECT ID, CONCURSO, ID_TIPO_LOTERIA, VALOR_ACUMULADO ");
         sql.append("   FROM RESULTADO_LOTERIA ");
         sql.append("  WHERE 1 = 1 ");
 
         List<Object> parameters = new ArrayList<>();
 
-        if (nome != null && !nome.trim().isEmpty()) {
-            sql.append("  AND UPPER(NOME) LIKE ? ");
-            parameters.add("%" + nome.toUpperCase() + "%");
+        if (tipoLoteria != null) {
+            sql.append("  AND ID_TIPO_LOTERIA = ?");
+            parameters.add(tipoLoteria);
         }
-
-        sql.append(" ORDER BY NOME ");
+        
+        if (concurso != null){
+            sql.append("  AND CONCURSO = ?");
+            parameters.add(concurso);
+        }
+        sql.append(" ORDER BY ID_TIPO_LOTERIA, CONCURSO");
 
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             ResultadoLoteria r = new ResultadoLoteria();
             r.setId(rs.getLong("ID"));
-            r.setNome(rs.getString("NOME"));
+            r.setIdTipoLoteria(rs.getInt("ID_TIPO_LOTERIA"));
             r.setConcurso(rs.getInt("CONCURSO"));
             r.setValorAcumulado(rs.getBigDecimal("VALOR_ACUMULADO"));
             

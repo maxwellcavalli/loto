@@ -30,6 +30,15 @@ public class DeployService {
     private DeployService() {
     }
 
+    public DeployDTO loadLastDeployByUuid(String uuid) throws SQLException {
+        DeployDTO deployDTO = DeployDAO.getInstance().loadLastDeployByUuid(uuid);
+        if (deployDTO != null) {
+            List<DeployPropagandaDTO> list = DeployPropagandaService.getInstance().loadDeployPropaganda(deployDTO.getId());
+            deployDTO.setPropagandas(list);
+        }
+        return deployDTO;
+    }
+
     public DeployDTO loadDeployByUuid(String uuid) throws SQLException {
         DeployDTO deployDTO = DeployDAO.getInstance().loadDeployByUuid(uuid);
         if (deployDTO != null) {

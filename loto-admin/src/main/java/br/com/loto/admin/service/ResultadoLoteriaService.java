@@ -5,10 +5,9 @@
  */
 package br.com.loto.admin.service;
 
-import br.com.loto.admin.dao.EstadoDAO;
 import br.com.loto.admin.dao.ResultadoLoteriaDAO;
-import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.domain.ResultadoLoteria;
+import br.com.loto.admin.domain.ResultadoLoteriaNumeros;
 import br.com.loto.core.util.JdbcUtil;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,15 +31,18 @@ public class ResultadoLoteriaService {
     private ResultadoLoteriaService() {
     }
 
-    public ResultadoLoteria persistir(ResultadoLoteria t) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
+    public ResultadoLoteria persistir(ResultadoLoteria t, List<ResultadoLoteriaNumeros> numerosLoteria) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
         t = ResultadoLoteriaDAO.getInstance().persistir(t);
+        
+        numerosLoteria = ResultadoLoteriaNumerosService.getInstance().persistir(t, numerosLoteria);
+        t.setNumerosLoteria(numerosLoteria);
 
         JdbcUtil.getInstance().commit();
         return t;
     }
 
-    public List<ResultadoLoteria> pesquisar(String nome) throws SQLException {
-        return ResultadoLoteriaDAO.getInstance().pesquisar(nome);
+    public List<ResultadoLoteria> pesquisar(Integer tipoLoteria, Integer concurso) throws SQLException {
+        return ResultadoLoteriaDAO.getInstance().pesquisar(tipoLoteria, concurso);
     }
 
 }

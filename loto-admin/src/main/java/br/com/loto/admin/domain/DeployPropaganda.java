@@ -6,8 +6,8 @@
  */
 package br.com.loto.admin.domain;
 
-import br.com.loto.admin.domain.type.TipoMidia;
-import br.com.loto.admin.domain.type.TipoTransicao;
+import br.com.loto.shared.domain.type.TipoMidia;
+import br.com.loto.shared.domain.type.TipoTransicao;
 import br.com.loto.core.database.annotation.Campo;
 import br.com.loto.core.database.annotation.Entidade;
 import br.com.loto.core.database.annotation.Relacionamento;

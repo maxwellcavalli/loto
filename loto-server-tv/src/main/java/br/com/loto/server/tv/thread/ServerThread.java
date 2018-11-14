@@ -81,6 +81,7 @@ public class ServerThread extends Thread {
                                 m_bRunThread = false;
                             } else {
                                 verify(comandoDTO);
+                                lastDeploy(comandoDTO);
                                 updateDeploy(comandoDTO);
                             }
                         } catch (SQLException ex) {
@@ -128,6 +129,32 @@ public class ServerThread extends Thread {
             out.flush();
         }
     }
+    
+    void lastDeploy(ComandoDTO comandoDTO) throws SQLException {
+        if (comandoDTO.getComando().equals("last-deploy")) {
+            Gson gson = new GsonBuilder().create();
+
+            DeployDTO deployDTO = DeployService.getInstance().loadLastDeployByUuid(comandoDTO.getUniqueId());
+
+            ComandoDTO c = new ComandoDTO();
+            c.setUniqueId(comandoDTO.getUniqueId());
+
+            if (deployDTO != null) {
+
+                String data = gson.toJson(deployDTO);
+                c.setComando("has-data");
+                c.setData(data);
+            } else {
+                c.setComando("no-data");
+            }
+
+            String json = gson.toJson(c);
+
+            out.println(json);
+            out.flush();
+        }
+    }
+    
 
     void updateDeploy(ComandoDTO comandoDTO) throws SQLException {
         if (comandoDTO.getComando().equals("update-deploy")) {
