@@ -30,11 +30,18 @@ public class Cliente {
     @Relacionamento(relationColumnName = "id_cidade")
     private Cidade cidade;
 
+    @Campo(name = "MOSTRAR_TODAS_LOCALIDADES")
+    private boolean mostrarTodasLocalidades;
+
     //usado para retorno
     private List<ClientePropaganda> listClientePropaganda;
 
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
+    }
+
+    public String getMostrarTodasLocalidadesStr() {
+        return this.mostrarTodasLocalidades == true ? "Sim" : "Não";
     }
 
     public List<ClientePropaganda> getListClientePropaganda() {
@@ -75,6 +82,14 @@ public class Cliente {
 
     public void setCidade(Cidade cidade) {
         this.cidade = cidade;
+    }
+
+    public boolean isMostrarTodasLocalidades() {
+        return mostrarTodasLocalidades;
+    }
+
+    public void setMostrarTodasLocalidades(boolean mostrarTodasLocalidades) {
+        this.mostrarTodasLocalidades = mostrarTodasLocalidades;
     }
 
 }

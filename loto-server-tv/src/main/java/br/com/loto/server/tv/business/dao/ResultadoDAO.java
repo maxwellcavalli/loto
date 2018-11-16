@@ -8,6 +8,7 @@ package br.com.loto.server.tv.business.dao;
 import br.com.loto.core.dao.BaseDAO;
 import br.com.loto.core.util.JdbcUtil;
 import br.com.loto.shared.DeployDTO;
+import br.com.loto.shared.ResultadoDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,24 +22,27 @@ import java.util.logging.Logger;
  *
  * @author maxwe
  */
-public class DeployDAO extends BaseDAO<DeployDTO> {
+public class ResultadoDAO extends BaseDAO<ResultadoDTO> {
 
-    private static DeployDAO instance;
+    private static ResultadoDAO instance;
 
-    private DeployDAO() {
+    private ResultadoDAO() {
     }
 
-    public static DeployDAO getInstance() {
+    public static ResultadoDAO getInstance() {
         if (instance == null) {
-            instance = new DeployDAO();
+            instance = new ResultadoDAO();
         }
 
         return instance;
     }
 
-    public DeployDTO loadDeployByUuid(String uuid) throws SQLException {
+    public List<ResultadoDTO> loadLastResultados() throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append(" ");
+        
+        select id
+          from Resultadosd 
 
         sql.append(" select _eq.num_serie, ");
         sql.append("        _eq.uuid, ");
@@ -128,7 +132,7 @@ public class DeployDAO extends BaseDAO<DeployDTO> {
             try {
                 JdbcUtil.getInstance().rollback();
             } catch (SQLException ex) {
-                Logger.getLogger(DeployDAO.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ResultadoDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
             throw e;
         }

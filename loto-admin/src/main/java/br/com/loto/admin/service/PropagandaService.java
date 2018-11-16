@@ -8,6 +8,7 @@ package br.com.loto.admin.service;
 import br.com.loto.admin.dao.PropagandaDAO;
 import br.com.loto.admin.domain.Propaganda;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  *
@@ -29,6 +30,10 @@ public class PropagandaService {
     }
 
     public Propaganda persistir(Propaganda propaganda) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
+        if (propaganda.getUuid() == null || propaganda.getUuid().isEmpty()){
+            propaganda.setUuid(UUID.randomUUID().toString());
+        }
+        
         return PropagandaDAO.getInstance().persistir(propaganda);
     }
 

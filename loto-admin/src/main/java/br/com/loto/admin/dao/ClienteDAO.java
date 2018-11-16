@@ -48,6 +48,7 @@ public class ClienteDAO extends BaseDAO<Cliente> {
         sql.append(" SELECT _cli.ID as _cli_ID, ");
         sql.append("        _cli.NOME AS _cli_NOME, ");
         sql.append("        _cli.ATIVO AS _cli_ATIVO, ");
+        sql.append("        _cli.MOSTRAR_TODAS_LOCALIDADES, ");
 
         sql.append("        _cid.ID AS _cid_ID, ");
         sql.append("        _cid.NOME AS _cid_NOME, ");
@@ -57,8 +58,8 @@ public class ClienteDAO extends BaseDAO<Cliente> {
         sql.append("        _est.SIGLA AS _est_SIGLA ");
 
         sql.append("   FROM CLIENTE _cli ");
-        sql.append("  LEFT JOIN CIDADE _cid ON _cid.id = _cli.id_cidade ");
-        sql.append("  LEFT JOIN ESTADO _est ON _est.id = _cid.id_estado ");
+        sql.append("   LEFT JOIN CIDADE _cid ON _cid.id = _cli.id_cidade ");
+        sql.append("   LEFT JOIN ESTADO _est ON _est.id = _cid.id_estado ");
         sql.append("  WHERE 1 = 1 ");
 
         List<Object> parameters = new ArrayList<>();
@@ -79,37 +80,17 @@ public class ClienteDAO extends BaseDAO<Cliente> {
         }
 
         if (estabelecimento != null) {
-            sql.append("  AND EXISTS (SELECT 1 ");
+            sql.append("  AND (EXISTS (SELECT 1 ");
             sql.append("                FROM ESTABELECIMENTO_CLIENTE _ec ");
             sql.append("               WHERE _ec.ID_ESTABELECIMENTO = ? ");
             sql.append("                 AND _ec.ID_CLIENTE = _CLI.ID ) ");
             
+            sql.append("   OR _cli.MOSTRAR_TODAS_LOCALIDADES = TRUE ) ");
+            sql.append("  AND _cli.ATIVO = TRUE ");
+            
             parameters.add(estabelecimento);
         }
 
-        sql.append(" UNION  ");
-
-        sql.append(" SELECT _cli1.ID as _cli_ID, ");
-        sql.append("        _cli1.NOME AS _cli_NOME, ");
-        sql.append("        _cli1.ATIVO AS _cli_ATIVO, ");
-
-        sql.append("        _cid1.ID AS _cid_ID, ");
-        sql.append("        _cid1.NOME AS _cid_NOME, ");
-
-        sql.append("        _est1.ID AS _est_ID, ");
-        sql.append("        _est1.NOME AS _est_NOME, ");
-        sql.append("        _est1.SIGLA AS _est_SIGLA ");
-
-        sql.append("   FROM CLIENTE _cli1 ");
-        sql.append("   LEFT JOIN CIDADE _cid1 ON _cid1.id = _cli1.id_cidade ");
-        sql.append("   LEFT JOIN ESTADO _est1 ON _est1.id = _cid1.id_estado ");
-        sql.append("   WHERE UPPER(_cli1.NOME) LIKE ? ");
-        sql.append("     AND UPPER(_cli1.NOME) = ? ");
-
-        parameters.add("%"+nome.toUpperCase()+"%");
-        parameters.add("CAIXA ECONOMICA FEDERAL");
-        
-        
         sql.append(" ORDER BY 2 ");
 
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
@@ -131,6 +112,7 @@ public class ClienteDAO extends BaseDAO<Cliente> {
             cli.setNome(rs.getString("_cli_NOME"));
             cli.setAtivo(rs.getBoolean("_cli_ATIVO"));
             cli.setCidade(c);
+            cli.setMostrarTodasLocalidades(rs.getBoolean("MOSTRAR_TODAS_LOCALIDADES"));
 
             return cli;
         });

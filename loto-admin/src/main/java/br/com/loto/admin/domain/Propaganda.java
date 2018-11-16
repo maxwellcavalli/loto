@@ -37,6 +37,9 @@ public class Propaganda {
     @Campo(name = "DATA_INATIVACAO")
     private Date dataInativacao;
 
+    @Campo(name = "UUID")
+    private String uuid;
+
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
     }
@@ -95,6 +98,14 @@ public class Propaganda {
 
     public void setData(Date data) {
         this.data = data;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
 }

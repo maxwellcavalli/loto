@@ -231,7 +231,7 @@ public class DeployFormController implements Initializable {
                 return new ArrayList<>(0);
             } else {
                 try {
-                    return ClientePropagandaService.getInstance().pesquisar(c, query, 10);
+                    return ClientePropagandaService.getInstance().pesquisar(c, query, true, 10);
 
                 } catch (SQLException ex) {
                     Logger.getLogger(EstabelecimentoFormController.class
@@ -636,7 +636,7 @@ public class DeployFormController implements Initializable {
         List<ActionColumnButton<DeployPropaganda>> actionsColumnButton = new ArrayList<>(1);
         actionsColumnButton.add(acDelete);
 
-        TableColumn<DeployPropaganda, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tablePropaganda, actionsColumnButton);
+        TableColumn<DeployPropaganda, DeployPropaganda> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tablePropaganda, actionsColumnButton);
 
         tablePropaganda.getColumns().clear();
         tablePropaganda.getColumns().setAll(ordemColumn, clienteColumn, descricaoColumn, tipoTransicaoColumn, tipoMidiaColumn, tempoPropagandaColumn, tempoTransicaoColumn, actionColumn);

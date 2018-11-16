@@ -19,6 +19,7 @@ import br.com.loto.admin.service.ClienteService;
 import br.com.loto.admin.service.EstadoService;
 import br.com.loto.core.fx.datatable.ActionColumnButton;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
+import br.com.loto.core.fx.datatable.interfaces.IActiveColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
 import java.awt.Desktop;
 import java.io.File;
@@ -71,6 +72,9 @@ public class ClienteFormController implements Initializable {
 
     @FXML
     public CheckBox ckAtivo;
+
+    @FXML
+    public CheckBox ckTodasLocalidades;
 
     @FXML
     public ComboBox<Estado> cbEstado;
@@ -157,6 +161,7 @@ public class ClienteFormController implements Initializable {
 
         this.cliente.setNome(txtDescricao.getText());
         this.cliente.setAtivo(ckAtivo.selectedProperty().getValue());
+        this.cliente.setMostrarTodasLocalidades(this.ckTodasLocalidades.selectedProperty().getValue());
 
         Cidade cidade = txtCidade.getObjectSelecionado();
         this.cliente.setCidade(cidade);
@@ -207,6 +212,7 @@ public class ClienteFormController implements Initializable {
     public void initData(Cliente cliente) {
         txtDescricao.setText(cliente.getNome());
         ckAtivo.setSelected(cliente.isAtivo());
+        ckTodasLocalidades.setSelected(cliente.isMostrarTodasLocalidades());
 
         cbPropaganda.setSelected(true);
 
@@ -239,14 +245,17 @@ public class ClienteFormController implements Initializable {
                 if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                     ClientePropaganda clientePropaganda = (ClientePropaganda) tablePropaganda.getSelectionModel().getSelectedItem();
 
-                    this.selectedClientePropaganda = clientePropaganda;
+                    if (this.selectedClientePropaganda != null) {
+                        this.selectedClientePropaganda = clientePropaganda;
 
-                    this.txtDescricaoPropaganda.setText(selectedClientePropaganda.getPropaganda().getDescricao());
-                    this.txtNomeArquivo.setText(selectedClientePropaganda.getPropaganda().getNomeArquivo());
-                    this.cbPropaganda.setSelected(selectedClientePropaganda.getPropaganda().isAtivo());
+                        this.txtDescricaoPropaganda.setText(selectedClientePropaganda.getPropaganda().getDescricao());
+                        this.txtNomeArquivo.setText(selectedClientePropaganda.getPropaganda().getNomeArquivo());
+                        this.cbPropaganda.setSelected(selectedClientePropaganda.getPropaganda().isAtivo());
 
-                    this.btAdicionarPropaganda.setText("Alterar");
-                    this.btCancelar.setVisible(true);
+                        this.btAdicionarPropaganda.setText("Alterar");
+                        this.btCancelar.setVisible(true);
+
+                    }
                 }
             });
 
@@ -331,15 +340,36 @@ public class ClienteFormController implements Initializable {
 
         ActionColumnButton<ClientePropaganda> acDelete = new ActionColumnButton<>("Delete");
         acDelete.setAction((IActionColumn<ClientePropaganda>) (ClientePropaganda t) -> {
-            propagandas.remove(t);
+            
+            if (t.getPropaganda().isAtivo()){
+                t.getPropaganda().setAtivo(false);
+                t.getPropaganda().setDataInativacao(new Date());
+            } else {
+                t.getPropaganda().setAtivo(true);
+                t.getPropaganda().setDataInativacao(null);
+            }
+            //propagandas.remove(t);
             processaDatatablePropagandas();
+        });
+        acDelete.setActiveColumn((ClientePropaganda t) -> {
+            return t.isHasDeploy();
+        });
+        
+        acDelete.setConditionalLabel((ClientePropaganda t) -> {
+            return t.getPropaganda().isAtivo() == true ? "Inativar" : "Ativar";
         });
 
         List<ActionColumnButton<ClientePropaganda>> actionsColumnButton = new ArrayList<>(2);
         actionsColumnButton.add(acView);
         actionsColumnButton.add(acDelete);
 
-        TableColumn<ClientePropaganda, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 140, tablePropaganda, actionsColumnButton);
+        TableColumn<ClientePropaganda, ClientePropaganda> actionColumn = TableColumnUtil.createButtonColumn("Ação", 140, tablePropaganda, actionsColumnButton);
+
+//        actionColumn.setSortable(false);
+//        descricaoColumn.setSortable(false);
+//        dataColumn.setSortable(false);
+//        dataInativacaoColumn.setSortable(false);
+//        ativoColumn.setSortable(false);
 
         tablePropaganda.getColumns().clear();
         tablePropaganda.getColumns().setAll(descricaoColumn, dataColumn, dataInativacaoColumn, ativoColumn, actionColumn);

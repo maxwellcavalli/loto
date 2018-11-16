@@ -25,7 +25,16 @@ public class ClientePropaganda {
 
     @Relacionamento(relationColumnName = "id_propaganda")
     private Propaganda propaganda;
-    
+
+    private boolean hasDeploy;
+
+    public boolean isHasDeploy() {
+        return hasDeploy;
+    }
+
+    public void setHasDeploy(boolean hasDeploy) {
+        this.hasDeploy = hasDeploy;
+    }
 
     public Long getId() {
         return id;

@@ -76,14 +76,6 @@
                   <Insets right="10.0" />
                </padding>
                <children>
-                  <JFXButton buttonType="RAISED" onAction="#salvar" ripplerFill="WHITE" style="-fx-background-color: #41c146;" text="Salvar" textFill="WHITE">
-                     <effect>
-                        <DropShadow />
-                     </effect>
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </JFXButton>
                   <JFXButton onAction="#voltar" style="-fx-background-color: #efa226;" text="Voltar" textFill="WHITE">
                      <font>
                         <Font name="Segoe UI" size="14.0" />
@@ -94,6 +86,17 @@
                      <effect>
                         <DropShadow />
                      </effect>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </JFXButton>
+                  <JFXButton buttonType="RAISED" defaultButton="true" onAction="#salvar" ripplerFill="WHITE" style="-fx-background-color: #41c146;" text="Salvar" textFill="WHITE">
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                     <font>
+                        <Font name="Segoe UI" size="14.0" />
+                     </font>
                   </JFXButton>
                </children>
             </HBox>

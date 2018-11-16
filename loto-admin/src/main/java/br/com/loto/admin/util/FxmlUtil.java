@@ -46,7 +46,7 @@ public class FxmlUtil {
 
         FXMLLoader root;
         try {
-            root = new FXMLLoader(getClass().getResource("/br/com/loto/admin/view/modal/Mensagem.fxml"));
+            root = new FXMLLoader(getClass().getResource("/fxml/modal/Mensagem.fxml"));
             Parent p = root.load();
 
             MensagemController mensagemController = root.<MensagemController>getController();
@@ -82,7 +82,7 @@ public class FxmlUtil {
 
         FXMLLoader root;
         try {
-            root = new FXMLLoader(getClass().getResource("/br/com/loto/admin/view/modal/Mensagem.fxml"));
+            root = new FXMLLoader(getClass().getResource("/fxml/modal/Mensagem.fxml"));
             Parent p = root.load();
 
             MensagemController mensagemController = root.<MensagemController>getController();
@@ -118,7 +118,7 @@ public class FxmlUtil {
 
         FXMLLoader root;
         try {
-            root = new FXMLLoader(getClass().getResource("/br/com/loto/admin/view/modal/Mensagem.fxml"));
+            root = new FXMLLoader(getClass().getResource("/fxml/modal/Mensagem.fxml"));
             Parent p = root.load();
 
             MensagemController mensagemController = root.<MensagemController>getController();

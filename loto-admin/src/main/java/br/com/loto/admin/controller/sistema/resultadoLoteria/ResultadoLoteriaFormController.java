@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -30,6 +31,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
@@ -61,14 +64,29 @@ public class ResultadoLoteriaFormController implements Initializable {
     private List<ComboHelper> tiposLoteria;
 
     private List<TextField> camposDezenas;
-
+    
     //--
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        configureTextFields(txtConcurso);
+        configureTextFields(txtValorAcumulado);
+    }
 
+    void configureTextFields(TextField textField) {
+        UnaryOperator<Change> filter = change -> {
+            String text = change.getText();
+
+            if (text.matches("[0-9]*")) {
+                return change;
+            }
+
+            return null;
+        };
+        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+        textField.setTextFormatter(textFormatter);
     }
 
     void configurarTipoLoteria() {
@@ -174,6 +192,9 @@ public class ResultadoLoteriaFormController implements Initializable {
                 this.numerosLoteria.stream().map((rln) -> {
                     TextField txt = new TextField();
                     txt.setText(rln.getNumero().toString());
+                    
+                    configureTextFields(txt);
+                    
                     return txt;
                 }).forEachOrdered((txt) -> {
                     this.panelDezenas.getChildren().add(txt);
@@ -211,6 +232,7 @@ public class ResultadoLoteriaFormController implements Initializable {
         int i = 0;
         while (i < tipoLoteria.getNumeroDezenas()) {
             TextField txt = new TextField();
+            configureTextFields(txt);
 
             this.panelDezenas.getChildren().add(txt);
             HBox.setMargin(txt, new Insets(0, 10, 0, 0));

@@ -6,6 +6,7 @@
 package br.com.loto.core.fx.datatable;
 
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -23,7 +24,7 @@ import javafx.scene.layout.HBox;
  *
  * @author maxwe
  */
-public class ActionColumn<T> extends TableCell<T, Boolean> {
+public class ActionColumn<T> extends TableCell<T, T> {
 
     // a button for adding a new person.
     final Button addButton = new Button("Delete");
@@ -34,53 +35,44 @@ public class ActionColumn<T> extends TableCell<T, Boolean> {
     // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
     final DoubleProperty buttonY = new SimpleDoubleProperty();
 
+    private List<ActionColumnButton<T>> actionsColumnButton;
+    private TableView<T> table;
+
     public ActionColumn(final TableView<T> table, IActionColumn<T> action) {
         this(table, "Delete", action);
     }
 
     public ActionColumn(final TableView<T> table, String title, IActionColumn<T> action) {
-        hbox.setPadding(new Insets(3));
-        hbox.setSpacing(10);
-        hbox.setAlignment(Pos.CENTER);
+        this.actionsColumnButton = new ArrayList<>(1);
 
-        addButton.setText(title);
+        ActionColumnButton<T> actionColumnButton = new ActionColumnButton(title);
+        actionColumnButton.setAction(action);
+        this.actionsColumnButton.add(actionColumnButton);
+        this.table = table;
 
-        hbox.getChildren().add(addButton);
-        addButton.setOnMousePressed((MouseEvent mouseEvent) -> {
-            buttonY.set(mouseEvent.getScreenY());
-        });
-        addButton.setOnAction((ActionEvent actionEvent) -> {
-            table.getSelectionModel().select(getTableRow().getIndex());
-
-            if (action != null) {
-                action.onAction(table.getSelectionModel().getSelectedItem());
-            }
-        });
+//        hbox.setPadding(new Insets(3));
+//        hbox.setSpacing(10);
+//        hbox.setAlignment(Pos.CENTER);
+//
+//        addButton.setText(title);
+//
+//        hbox.getChildren().add(addButton);
+//        addButton.setOnMousePressed((MouseEvent mouseEvent) -> {
+//            buttonY.set(mouseEvent.getScreenY());
+//        });
+//        addButton.setOnAction((ActionEvent actionEvent) -> {
+//            table.getSelectionModel().select(getTableRow().getIndex());
+//
+//            if (action != null) {
+//                action.onAction(table.getSelectionModel().getSelectedItem());
+//            }
+//        });
     }
 
     public ActionColumn(final TableView<T> table, List<ActionColumnButton<T>> actionsColumnButton) {
-        hbox.setPadding(new Insets(3));
-        hbox.setSpacing(10);
-        hbox.setAlignment(Pos.CENTER);
-
-        if (actionsColumnButton != null) {
-            for (ActionColumnButton ac : actionsColumnButton) {
-                Button b = new Button(ac.getTitle());
-                b.setDisable(ac.isDisabled());
-                
-                hbox.getChildren().add(b);
-                b.setOnMousePressed((MouseEvent mouseEvent) -> {
-                    buttonY.set(mouseEvent.getScreenY());
-                });
-                b.setOnAction((ActionEvent actionEvent) -> {
-                    table.getSelectionModel().select(getTableRow().getIndex());
-
-                    if (ac.getAction() != null) {
-                        ac.getAction().onAction(table.getSelectionModel().getSelectedItem());
-                    }
-                });
-            }
-        }
+        this.actionsColumnButton = actionsColumnButton;
+        this.table = table;
+        System.out.println("br.com.loto.core.fx.datatable.ActionColumn.<init>()");
 
     }
 
@@ -88,9 +80,49 @@ public class ActionColumn<T> extends TableCell<T, Boolean> {
      * places an add button in the row only if the row is not empty.
      */
     @Override
-    protected void updateItem(Boolean item, boolean empty) {
+    protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
+
         if (!empty) {
+            hbox.setPadding(new Insets(3));
+            hbox.setSpacing(10);
+            hbox.setAlignment(Pos.CENTER);
+            hbox.getChildren().clear();
+
+            if (actionsColumnButton != null) {
+                actionsColumnButton.forEach((ac) -> {
+                    Button b = new Button(ac.getTitle());
+                    b.setDisable(ac.isDisabled());
+
+                    ac.setButton(b);
+
+                    hbox.getChildren().add(b);
+                    b.setOnMousePressed((MouseEvent mouseEvent) -> {
+                        buttonY.set(mouseEvent.getScreenY());
+                    });
+
+                    //System.err.println(this.currentItem);
+                    b.setOnAction((ActionEvent actionEvent) -> {
+                        table.getSelectionModel().select(getTableRow().getIndex());
+
+                        if (ac.getAction() != null) {
+                            ac.getAction().onAction(table.getSelectionModel().getSelectedItem());
+                        }
+                    });
+                });
+            }
+
+            actionsColumnButton.forEach(ac -> {
+                if (ac.getActiveColumn() != null) {
+                    ac.getButton().setDisable(ac.getActiveColumn().active(item));
+                }
+                
+                if (ac.getConditionalLabel() != null){
+                    ((Button)ac.getButton()).setText(ac.getConditionalLabel().getLabel(item));
+                }
+                
+            });
+
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             setGraphic(hbox);
         } else {

@@ -9,6 +9,7 @@ package br.com.loto.core.fx.datatable.interfaces;
  *
  * @author maxwe
  */
-public interface IActionColumn<T> {
-    public void onAction(T t);
+public interface ICondidionalLabelButonColumn<T> {
+
+    public String getLabel(T t);
 }

@@ -7,8 +7,6 @@ package br.com.loto.admin.controller.sistema.resultadoLoteria;
 
 import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
-import br.com.loto.admin.controller.sistema.estado.EstadoFormController;
-import br.com.loto.admin.domain.Estado;
 import br.com.loto.admin.domain.ResultadoLoteria;
 import br.com.loto.admin.domain.helper.ComboHelper;
 import br.com.loto.admin.service.ResultadoLoteriaService;
@@ -22,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -31,6 +30,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -61,6 +61,21 @@ public class ResultadoLoteriaListController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         configurarTipoLoteria();
+        configureTextFields();
+    }
+    
+     void configureTextFields() {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String text = change.getText();
+
+            if (text.matches("[0-9]*")) {
+                return change;
+            }
+
+            return null;
+        };
+        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+        txtFiltro.setTextFormatter(textFormatter);
     }
     
      void configurarTipoLoteria() {

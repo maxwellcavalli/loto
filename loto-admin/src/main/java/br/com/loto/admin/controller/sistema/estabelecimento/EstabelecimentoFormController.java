@@ -9,6 +9,7 @@ import br.com.loto.admin.FxmlFiles;
 import br.com.loto.admin.LotoAdmin;
 import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Cliente;
+import br.com.loto.admin.domain.ClientePropaganda;
 import br.com.loto.admin.domain.Equipamento;
 import br.com.loto.admin.util.FxmlUtil;
 import br.com.loto.admin.domain.Estabelecimento;
@@ -24,6 +25,7 @@ import br.com.loto.admin.service.EstabelecimentoEnderecoService;
 import br.com.loto.admin.service.EstabelecimentoEquipamentoService;
 import br.com.loto.admin.service.EstabelecimentoService;
 import br.com.loto.admin.service.EstadoService;
+import br.com.loto.core.fx.datatable.ActionColumnButton;
 
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
@@ -394,7 +396,7 @@ public class EstabelecimentoFormController implements Initializable {
 
         TableColumn<EstabelecimentoEquipamento, String> serialColumn = TableColumnUtil.createStringColumn("Serial", 100, (EstabelecimentoEquipamento s) -> s.getEquipamento().getSerial());
         TableColumn<EstabelecimentoEquipamento, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 750, (EstabelecimentoEquipamento s) -> s.getEquipamento().getDescricao());
-        TableColumn<EstabelecimentoEquipamento, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tableEquipamento,
+        TableColumn<EstabelecimentoEquipamento, EstabelecimentoEquipamento> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tableEquipamento,
                 (IActionColumn<EstabelecimentoEquipamento>) (EstabelecimentoEquipamento t) -> {
                     equipamentos.remove(t);
                     processaDatatableEquipamentos();
@@ -412,18 +414,27 @@ public class EstabelecimentoFormController implements Initializable {
         TableColumn<EstabelecimentoCliente, String> dataInativacaoColumn = TableColumnUtil.createStringColumn("Data Inativação", 150, (EstabelecimentoCliente s)
                 -> s.getDataInativacao() == null ? "" : sdf.format(s.getDataInativacao()));
 
-        TableColumn<EstabelecimentoCliente, Boolean> actionColumn = TableColumnUtil.createButtonColumn("Ação", "(In)Ativar", 80, tableCliente,
-                (IActionColumn<EstabelecimentoCliente>) (EstabelecimentoCliente t) -> {
-                    if (t.isAtivo()) {
-                        t.setAtivo(false);
-                        t.setDataInativacao(new Date());
-                    } else {
-                        t.setAtivo(true);
-                        t.setDataInativacao(null);
-                    }
+        ActionColumnButton<EstabelecimentoCliente> acDelete = new ActionColumnButton<>("Delete");
+        acDelete.setAction((IActionColumn<EstabelecimentoCliente>) (EstabelecimentoCliente t) -> {
+            if (t.isAtivo()) {
+                t.setAtivo(false);
+                t.setDataInativacao(new Date());
+            } else {
+                t.setAtivo(true);
+                t.setDataInativacao(null);
+            }
 
-                    processaDatatableClientes();
-                });
+            processaDatatableClientes();
+        });
+
+        acDelete.setConditionalLabel((EstabelecimentoCliente t) -> {
+            return t.isAtivo() == true ? "Inativar" : "Ativar";
+        });
+
+        List<ActionColumnButton<EstabelecimentoCliente>> actionsColumnButton = new ArrayList<>(1);
+        actionsColumnButton.add(acDelete);
+        
+        TableColumn<EstabelecimentoCliente, EstabelecimentoCliente> actionColumn = TableColumnUtil.createButtonColumn("Ação", 80, tableCliente, actionsColumnButton);
 
         tableCliente.getColumns().clear();
         tableCliente.getColumns().setAll(nomeColumn, ativoColumn, dataInativacaoColumn, actionColumn);

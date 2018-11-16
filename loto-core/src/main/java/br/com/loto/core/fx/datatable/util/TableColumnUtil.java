@@ -10,8 +10,10 @@ import br.com.loto.core.fx.datatable.ActionColumnButton;
 import br.com.loto.core.fx.datatable.interfaces.IActionColumn;
 import br.com.loto.core.fx.datatable.interfaces.ITableColumnValue;
 import java.util.List;
+import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
@@ -20,7 +22,9 @@ import javafx.scene.control.TableView;
  * @author maxwe
  */
 public class TableColumnUtil {
-
+    
+    private static final Logger LOG = Logger.getLogger(TableColumnUtil.class.getName());
+    
     public static <T extends Object> TableColumn<T, String> createStringColumn(String title, int prefWidth, ITableColumnValue<T> tableColumnValue) {
         TableColumn<T, String> tableColumn = new TableColumn<>(title);
         tableColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, String> param)
@@ -29,35 +33,40 @@ public class TableColumnUtil {
         tableColumn.setPrefWidth(prefWidth);
         return tableColumn;
     }
-
-    public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, int prefWidth,
+    
+    public static <T extends Object> TableColumn<T, T> createButtonColumn(String title, int prefWidth,
             TableView<T> tableView, IActionColumn iActionColumn) {
         return createButtonColumn(title, "Delete", prefWidth, tableView, iActionColumn);
     }
-
-    public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, String buttonTitle, int prefWidth,
+    
+    public static <T extends Object> TableColumn<T, T> createButtonColumn(String title, String buttonTitle, int prefWidth,
             TableView<T> tableView, IActionColumn iActionColumn) {
-        TableColumn<T, Boolean> actionColumn = new TableColumn<>(title);
+        TableColumn<T, T> actionColumn = new TableColumn<>(title);
         actionColumn.setPrefWidth(80);
-        actionColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, Boolean> features) -> new SimpleBooleanProperty(features.getValue() != null));
-
-        actionColumn.setCellFactory((TableColumn<T, Boolean> personBooleanTableColumn) -> new ActionColumn<>(tableView, buttonTitle, (T t) -> {
+        actionColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, T> features) -> new SimpleObjectProperty(features.getValue()));
+        
+        actionColumn.setCellFactory((TableColumn<T, T> object) -> new ActionColumn<>(tableView, buttonTitle, (T t) -> {
             iActionColumn.onAction(t);
         }));
-
+        
         return actionColumn;
     }
     
-     public static <T extends Object> TableColumn<T, Boolean> createButtonColumn(String title, int prefWidth,
+    public static <T extends Object> TableColumn<T, T> createButtonColumn(String title, int prefWidth,
             TableView<T> tableView, List<ActionColumnButton<T>> actionsColumnButton) {
-        TableColumn<T, Boolean> actionColumn = new TableColumn<>(title);
-        actionColumn.setPrefWidth(prefWidth);
-        actionColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, Boolean> features) -> new SimpleBooleanProperty(features.getValue() != null));
-
-        actionColumn.setCellFactory((TableColumn<T, Boolean> personBooleanTableColumn) -> new ActionColumn<>(tableView, actionsColumnButton));
-
-        return actionColumn;
+        
+        TableColumn<T, T> tableColumn = new TableColumn<>(title);
+        tableColumn.setPrefWidth(prefWidth);
+        tableColumn.setCellValueFactory((TableColumn.CellDataFeatures<T, T> features) -> {
+            return new SimpleObjectProperty<>(features.getValue());
+        });
+        
+        tableColumn.setCellFactory( (TableColumn<T, T> object) -> {
+            
+            return new ActionColumn(tableView, actionsColumnButton);
+        });
+        
+        return tableColumn;
     }
     
-
 }
