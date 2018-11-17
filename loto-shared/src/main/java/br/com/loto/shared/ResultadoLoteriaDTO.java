@@ -12,10 +12,12 @@ import java.util.List;
  *
  * @author maxwe
  */
-public class ResultadoDTO {
+public class ResultadoLoteriaDTO {
 
+    private Long id;
     private Integer concurso;
     private BigDecimal valorAcumulado;
+    private Integer idTipoLoteria;
     private List<Integer> numeros;
 
     public List<Integer> getNumeros() {
@@ -34,14 +36,28 @@ public class ResultadoDTO {
         this.concurso = concurso;
     }
 
-  
-
     public BigDecimal getValorAcumulado() {
         return valorAcumulado;
     }
 
     public void setValorAcumulado(BigDecimal valorAcumulado) {
         this.valorAcumulado = valorAcumulado;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setIdTipoLoteria(Integer idTipoLoteria) {
+        this.idTipoLoteria = idTipoLoteria;
+    }
+
+    public Integer getIdTipoLoteria() {
+        return idTipoLoteria;
     }
 
 }

@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -25,23 +24,24 @@ public class MainApp extends Application {
     private static final Logger LOG = Logger.getLogger(MainApp.class.getName());
 
     static ClientThread clientThread;
-    static String baseDirectory;
-    static String jsonFile;
+    //static String baseDirectory;
+    //static String jsonFile;
 
+    static Properties properties;
     public static void main(String[] args) {
 
         try {
             String configFilePath = System.getProperty("config.file");
-            Properties properties = new Properties();
+            properties = new Properties();
             properties.load(new FileInputStream(new File(configFilePath)));
 
-            String uuid = properties.getProperty("uuid");
+            //String uuid = properties.getProperty("uuid");
             String address = properties.getProperty("address");
-            baseDirectory = properties.getProperty("base.directory");
-            jsonFile = properties.getProperty("json.file");
+            //baseDirectory = properties.getProperty("base.directory");
+            //jsonFile = properties.getProperty("json.file");
 
             InetAddress addr = InetAddress.getByName(address);
-            clientThread = new ClientThread(uuid, jsonFile, addr);
+            clientThread = new ClientThread(properties, addr);
             clientThread.start();
 
             launch(args);
@@ -64,14 +64,14 @@ public class MainApp extends Application {
 
         //Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
         FXMLController controller = fxmlLoader.<FXMLController>getController();
-        controller.init(baseDirectory);
+        controller.init(properties);
 
         Scene scene = new Scene(p);
         scene.getStylesheets().add("/styles/Styles.css");
 
         scene.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
-                if (primaryStage.isFullScreen()){
+                if (primaryStage.isFullScreen()) {
                     primaryStage.setFullScreen(false);
                 } else {
                     primaryStage.setFullScreen(true);

@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,7 +42,8 @@ public class ClientThread extends Thread {
     PrintWriter os = null;
 
     String localUUID;
-    String jsonFile;
+    String propagandasFile;
+    String resultadosFile;
 
     Map<String, LocalTime> map = new HashMap<>();
 
@@ -49,10 +51,11 @@ public class ClientThread extends Thread {
 
     boolean stopServer = false;
 
-    public ClientThread(String localUUID, String jsonFile, InetAddress address) {
-        this.localUUID = localUUID;
+    public ClientThread(Properties properties, InetAddress address) {
         this.address = address;
-        this.jsonFile = jsonFile;
+        this.localUUID = properties.getProperty("uuid");
+        this.propagandasFile = properties.getProperty("propagandas.file");
+        this.resultadosFile = properties.getProperty("resultados.file");
     }
 
     void tryToConnect() {
@@ -112,6 +115,7 @@ public class ClientThread extends Thread {
                     }
 
                     verify();
+                    verifyResultados();
 
                     Thread.sleep(1000l);
                 } catch (InterruptedException | IOException ex) {
@@ -176,7 +180,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(jsonFile);
+                    File f = new File(propagandasFile);
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();
@@ -193,7 +197,7 @@ public class ClientThread extends Thread {
             } else {
                 LOG.log(Level.INFO, "Running verify has not data");
 
-                File f = new File(jsonFile);
+                File f = new File(propagandasFile);
                 if (!f.exists()) {
                     lastDeploy();
                 }
@@ -226,7 +230,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running last-deploy has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(jsonFile);
+                    File f = new File(propagandasFile);
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();
@@ -243,6 +247,70 @@ public class ClientThread extends Thread {
             } else {
                 LOG.log(Level.INFO, "Running last-deploy has not data");
 
+            }
+        }
+
+        gson = null;
+    }
+
+    void verifyResultados() throws IOException {
+
+        String cmd = "verify-resultados";
+
+        boolean run = false;
+        if (map.containsKey(cmd)) {
+            LocalTime anterior = map.get(cmd);
+            LocalTime agora = LocalTime.now();
+
+            long minutos = ChronoUnit.MINUTES.between(anterior, agora);
+            //long segundos = ChronoUnit.SECONDS.between(anterior, agora);
+
+            if (minutos > 60) {
+                run = true;
+
+            }
+        } else {
+            run = true;
+        }
+
+        if (!run) {
+            return;
+        }
+
+        map.put(cmd, LocalTime.now());
+        LOG.log(Level.INFO, "Running verify-resultados...");
+
+        ComandoDTO comando = new ComandoDTO();
+        comando.setUniqueId(localUUID);
+        comando.setComando("verify-resultados");
+
+        Gson gson = new GsonBuilder().create();
+        String json = gson.toJson(comando);
+
+        os.println(json);
+        os.flush();
+
+        String response = is.readLine();
+
+        ComandoDTO comandoDTO = gson.fromJson(response, ComandoDTO.class);
+
+        if (comandoDTO != null) {
+            if (comandoDTO.getComando().equals("has-data")) {
+                LOG.log(Level.INFO, "Running verify-resultados has data");
+                String data = comandoDTO.getData();
+                try {
+                    File f = new File(resultadosFile);
+                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
+                        out.write(data.getBytes());
+                        out.flush();
+
+                        LOG.log(Level.INFO, "Data saved");
+                    }
+                } catch (IOException e) {
+                    LOG.log(Level.SEVERE, null, e);
+                }
+            } else {
+                LOG.log(Level.INFO, "Running verify-resultados has not data");
             }
         }
 
