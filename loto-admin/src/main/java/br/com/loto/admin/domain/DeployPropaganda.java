@@ -17,7 +17,7 @@ import br.com.loto.core.database.annotation.Relacionamento;
  * @author maxwe
  */
 @Entidade(name = "DEPLOY_PROPAGANDA")
-public class DeployPropaganda {
+public class DeployPropaganda implements Cloneable {
 
     @Campo(name = "ID", autoIncrement = true, primaryKey = true)
     private Long id;
@@ -42,6 +42,11 @@ public class DeployPropaganda {
 
     @Campo(name = "ID_TIPO_MIDIA")
     private Integer idTipoMidia = TipoMidia.ESTATICA.getKey();
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone(); //To change body of generated methods, choose Tools | Templates.
+    }
 
     public Long getId() {
         return id;

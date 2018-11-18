@@ -89,6 +89,20 @@
                   <Insets right="10.0" />
                </padding>
                <children>
+                  <JFXButton fx:id="btClonar" onAction="#clonar" style="-fx-background-color: #4da6ff;" text="Clonar" textFill="WHITE">
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                     <font>
+                        <Font name="Segoe UI" size="14.0" />
+                     </font>
+                     <opaqueInsets>
+                        <Insets left="5.0" />
+                     </opaqueInsets>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </JFXButton>
                   <JFXButton onAction="#voltar" style="-fx-background-color: #efa226;" text="Voltar" textFill="WHITE">
                      <font>
                         <Font name="Segoe UI" size="14.0" />

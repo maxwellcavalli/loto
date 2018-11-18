@@ -129,6 +129,9 @@ public class DeployFormController implements Initializable {
     @FXML
     public JFXButton btSalvar;
 
+    @FXML
+    public JFXButton btClonar;
+
     //variaveis globais
     private Deploy deploy;
 
@@ -160,6 +163,17 @@ public class DeployFormController implements Initializable {
 
         inicializaDadosPropaganda();
 
+    }
+
+    public void clonar(ActionEvent event) {
+        try {
+            Deploy newDeploy = DeployService.getInstance().clonar(this.deploy);
+            this.disabled = false;
+            this.initData(newDeploy, false);
+
+        } catch (SQLException | CloneNotSupportedException ex) {
+            FxmlUtil.getInstance().openMessageDialog(event, ex);
+        }
     }
 
     public void cancelarPropaganda(ActionEvent event) {
@@ -426,6 +440,8 @@ public class DeployFormController implements Initializable {
                 alterarSituacaoComponentes(sd);
                 processaDatatablePropagandas();
 
+                this.btClonar.setVisible(deploy.getId() != null && deploy.getId() > 0);
+
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(DeployFormController.class
                         .getName()).log(Level.SEVERE, null, ex);
@@ -460,12 +476,16 @@ public class DeployFormController implements Initializable {
         }
     }
 
-    public void initData(Deploy deploy) {
+    public void initData(Deploy deploy, boolean reloadPropagandas) {
+        this.deploy = deploy;
+
         txtDescricao.setText(deploy.getDescricao());
         ckAtivo.setSelected(deploy.isAtivo());
         if (deploy.getDataValidade() != null) {
             dpValidade.setValue(DateUtils.asLocalDate(deploy.getDataValidade()));
         }
+
+        this.btClonar.setVisible(deploy.getId() != null && deploy.getId() > 0);
 
         Optional<ComboHelper> oSituacao = situacoesDeploy.stream().filter(el -> el.getCodigo() == deploy.getSituacao()).findFirst();
         if (oSituacao.isPresent()) {
@@ -504,9 +524,7 @@ public class DeployFormController implements Initializable {
         SituacaoDeploy sd = SituacaoDeploy.get(deploy.getSituacao());
         alterarSituacaoComponentes(sd);
 
-        if (deploy != null && deploy.getId() != null) {
-            this.popularPropagandas();
-        }
+        this.popularPropagandas(reloadPropagandas);
 
         if (this.deployPropagandas == null) {
             this.deployPropagandas = new ArrayList<>(1);
@@ -528,9 +546,11 @@ public class DeployFormController implements Initializable {
         this.txtDuracaoTransicao.setText(dp.getDuracaoTransicao().toString());
     }
 
-    private void popularPropagandas() {
+    private void popularPropagandas(boolean reloadFromDB) {
         try {
-            this.deployPropagandas = DeployPropagandaService.getInstance().pesquisar(deploy);
+            if (reloadFromDB) {
+                this.deployPropagandas = DeployPropagandaService.getInstance().pesquisar(deploy);
+            }
 
             processaDatatablePropagandas();
 

@@ -18,7 +18,7 @@ import java.util.List;
  * @author maxwe
  */
 @Entidade(name = "DEPLOY")
-public class Deploy {
+public class Deploy implements Cloneable {
 
     @Campo(name = "ID", autoIncrement = true, primaryKey = true)
     private Long id;
@@ -47,6 +47,11 @@ public class Deploy {
     //usado para retorno
     private List<DeployPropaganda> deployPropagandas;
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     public String getAtivoStr() {
         return this.ativo == true ? "Sim" : "Não";
     }

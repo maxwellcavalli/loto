@@ -8,8 +8,11 @@ package br.com.loto.admin.service;
 import br.com.loto.admin.dao.DeployDAO;
 import br.com.loto.admin.domain.Deploy;
 import br.com.loto.admin.domain.DeployPropaganda;
+import br.com.loto.admin.domain.type.SituacaoDeploy;
 import br.com.loto.core.util.JdbcUtil;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +51,31 @@ public class DeployService {
 
     public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento) throws SQLException {
         return DeployDAO.getInstance().pesquisar(descricao, estado, cidade, estabelecimento);
+    }
+    
+    public Deploy clonar(Deploy deploy) throws SQLException, CloneNotSupportedException, CloneNotSupportedException{
+        Deploy newDeploy = (Deploy) deploy.clone();
+        newDeploy.setData(new Date());
+        newDeploy.setAtivo(true);
+        newDeploy.setDataValidade(null);
+        newDeploy.setSituacao(SituacaoDeploy.CADASTRANDO.getKey());
+        newDeploy.setUuid(null);
+        newDeploy.setId(null);
+        
+        List<DeployPropaganda> propagandas = DeployPropagandaService.getInstance().pesquisar(deploy);
+
+        List<DeployPropaganda> newPropagandas = new ArrayList<>();
+        for (DeployPropaganda dp : propagandas){
+            DeployPropaganda newDp = (DeployPropaganda) dp.clone();
+            newDp.setId(null);
+            newDp.setDeploy(newDeploy);
+            newPropagandas.add(newDp);
+        }
+        
+        
+        newDeploy.setDeployPropagandas(newPropagandas);
+        
+        return newDeploy;
     }
 
 }

@@ -12,6 +12,12 @@
     </properties>
     
     <dependencies>
+        <dependency>
+            <groupId>br.com.loto.crypto</groupId>
+            <artifactId>loto-crypto</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>

@@ -5,6 +5,7 @@
  */
 package br.com.loto.client.tv.thread;
 
+import br.com.loto.crypto.AdvancedEncryptionStandard;
 import br.com.loto.shared.ComandoDTO;
 import br.com.loto.shared.DeployDTO;
 import com.google.gson.Gson;
@@ -18,8 +19,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +45,7 @@ public class ClientThread extends Thread {
     PrintWriter os = null;
 
     String localUUID;
+    byte[] password;
 
     Map<String, LocalTime> map = new HashMap<>();
 
@@ -50,8 +54,9 @@ public class ClientThread extends Thread {
     boolean connected;
     boolean stopServer = false;
 
-    public ClientThread(Properties properties, InetAddress address) {
+    public ClientThread(Properties properties, byte[] password, InetAddress address) {
         this.address = address;
+        this.password = password;
 
         this.properties = properties;
         this.localUUID = properties.getProperty("uuid");
@@ -125,6 +130,8 @@ public class ClientThread extends Thread {
                             LOG.log(Level.SEVERE, null, ex1);
                         }
                     }
+                } catch (Exception ex) {
+                    LOG.log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -180,16 +187,22 @@ public class ClientThread extends Thread {
                 try {
                     File f = new File(properties.getProperty("propagandas.file"));
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-                        out.write(data.getBytes());
+                        byte[] bytes = Base64.getDecoder().decode(data);
+
+                        out.write(bytes);
                         out.flush();
 
-                        DeployDTO dTO = gson.fromJson(data, DeployDTO.class);
+                        byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
+
+                        DeployDTO dTO = gson.fromJson(new String(decripted), DeployDTO.class);
 
                         LOG.log(Level.INFO, "Data saved");
 
                         updateDeploy(dTO.getUuidDeploy());
                     }
                 } catch (IOException e) {
+                    LOG.log(Level.SEVERE, null, e);
+                } catch (Exception e) {
                     LOG.log(Level.SEVERE, null, e);
                 }
             } else {
@@ -230,16 +243,22 @@ public class ClientThread extends Thread {
                 try {
                     File f = new File(properties.getProperty("propagandas.file"));
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-                        out.write(data.getBytes());
+                        byte[] bytes = Base64.getDecoder().decode(data);
+
+                        out.write(bytes);
                         out.flush();
 
-                        DeployDTO dTO = gson.fromJson(data, DeployDTO.class);
+                        byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
+
+                        DeployDTO dTO = gson.fromJson(new String(decripted), DeployDTO.class);
 
                         LOG.log(Level.INFO, "Data saved");
 
                         updateDeploy(dTO.getUuidDeploy());
                     }
                 } catch (IOException e) {
+                    LOG.log(Level.SEVERE, null, e);
+                } catch (Exception e) {
                     LOG.log(Level.SEVERE, null, e);
                 }
             } else {
@@ -251,7 +270,7 @@ public class ClientThread extends Thread {
         gson = null;
     }
 
-    void verifyResultados() throws IOException {
+    void verifyResultados() throws IOException, Exception {
 
         String cmd = "verify-resultados";
 
@@ -296,10 +315,12 @@ public class ClientThread extends Thread {
             if (comandoDTO.getComando().equals("has-data")) {
                 LOG.log(Level.INFO, "Running verify-resultados has data");
                 String data = comandoDTO.getData();
+                byte[] bytes = Base64.getDecoder().decode(data);
+
                 try {
-                    File f = new File(properties.getProperty("resultados.file") );
+                    File f = new File(properties.getProperty("resultados.file"));
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-                        out.write(data.getBytes());
+                        out.write(bytes);
                         out.flush();
 
                         LOG.log(Level.INFO, "Data saved");

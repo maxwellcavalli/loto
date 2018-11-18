@@ -194,7 +194,7 @@ public class DeployListController implements Initializable {
             TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
-            datatable.getColumns().setAll(descricaoColumn, estabelecimentoColumn, cidadeColumn, estadoColumn,
+            datatable.getColumns().setAll(estabelecimentoColumn, descricaoColumn, cidadeColumn, estadoColumn,
                     dataColumn, dataValidadeColumn, situacaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
@@ -211,7 +211,7 @@ public class DeployListController implements Initializable {
 
                             DeployFormController controller = fxmlLoader.<DeployFormController>getController();
 
-                            controller.initData(deploy);
+                            controller.initData(deploy, true);
 
                             LotoAdmin.centerContainer.getChildren().clear();
                             LotoAdmin.centerContainer.getChildren().add(p);
@@ -241,7 +241,7 @@ public class DeployListController implements Initializable {
 
             DeployFormController controller = fxmlLoader.<DeployFormController>getController();
 
-            controller.initData(new Deploy());
+            controller.initData(new Deploy(), false);
 
             LotoAdmin.centerContainer.getChildren().clear();
             LotoAdmin.centerContainer.getChildren().add(p);

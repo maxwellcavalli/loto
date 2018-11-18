@@ -1,5 +1,6 @@
 package br.com.loto.client.tv;
 
+import br.com.loto.crypto.AdvancedEncryptionStandard;
 import br.com.loto.shared.DeployDTO;
 import br.com.loto.shared.DeployPropagandaDTO;
 import br.com.loto.shared.ResultadoLoteriaDTO;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -77,12 +79,18 @@ public class FXMLController implements Initializable {
     private String lastUuidCheck;
 
     AnchorPane rootPaneDynamic;
-    SequentialTransition sequentialTransitionDynamic; 
+    SequentialTransition sequentialTransitionDynamic;
     Properties properties;
+    byte[] password;
 
-    public void init(Properties properties) {
+    public void init(Properties properties, byte[] password) {
         this.properties = properties;
+        this.password = password;
         start();
+    }
+
+    String descriptografar(byte[] data) throws IOException, Exception {
+        return new String(AdvancedEncryptionStandard.decrypt(password, data));
     }
 
     void reloadSlideShow(SequentialTransition slideshow) {
@@ -100,10 +108,12 @@ public class FXMLController implements Initializable {
                     }
                 }
             });
-            
+
             createSlideShows(slideshow);
             slideshow.play();
         } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
         }
     }
@@ -120,6 +130,8 @@ public class FXMLController implements Initializable {
 
             createSlideShows(slideshow);
         } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
         }
 
@@ -151,7 +163,7 @@ public class FXMLController implements Initializable {
 
     }
 
-    DeployDTO tryToLoadPropagandasFile() throws IOException {
+    DeployDTO tryToLoadPropagandasFile() throws IOException, Exception {
         File f = null;
         boolean fileExists = false;
         while (!fileExists) {
@@ -178,7 +190,7 @@ public class FXMLController implements Initializable {
         return dTO;
     }
 
-    ResultadoLoteriaTransferDTO tryToLoadResultadosFile() throws IOException {
+    ResultadoLoteriaTransferDTO tryToLoadResultadosFile() throws IOException, Exception {
 
         File f = new File(properties.getProperty("resultados.file"));
         if (f.exists()) {
@@ -193,7 +205,7 @@ public class FXMLController implements Initializable {
                 LOG.log(Level.SEVERE, null, ex);
             }
         }
-        
+
         return null;
     }
 
@@ -221,9 +233,9 @@ public class FXMLController implements Initializable {
         byte[] arquivoBytes = Base64.getDecoder().decode(conteudo);
 
         try (InputStream in = new ByteArrayInputStream(arquivoBytes)) {
-            
+
             TipoMidia tm = TipoMidia.get(dp.getTipoMidia());
-            
+
             if (tm.equals(TipoMidia.ESTATICA)) {
                 ImageView imageView = new ImageView(new Image(in));
                 imageView.setOpacity(0);
@@ -277,39 +289,25 @@ public class FXMLController implements Initializable {
         return node;
     }
 
-    DeployDTO loadPropagandaFromJson(File f) throws FileNotFoundException, IOException {
-        StringBuilder builder;
-        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
-            builder = new StringBuilder();
-            String linha;
-            while ((linha = reader.readLine()) != null) {
-                builder.append(linha);
-            }
-        }
+    DeployDTO loadPropagandaFromJson(File f) throws FileNotFoundException, IOException, Exception {
+        byte[] bytes = Files.readAllBytes(f.toPath());
+        String data = descriptografar(bytes);
 
         Gson gson = new GsonBuilder().create();
-        DeployDTO dTO = gson.fromJson(builder.toString(), DeployDTO.class);
+        DeployDTO dTO = gson.fromJson(data, DeployDTO.class);
 
-        builder = null;
         gson = null;
 
         return dTO;
     }
 
-    ResultadoLoteriaTransferDTO loadResultadosFromJson(File f) throws FileNotFoundException, IOException {
-        StringBuilder builder;
-        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
-            builder = new StringBuilder();
-            String linha;
-            while ((linha = reader.readLine()) != null) {
-                builder.append(linha);
-            }
-        }
+    ResultadoLoteriaTransferDTO loadResultadosFromJson(File f) throws FileNotFoundException, IOException, Exception {
+        byte[] bytes = Files.readAllBytes(f.toPath());
+        String data = descriptografar(bytes);
 
         Gson gson = new GsonBuilder().create();
-        ResultadoLoteriaTransferDTO r = gson.fromJson(builder.toString(), ResultadoLoteriaTransferDTO.class);
+        ResultadoLoteriaTransferDTO r = gson.fromJson(data, ResultadoLoteriaTransferDTO.class);
 
-        builder = null;
         gson = null;
 
         return r;
@@ -346,19 +344,19 @@ public class FXMLController implements Initializable {
         return sequentialTransition;
     }
 
-    void createDynamicSlideShow(SequentialTransition slideshow) throws IOException {
+    void createDynamicSlideShow(SequentialTransition slideshow) throws IOException, Exception {
         ResultadoLoteriaTransferDTO dto = tryToLoadResultadosFile();
-        
+
         if (dto != null && dto.getResultados() != null) {
-            
-            if (rootPaneDynamic != null){
+
+            if (rootPaneDynamic != null) {
                 this.root.getChildren().remove(rootPaneDynamic);
             }
-            
-            if (sequentialTransitionDynamic != null){
+
+            if (sequentialTransitionDynamic != null) {
                 slideshow.getChildren().remove(sequentialTransitionDynamic);
             }
-            
+
             //create dynamic information
             rootPaneDynamic = new AnchorPane();
             rootPaneDynamic.setStyle("-fx-background-color: #FFF");
@@ -483,7 +481,7 @@ public class FXMLController implements Initializable {
 
             rootPaneDynamic.getChildren().add(borderPane);
             rootPaneDynamic.setOpacity(0);
-            
+
             sequentialTransitionDynamic = new SequentialTransition();
             FadeTransition fadeIn = getFadeTransition(rootPaneDynamic, 0.0, 1.0, 500);
             PauseTransition stayOn = new PauseTransition(Duration.millis(15_000));
@@ -496,19 +494,21 @@ public class FXMLController implements Initializable {
         }
     }
 
-    void createSlideShows(SequentialTransition slideshow) throws FileNotFoundException, IOException {
-        
+    void createSlideShows(SequentialTransition slideshow) throws FileNotFoundException, IOException, Exception {
+
         createDynamicSlideShow(slideshow);
-        
+
         DeployDTO dTO = tryToLoadPropagandasFile();
         boolean importar = false;
-        if (lastUuidCheck == null || lastUuidCheck.isEmpty()) {
-            importar = true;
-            lastUuidCheck = dTO.getUuidDeploy();
-        } else {
-            if (!lastUuidCheck.equals(dTO.getUuidDeploy())) {
+        if (dTO != null) {
+            if (lastUuidCheck == null || lastUuidCheck.isEmpty()) {
                 importar = true;
                 lastUuidCheck = dTO.getUuidDeploy();
+            } else {
+                if (!lastUuidCheck.equals(dTO.getUuidDeploy())) {
+                    importar = true;
+                    lastUuidCheck = dTO.getUuidDeploy();
+                }
             }
         }
 

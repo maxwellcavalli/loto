@@ -72,7 +72,6 @@ public class ActionColumn<T> extends TableCell<T, T> {
     public ActionColumn(final TableView<T> table, List<ActionColumnButton<T>> actionsColumnButton) {
         this.actionsColumnButton = actionsColumnButton;
         this.table = table;
-        System.out.println("br.com.loto.core.fx.datatable.ActionColumn.<init>()");
 
     }
 

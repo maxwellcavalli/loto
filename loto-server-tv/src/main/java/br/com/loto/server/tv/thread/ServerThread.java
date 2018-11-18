@@ -5,6 +5,8 @@
  */
 package br.com.loto.server.tv.thread;
 
+import br.com.loto.crypto.AdvancedEncryptionStandard;
+import br.com.loto.crypto.EncriptaDecriptaRSA;
 import br.com.loto.server.tv.business.service.DeployService;
 import br.com.loto.server.tv.business.service.EquipamentoService;
 import br.com.loto.server.tv.business.service.ResultadoLoteriaService;
@@ -15,12 +17,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.PublicKey;
 import java.sql.SQLException;
+import java.util.Base64;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,9 +45,14 @@ public class ServerThread extends Thread {
 
     BufferedReader in = null;
     PrintWriter out = null;
+    Properties properties;
 
-    public ServerThread(Socket csocket) {
+    byte[] password;
+
+    public ServerThread(Socket csocket, byte[] password, Properties properties) {
+        this.properties = properties;
         this.csocket = csocket;
+        this.password = password;
     }
 
     @Override
@@ -89,12 +101,14 @@ public class ServerThread extends Thread {
                             }
                         } catch (SQLException ex) {
                             LOG.log(Level.SEVERE, null, ex);
+                        } catch (Exception ex) {
+                            LOG.log(Level.SEVERE, null, ex);
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, null, e);
+            LOG.log(Level.INFO, "Conexao Fechada");
         } finally {
             try {
                 in.close();
@@ -107,7 +121,7 @@ public class ServerThread extends Thread {
         }
     }
 
-    void verify(ComandoDTO comandoDTO) throws SQLException {
+    void verify(ComandoDTO comandoDTO) throws SQLException, Exception {
         if (comandoDTO.getComando().equals("verify")) {
             Gson gson = new GsonBuilder().create();
 
@@ -119,7 +133,10 @@ public class ServerThread extends Thread {
             if (deployDTO != null) {
 
                 String data = gson.toJson(deployDTO);
+                data = criptografar(data);
+
                 c.setComando("has-data");
+
                 c.setData(data);
             } else {
                 c.setComando("no-data");
@@ -131,8 +148,19 @@ public class ServerThread extends Thread {
             out.flush();
         }
     }
-    
-    void lastDeploy(ComandoDTO comandoDTO) throws SQLException {
+
+    String criptografar(String data) throws Exception {
+
+        byte[] dataBytes = data.getBytes();
+
+        final byte[] textoCriptografado = AdvancedEncryptionStandard.encrypt(password, dataBytes);
+        String ret = new String(Base64.getEncoder().encode(textoCriptografado));
+
+        return ret;
+
+    }
+
+    void lastDeploy(ComandoDTO comandoDTO) throws SQLException, Exception {
         if (comandoDTO.getComando().equals("last-deploy")) {
             Gson gson = new GsonBuilder().create();
 
@@ -144,7 +172,9 @@ public class ServerThread extends Thread {
             if (deployDTO != null) {
 
                 String data = gson.toJson(deployDTO);
+                data = criptografar(data);
                 c.setComando("has-data");
+
                 c.setData(data);
             } else {
                 c.setComando("no-data");
@@ -156,7 +186,7 @@ public class ServerThread extends Thread {
             out.flush();
         }
     }
-    
+
     void updateDeploy(ComandoDTO comandoDTO) throws SQLException {
         if (comandoDTO.getComando().equals("update-deploy")) {
             Gson gson = new GsonBuilder().create();
@@ -177,8 +207,8 @@ public class ServerThread extends Thread {
             out.flush();
         }
     }
-    
-    void verifyResultados(ComandoDTO comandoDTO) throws SQLException {
+
+    void verifyResultados(ComandoDTO comandoDTO) throws SQLException, IOException, Exception {
         if (comandoDTO.getComando().equals("verify-resultados")) {
             Gson gson = new GsonBuilder().create();
 
@@ -187,12 +217,15 @@ public class ServerThread extends Thread {
             c.setUniqueId(comandoDTO.getUniqueId());
             if (dto != null) {
                 c.setComando("has-data");
+
+                String data = gson.toJson(dto);
+                data = criptografar(data);
+
+                c.setData(data);
+
             } else {
                 c.setComando("no-data");
             }
-            
-            String data = gson.toJson(dto);
-            c.setData(data);
 
             String json = gson.toJson(c);
 

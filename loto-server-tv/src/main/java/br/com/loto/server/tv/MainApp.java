@@ -6,12 +6,16 @@
 package br.com.loto.server.tv;
 
 import br.com.loto.core.util.JdbcUtil;
+import br.com.loto.crypto.EncriptaDecriptaRSA;
 import br.com.loto.server.tv.thread.ServerThread;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.security.PrivateKey;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -49,14 +53,24 @@ public class MainApp {
     }
 
     public static void main(String args[]) {
+        byte[] password = null;
         try {
             String configFilePath = System.getProperty("config.file");
             properties = new Properties();
             properties.load(new FileInputStream(new File(configFilePath)));
 
+            byte[] bytes = Files.readAllBytes(new File(properties.getProperty("password.file")).toPath());
+
+            try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(properties.getProperty("private.key")))) {
+                PrivateKey chavePrivate = (PrivateKey) inputStream.readObject();
+                password = EncriptaDecriptaRSA.decriptografaToBytes(bytes, chavePrivate);
+            }
+
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
             System.exit(0);
+        } catch (ClassNotFoundException ex) {
+            LOG.log(Level.SEVERE, null, ex);
         }
 
         initConnection();
@@ -74,13 +88,13 @@ public class MainApp {
         Calendar now = Calendar.getInstance();
         SimpleDateFormat formatter = new SimpleDateFormat(
                 "E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-        
-       LOG.log(Level.INFO, "Server is online {0}", formatter.format(now.getTime())); 
+
+        LOG.log(Level.INFO, "Server is online {0}", formatter.format(now.getTime()));
 
         while (ServerOn) {
             try {
                 Socket serverSocket = myServerSocket.accept();
-                ServerThread serverThread = new ServerThread(serverSocket);
+                ServerThread serverThread = new ServerThread(serverSocket, password, properties);
                 serverThread.start();
             } catch (IOException ioe) {
                 LOG.log(Level.SEVERE, null, ioe);
@@ -88,7 +102,7 @@ public class MainApp {
         }
         try {
             myServerSocket.close();
-            LOG.log(Level.INFO, "Server is offline"); 
+            LOG.log(Level.INFO, "Server is offline");
         } catch (IOException ioe) {
             LOG.log(Level.SEVERE, null, ioe);
             System.exit(-1);

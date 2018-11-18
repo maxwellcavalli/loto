@@ -1,11 +1,15 @@
 package br.com.loto.client.tv;
 
 import br.com.loto.client.tv.thread.ClientThread;
+import br.com.loto.crypto.EncriptaDecriptaRSA;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.security.PrivateKey;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +29,8 @@ public class MainApp extends Application {
 
     static ClientThread clientThread;
     static Properties properties;
-    
+    static byte[] password;
+
     public static void main(String[] args) {
 
         try {
@@ -33,13 +38,17 @@ public class MainApp extends Application {
             properties = new Properties();
             properties.load(new FileInputStream(new File(configFilePath)));
 
-            //String uuid = properties.getProperty("uuid");
+            byte[] bytes = Files.readAllBytes(new File(properties.getProperty("password.file")).toPath());
+
+            try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(properties.getProperty("private.key")))) {
+                PrivateKey chavePrivate = (PrivateKey) inputStream.readObject();
+                password = EncriptaDecriptaRSA.decriptografaToBytes(bytes, chavePrivate);
+            }
+
             String address = properties.getProperty("address");
-            //baseDirectory = properties.getProperty("base.directory");
-            //jsonFile = properties.getProperty("json.file");
 
             InetAddress addr = InetAddress.getByName(address);
-            clientThread = new ClientThread(properties, addr);
+            clientThread = new ClientThread(properties, password, addr);
             clientThread.start();
 
             launch(args);
@@ -51,6 +60,9 @@ public class MainApp extends Application {
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
             System.exit(-1);
+
+        } catch (ClassNotFoundException ex) {
+            LOG.log(Level.SEVERE, null, ex);
         }
     }
 
@@ -62,7 +74,7 @@ public class MainApp extends Application {
 
         //Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
         FXMLController controller = fxmlLoader.<FXMLController>getController();
-        controller.init(properties);
+        controller.init(properties, password);
 
         Scene scene = new Scene(p);
         scene.getStylesheets().add("/styles/Styles.css");
