@@ -265,7 +265,7 @@ public class ClientThread extends Thread {
             long minutos = ChronoUnit.MINUTES.between(anterior, agora);
             //long segundos = ChronoUnit.SECONDS.between(anterior, agora);
 
-            if (minutos > 60) {
+            if (minutos > 180) {
                 run = true;
 
             }

@@ -10,7 +10,7 @@ import br.com.loto.server.tv.business.service.EquipamentoService;
 import br.com.loto.server.tv.business.service.ResultadoLoteriaService;
 import br.com.loto.shared.ComandoDTO;
 import br.com.loto.shared.DeployDTO;
-import br.com.loto.shared.ResultadoLoteriaDTO;
+import br.com.loto.shared.ResultadoLoteriaTransferDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -21,7 +21,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,7 +105,6 @@ public class ServerThread extends Thread {
                 LOG.log(Level.SEVERE, null, ioe);
             }
         }
-
     }
 
     void verify(ComandoDTO comandoDTO) throws SQLException {
@@ -184,16 +182,16 @@ public class ServerThread extends Thread {
         if (comandoDTO.getComando().equals("verify-resultados")) {
             Gson gson = new GsonBuilder().create();
 
-            List<ResultadoLoteriaDTO> resultados = ResultadoLoteriaService.getInstance().loadLastResults();
+            ResultadoLoteriaTransferDTO dto = ResultadoLoteriaService.getInstance().loadLastResults();
             ComandoDTO c = new ComandoDTO();
             c.setUniqueId(comandoDTO.getUniqueId());
-            if (resultados.size() > 0) {
+            if (dto != null) {
                 c.setComando("has-data");
             } else {
                 c.setComando("no-data");
             }
             
-            String data = gson.toJson(resultados);
+            String data = gson.toJson(dto);
             c.setData(data);
 
             String json = gson.toJson(c);

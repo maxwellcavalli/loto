@@ -7,6 +7,7 @@ package br.com.loto.server.tv.business.service;
 
 import br.com.loto.server.tv.business.dao.ResultadoLoteriaDAO;
 import br.com.loto.shared.ResultadoLoteriaDTO;
+import br.com.loto.shared.ResultadoLoteriaTransferDTO;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -29,14 +30,21 @@ public class ResultadoLoteriaService {
     private ResultadoLoteriaService() {
     }
 
-    public List<ResultadoLoteriaDTO> loadLastResults() throws SQLException {
+    public ResultadoLoteriaTransferDTO loadLastResults() throws SQLException {
         List<ResultadoLoteriaDTO> resultados = ResultadoLoteriaDAO.getInstance().loadLastResults();
 
         for (ResultadoLoteriaDTO r : resultados) {
             r.setNumeros(ResultadoLoteriaNumerosService.getInstance().pesquisarNumeros(r.getId()));
         };
 
-        return resultados;
+        if (resultados != null && !resultados.isEmpty()) {
+            ResultadoLoteriaTransferDTO r = new ResultadoLoteriaTransferDTO();
+            r.setResultados(resultados);
+
+            return r;
+        } else {
+            return null;
+        }
     }
 
 }

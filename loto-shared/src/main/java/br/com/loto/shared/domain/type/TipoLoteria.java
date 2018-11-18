@@ -10,7 +10,7 @@ package br.com.loto.shared.domain.type;
  * @author maxwe
  */
 public enum TipoLoteria {
-    MEGA_SENA(1, "Mega Senha", 6),
+    MEGA_SENA(1, "Mega Sena", 6),
     LOTO_FACIL(2, "Loto Fácil", 15),
     QUINA(3, "Quina", 5),
     LOTO_MANIA(4, "Loto Mania", 20),
