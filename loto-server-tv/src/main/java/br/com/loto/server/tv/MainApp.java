@@ -7,6 +7,8 @@ package br.com.loto.server.tv;
 
 import br.com.loto.core.util.JdbcUtil;
 import br.com.loto.server.tv.thread.ServerThread;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +18,6 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javafx.application.Application.launch;
 
 /**
  *
@@ -24,11 +25,15 @@ import static javafx.application.Application.launch;
  */
 public class MainApp {
 
+    static Properties properties;
+
+    private static final Logger LOG = Logger.getLogger(MainApp.class.getName());
+
     private static void initConnection() {
-        String dbUrl = "jdbc:postgresql://localhost/loto";
+        String dbUrl = properties.getProperty("db.connection.url");
         Properties props = new Properties();
-        props.setProperty("user", "postgres");
-        props.setProperty("password", "apollo");
+        props.setProperty("user", properties.getProperty("db.connection.user"));
+        props.setProperty("password", properties.getProperty("db.connection.pwd"));
 
 //        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/hsqldb/dbloto";
 //        Properties props = new Properties();
@@ -38,28 +43,39 @@ public class MainApp {
         try {
             JdbcUtil.getInstance().init(dbUrl, props);
         } catch (SQLException ex) {
-            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
             System.exit(0);
         }
     }
 
     public static void main(String args[]) {
+        try {
+            String configFilePath = System.getProperty("config.file");
+            properties = new Properties();
+            properties.load(new FileInputStream(new File(configFilePath)));
+
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, null, e);
+            System.exit(0);
+        }
+
         initConnection();
 
         ServerSocket myServerSocket = null;
         boolean ServerOn = true;
 
         try {
-            myServerSocket = new ServerSocket(12033);
+            myServerSocket = new ServerSocket(Integer.parseInt(properties.getProperty("server.port")));
         } catch (IOException ioe) {
-            System.out.println("Could not create server socket on port 8888. Quitting.");
+            LOG.log(Level.SEVERE, "Could not create server socket on port {0}. Quitting.", properties.getProperty("server.port"));
             System.exit(-1);
         }
 
         Calendar now = Calendar.getInstance();
         SimpleDateFormat formatter = new SimpleDateFormat(
                 "E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-        System.out.println("It is now : " + formatter.format(now.getTime()));
+        
+       LOG.log(Level.INFO, "Server is online {0}", formatter.format(now.getTime())); 
 
         while (ServerOn) {
             try {
@@ -67,15 +83,14 @@ public class MainApp {
                 ServerThread serverThread = new ServerThread(serverSocket);
                 serverThread.start();
             } catch (IOException ioe) {
-                System.out.println("Exception found on accept. Ignoring. Stack Trace :");
-                ioe.printStackTrace();
+                LOG.log(Level.SEVERE, null, ioe);
             }
         }
         try {
             myServerSocket.close();
-            System.out.println("Server Stopped");
-        } catch (Exception ioe) {
-            System.out.println("Error Found stopping server socket");
+            LOG.log(Level.INFO, "Server is offline"); 
+        } catch (IOException ioe) {
+            LOG.log(Level.SEVERE, null, ioe);
             System.exit(-1);
         }
 

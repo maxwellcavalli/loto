@@ -24,10 +24,8 @@ public class MainApp extends Application {
     private static final Logger LOG = Logger.getLogger(MainApp.class.getName());
 
     static ClientThread clientThread;
-    //static String baseDirectory;
-    //static String jsonFile;
-
     static Properties properties;
+    
     public static void main(String[] args) {
 
         try {

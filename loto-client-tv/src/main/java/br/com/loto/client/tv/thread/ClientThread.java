@@ -42,20 +42,19 @@ public class ClientThread extends Thread {
     PrintWriter os = null;
 
     String localUUID;
-    String propagandasFile;
-    String resultadosFile;
 
     Map<String, LocalTime> map = new HashMap<>();
 
-    boolean connected;
+    Properties properties;
 
+    boolean connected;
     boolean stopServer = false;
 
     public ClientThread(Properties properties, InetAddress address) {
         this.address = address;
+
+        this.properties = properties;
         this.localUUID = properties.getProperty("uuid");
-        this.propagandasFile = properties.getProperty("propagandas.file");
-        this.resultadosFile = properties.getProperty("resultados.file");
     }
 
     void tryToConnect() {
@@ -67,7 +66,7 @@ public class ClientThread extends Thread {
             try {
                 LOG.log(Level.INFO, "Trying to connect: {0}", address);
 
-                s1 = new Socket(address, 12033);
+                s1 = new Socket(address, Integer.parseInt(properties.getProperty("client.port")));
                 os = new PrintWriter(s1.getOutputStream());
                 is = new BufferedReader(new InputStreamReader(s1.getInputStream()));
 
@@ -82,12 +81,10 @@ public class ClientThread extends Thread {
                 is = null;
 
                 LOG.log(Level.SEVERE, "Connection error: {0}", address);
-
-//                Logger.getLogger(ClientThread.class.getName()).log(Level.INFO, null, e);
                 connected = false;
 
                 try {
-                    Thread.sleep(10 * 1000l);
+                    Thread.sleep(Long.parseLong(properties.getProperty("time.to.try.socket.connection")));
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, null, ex);
                 }
@@ -117,7 +114,7 @@ public class ClientThread extends Thread {
                     verify();
                     verifyResultados();
 
-                    Thread.sleep(1000l);
+                    Thread.sleep(Long.parseLong(properties.getProperty("time.to.run.main.sync.thread")));
                 } catch (InterruptedException | IOException ex) {
                     LOG.log(Level.SEVERE, null, ex);
 
@@ -142,10 +139,11 @@ public class ClientThread extends Thread {
             LocalTime anterior = map.get(cmd);
             LocalTime agora = LocalTime.now();
 
-            //long minutos = ChronoUnit.MINUTES.between(anterior, agora);
-            long segundos = ChronoUnit.SECONDS.between(anterior, agora);
+            long minutos = ChronoUnit.MINUTES.between(anterior, agora);
+            //long segundos = ChronoUnit.SECONDS.between(anterior, agora);
+            long timeToRunVerify = Long.parseLong(properties.getProperty("time.to.run.verify"));
 
-            if (segundos > 10) {
+            if (minutos > timeToRunVerify) {
                 run = true;
 
             }
@@ -180,7 +178,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(propagandasFile);
+                    File f = new File(properties.getProperty("propagandas.file"));
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();
@@ -197,7 +195,7 @@ public class ClientThread extends Thread {
             } else {
                 LOG.log(Level.INFO, "Running verify has not data");
 
-                File f = new File(propagandasFile);
+                File f = new File(properties.getProperty("propagandas.file"));
                 if (!f.exists()) {
                     lastDeploy();
                 }
@@ -230,7 +228,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running last-deploy has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(propagandasFile);
+                    File f = new File(properties.getProperty("propagandas.file"));
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();
@@ -263,9 +261,9 @@ public class ClientThread extends Thread {
             LocalTime agora = LocalTime.now();
 
             long minutos = ChronoUnit.MINUTES.between(anterior, agora);
-            //long segundos = ChronoUnit.SECONDS.between(anterior, agora);
+            long timeToRunVerifyResultados = Long.parseLong(properties.getProperty("time.to.run.verify.resultados"));
 
-            if (minutos > 180) {
+            if (minutos > timeToRunVerifyResultados) {
                 run = true;
 
             }
@@ -299,7 +297,7 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify-resultados has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(resultadosFile);
+                    File f = new File(properties.getProperty("resultados.file") );
                     try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
                         out.write(data.getBytes());
                         out.flush();

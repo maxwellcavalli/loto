@@ -6,6 +6,9 @@
 package br.com.loto.admin;
 
 import br.com.loto.core.util.JdbcUtil;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -32,6 +35,8 @@ import javafx.stage.Stage;
 public class LotoAdmin extends Application {
 
     public static VBox centerContainer = new VBox();
+    static Properties properties;
+    private static final Logger LOG = Logger.getLogger(LotoAdmin.class.getName());
 
     private MenuItem createMenuItem(String caption, String fxmFile) {
         MenuItem menuItem = new MenuItem(caption);
@@ -44,8 +49,8 @@ public class LotoAdmin extends Application {
                 centerContainer.getChildren().clear();
                 centerContainer.getChildren().add(p);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, null, e);
             }
         });
 
@@ -58,15 +63,11 @@ public class LotoAdmin extends Application {
         centerContainer.setAlignment(Pos.CENTER);
         //centerContainer.setStyle("-fx-background-color:  #19b38a");
 
-        //Setup the VBox Container and BorderPane
         BorderPane root = new BorderPane();
         VBox topContainer = new VBox();
 
-        //Setup the Main Menu bar and the ToolBar
         MenuBar mainMenu = new MenuBar();
-        //ToolBar toolBar = new ToolBar();
 
-        //Create SubMenu File.
         Menu menuCadastros = new Menu("Cadastros");
 
         MenuItem menuEstado = createMenuItem("Estado", FxmlFiles.ESTADO_LIST);
@@ -96,19 +97,13 @@ public class LotoAdmin extends Application {
                 menuResultadoLoteria
         );
 
-        //Create SubMenu Help.
         Menu help = new Menu("Help");
         MenuItem visitWebsite = new MenuItem("Visit Website");
         help.getItems().add(visitWebsite);
 
         mainMenu.getMenus().addAll(menuCadastros, help);
 
-        //Create some toolbar buttons
-        //Add the ToolBar and Main Meu to the VBox
         topContainer.getChildren().add(mainMenu);
-        //topContainer.getChildren().add(toolBar);
-
-        //Apply the VBox to the Top Border
         root.setTop(topContainer);
 
         root.setCenter(centerContainer);
@@ -134,10 +129,21 @@ public class LotoAdmin extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        String dbUrl = "jdbc:postgresql://localhost/loto";
+        try {
+            String configFilePath = System.getProperty("config.file");
+            properties = new Properties();
+            properties.load(new FileInputStream(new File(configFilePath)));
+
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, null, e);
+            System.exit(0);
+        }
+
+        String dbUrl = properties.getProperty("db.connection.url");
         Properties props = new Properties();
-        props.setProperty("user", "postgres");
-        props.setProperty("password", "apollo");
+        props.setProperty("user", properties.getProperty("db.connection.user"));
+        props.setProperty("password", properties.getProperty("db.connection.pwd"));
+        
 
 //        String dbUrl = "jdbc:hsqldb:file:/home/mcavalli/hsqldb/dbloto";
 //        Properties props = new Properties();

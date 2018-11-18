@@ -5,6 +5,7 @@ import br.com.loto.shared.DeployPropagandaDTO;
 import br.com.loto.shared.ResultadoLoteriaDTO;
 import br.com.loto.shared.ResultadoLoteriaTransferDTO;
 import br.com.loto.shared.domain.type.TipoLoteria;
+import br.com.loto.shared.domain.type.TipoMidia;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedOutputStream;
@@ -21,14 +22,10 @@ import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -52,7 +49,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
@@ -75,27 +71,17 @@ public class FXMLController implements Initializable {
     @FXML
     public Label lbHora;
 
-//    @FXML
-//    public StackPane panelLoterias;
     @FXML
     public StackPane root;
 
     private String lastUuidCheck;
 
-    String baseDirectory;
-    String propagandaFile;
-    String resultadosFile;
-    Map<String, LocalTime> map = new HashMap<>();
-    
-    
     AnchorPane rootPaneDynamic;
     SequentialTransition sequentialTransitionDynamic; 
-    
+    Properties properties;
 
     public void init(Properties properties) {
-        this.baseDirectory = properties.getProperty("base.directory");
-        this.propagandaFile = properties.getProperty("propagandas.file");
-        this.resultadosFile = properties.getProperty("resultados.file");
+        this.properties = properties;
         start();
     }
 
@@ -114,7 +100,6 @@ public class FXMLController implements Initializable {
                     }
                 }
             });
-
             
             createSlideShows(slideshow);
             slideshow.play();
@@ -171,14 +156,14 @@ public class FXMLController implements Initializable {
         boolean fileExists = false;
         while (!fileExists) {
             LOG.log(Level.INFO, "Tentando ler arquivo de propagandas");
-            f = new File(propagandaFile);
+            f = new File(properties.getProperty("propagandas.file"));
             if (f.exists()) {
                 LOG.log(Level.INFO, "Arquivo de propagandas existente");
                 fileExists = true;
             } else {
                 LOG.log(Level.INFO, "Arquivo de propagandas nao encontrado");
                 try {
-                    Thread.sleep(5 * 1000l);
+                    Thread.sleep(Long.parseLong(properties.getProperty("time.to.advertisements.file.reload")));
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, null, ex);
                 }
@@ -195,7 +180,7 @@ public class FXMLController implements Initializable {
 
     ResultadoLoteriaTransferDTO tryToLoadResultadosFile() throws IOException {
 
-        File f = new File(resultadosFile);
+        File f = new File(properties.getProperty("resultados.file"));
         if (f.exists()) {
             LOG.log(Level.INFO, "Arquivo de resultados existente");
 
@@ -236,22 +221,23 @@ public class FXMLController implements Initializable {
         byte[] arquivoBytes = Base64.getDecoder().decode(conteudo);
 
         try (InputStream in = new ByteArrayInputStream(arquivoBytes)) {
-
-            if (dp.getTipoMidia() == 1) {
+            
+            TipoMidia tm = TipoMidia.get(dp.getTipoMidia());
+            
+            if (tm.equals(TipoMidia.ESTATICA)) {
                 ImageView imageView = new ImageView(new Image(in));
                 imageView.setOpacity(0);
 
                 imageView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
                 imageView.setFitHeight(Screen.getPrimary().getBounds().getHeight() - 100);
 
-                //imageView.setPreserveRatio(true);
                 imageView.setSmooth(true);
                 imageView.setCache(true);
 
                 node = imageView;
             } else {
                 try {
-                    String fName = baseDirectory + File.separator + "midia" + File.separator
+                    String fName = properties.getProperty("base.directory") + File.separator + "midia" + File.separator
                             + dp.getOrdem().toString() + "_" + dp.getNomeArquivo();
                     File fVideo = new File(fName);
                     if (!fVideo.exists()) {
@@ -279,14 +265,6 @@ public class FXMLController implements Initializable {
                     mediaView.setCache(false);
 
                     player.stop();
-
-                    player.statusProperty().addListener((observable, oldValue, newValue) -> {
-                        LOG.log(Level.INFO, "oldValue {0}", oldValue);
-                        LOG.log(Level.INFO, "newValue {0}", newValue);
-
-                    });
-
-                    //player.setAutoPlay(true);
                     node = mediaView;
                 } catch (MalformedURLException ex) {
                     LOG.log(Level.SEVERE, null, ex);
@@ -472,8 +450,6 @@ public class FXMLController implements Initializable {
                             break;
                     }
 
-                    //Label lbNumero = new Label(num.toString());
-                    //lbNumero.setFont(new Font("System", 30));
                     Text text = new Text(num.toString());
                     text.setFont(new Font("System", 55));
                     text.setBoundsType(TextBoundsType.VISUAL);
@@ -485,7 +461,6 @@ public class FXMLController implements Initializable {
                     HBox.setMargin(stack, new Insets(0, 15, 7, 0));
 
                     paneNumeros.getChildren().add(stack);
-                    //paneNumeros.getChildren().add(circle);
 
                     if (count > 0 && count % 10 == 0) {
                         paneNumeros = new HBox();
@@ -508,7 +483,6 @@ public class FXMLController implements Initializable {
 
             rootPaneDynamic.getChildren().add(borderPane);
             rootPaneDynamic.setOpacity(0);
-
             
             sequentialTransitionDynamic = new SequentialTransition();
             FadeTransition fadeIn = getFadeTransition(rootPaneDynamic, 0.0, 1.0, 500);
@@ -549,13 +523,11 @@ public class FXMLController implements Initializable {
         slideshow.stop();
         clearSlidesFromSlideShow(slideshow);
 
-        
         createStaticSlideShow(slideshow, dTO);
 
         dTO = null;
 
         LOG.log(Level.INFO, "Troca de propagandas finalizada");
-
     }
 
     void createStaticSlideShow(SequentialTransition slideshow, DeployDTO dTO) throws IOException {
