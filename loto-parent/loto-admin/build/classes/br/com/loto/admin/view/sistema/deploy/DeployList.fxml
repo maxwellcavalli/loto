@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import view.control.*?>
+<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="1174.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.deploy.DeployListController">
+   <children>
+      <HBox maxHeight="93.0" maxWidth="1.7976931348623157E308" prefHeight="93.0" style="-fx-background-color: #19b38a;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <VBox alignment="CENTER_LEFT" prefHeight="93.0" prefWidth="168.0" HBox.hgrow="NEVER">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" text="Deploy" textFill="WHITE">
+                     <font>
+                        <Font name="Segoe UI" size="25.0" />
+                     </font>
+                     <padding>
+                        <Insets left="50.0" />
+                     </padding>
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="93.0" prefWidth="404.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                     <children>
+                        <JFXComboBox fx:id="cbEstado" onAction="#changeEstado" promptText="UF">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXComboBox>
+                        <JFXAutoComplete fx:id="txtCidade" prefHeight="25.0" prefWidth="262.0" promptText="Cidade">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXAutoComplete>
+                        <JFXAutoComplete fx:id="txtEstabelecimento" focusColor="WHITE" prefHeight="28.0" prefWidth="263.0" promptText="Estabelecimento" unFocusColor="#e8e8e8">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXAutoComplete>
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="28.0" prefWidth="174.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                           <padding>
+                              <Insets right="10.0" />
+                           </padding>
+                        </JFXTextField>
+                        <JFXButton buttonType="RAISED" defaultButton="true" onAction="#pesquisar" ripplerFill="WHITE" style="-fx-background-color: #41c146;" text="Pesquisar" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                        </JFXButton>
+                        <JFXButton buttonType="RAISED" onAction="#adicionar" ripplerFill="WHITE" style="-fx-background-color: #4096c1;" text="Adicionar" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI" size="14.0" />
+                           </font>
+                           <effect>
+                              <DropShadow />
+                           </effect>
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </JFXButton>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <AnchorPane layoutX="25.0" layoutY="81.0" maxWidth="1.7976931348623157E308" prefHeight="470.0" prefWidth="974.0" style="-fx-background-color: #fff;" AnchorPane.bottomAnchor="11.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="81.0">
+         <effect>
+            <DropShadow />
+         </effect>
+         <children>
+            <TableView fx:id="datatable" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

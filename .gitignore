@@ -16,3 +16,10 @@
 /loto-shared/target/
 /loto-server-tv/target/
 /loto-crypto/target/
+/loto-parent/loto-crypto/target/
+/loto-parent/loto-shared/target/
+/loto-parent/loto-core/target/
+/loto-parent/loto-components/target/
+/loto-parent/loto-server-tv/target/
+/loto-parent/loto-admin/target/
+/loto-parent/loto-client-tv/target/
