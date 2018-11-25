@@ -9,7 +9,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="908.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.deploy.DeployFormController">
+<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="917.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.deploy.DeployFormController">
    <children>
       <HBox maxHeight="93.0" maxWidth="1.7976931348623157E308" prefHeight="93.0" style="-fx-background-color: #19b38a;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
@@ -48,22 +48,12 @@
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label focusTraversable="false" text="Descriçao">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Data Validade" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Descriçao" />
+                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1" />
+                  <Label focusTraversable="false" text="Data Validade" GridPane.rowIndex="1" />
                   <DatePicker fx:id="dpValidade" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="UF" GridPane.rowIndex="2" />
                   <ComboBox fx:id="cbEstado" prefHeight="25.0" prefWidth="82.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -71,14 +61,12 @@
                   <FMXField fx:id="txtCidade" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Label text="Estabelecimento" GridPane.rowIndex="4" />
                   <FMXField fx:id="txtEstabelecimento" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="5">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="5" />
                   <CheckBox fx:id="ckAtivo" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                   <Label text="Situaçao" GridPane.rowIndex="6" />
                   <ComboBox fx:id="cbSituacao" prefHeight="25.0" prefWidth="346.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <Label text="Versão" GridPane.rowIndex="7" />
+                  <TextField fx:id="txtVersao" editable="false" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="79.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -127,7 +115,7 @@
                   </JFXButton>
                </children>
             </HBox>
-            <TabPane layoutY="265.0" prefHeight="473.0" prefWidth="974.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="265.0">
+            <TabPane layoutY="242.0" prefHeight="496.0" prefWidth="974.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="242.0">
               <tabs>
                   <Tab text="Propagandas">
                     <content>
@@ -178,9 +166,21 @@
                                     </HBox>
                                  </children>
                               </GridPane>
-                              <TableView fx:id="tablePropaganda" layoutX="14.0" layoutY="212.0" prefHeight="218.0" prefWidth="974.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-0.0" />
+                              <TableView fx:id="tablePropaganda" layoutX="14.0" layoutY="212.0" prefHeight="217.0" prefWidth="974.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="250.0" />
                            </children>
                         </AnchorPane>
+                    </content>
+                  </Tab>
+                  <Tab text="Outras Versões">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="tableVersoes" layoutX="319.0" layoutY="61.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </children></AnchorPane>
                     </content>
                   </Tab>
               </tabs>

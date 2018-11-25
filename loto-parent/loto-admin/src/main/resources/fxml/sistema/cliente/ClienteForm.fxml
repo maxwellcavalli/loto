@@ -48,38 +48,15 @@
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label focusTraversable="false" text="Nome">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtDescricao" prefHeight="28.0" prefWidth="824.0" GridPane.columnIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Estado" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <Label focusTraversable="false" text="Cidade" GridPane.rowIndex="2">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Nome" />
+                  <TextField fx:id="txtDescricao" prefHeight="28.0" prefWidth="824.0" GridPane.columnIndex="1" />
+                  <Label focusTraversable="false" text="Estado" GridPane.rowIndex="1" />
+                  <Label focusTraversable="false" text="Cidade" GridPane.rowIndex="2" />
                   <ComboBox fx:id="cbEstado" onAction="#changeEstado" prefHeight="25.0" prefWidth="72.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="3">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="3" />
                   <FMXField fx:id="txtCidade" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <CheckBox fx:id="ckAtivo" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label focusTraversable="false" text="Todas Localidades" GridPane.rowIndex="4">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Todas Localidades" GridPane.rowIndex="4" />
                   <CheckBox fx:id="ckTodasLocalidades" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>
                <padding>
@@ -123,33 +100,13 @@
                            <children>
                               <GridPane layoutY="-10.0" maxHeight="-Infinity" prefHeight="112.0" prefWidth="974.0">
                                  <children>
-                                    <Label text="Descrição">
-                                       <font>
-                                          <Font name="Segoe UI" size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="txtDescricaoPropaganda" GridPane.columnIndex="1">
-                                       <font>
-                                          <Font name="Segoe UI" size="14.0" />
-                                       </font>
-                                    </TextField>
-                                    <Label text="Arquivo" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font name="Segoe UI" size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Ativo" GridPane.rowIndex="2">
-                                       <font>
-                                          <Font name="Segoe UI" size="14.0" />
-                                       </font>
-                                    </Label>
+                                    <Label text="Descrição" />
+                                    <TextField fx:id="txtDescricaoPropaganda" GridPane.columnIndex="1" />
+                                    <Label text="Arquivo" GridPane.rowIndex="1" />
+                                    <Label text="Ativo" GridPane.rowIndex="2" />
                                     <CheckBox fx:id="cbPropaganda" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                     <Button mnemonicParsing="false" onAction="#selecionarArquivo" text="Selecionar Arquivo" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                    <TextField fx:id="txtNomeArquivo" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                       <font>
-                                          <Font name="Segoe UI" size="14.0" />
-                                       </font>
-                                    </TextField>
+                                    <TextField fx:id="txtNomeArquivo" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                                        <children>
                                           <Button fx:id="btAdicionarPropaganda" mnemonicParsing="false" onAction="#adicionarPropaganda" text="Adicionar">

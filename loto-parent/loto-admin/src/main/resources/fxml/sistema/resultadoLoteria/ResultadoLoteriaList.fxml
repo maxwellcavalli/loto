@@ -31,12 +31,12 @@
                <children>
                   <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
                      <children>
-                        <JFXComboBox fx:id="cbTipoLoteria" prefHeight="25.0" prefWidth="224.0">
+                        <JFXComboBox fx:id="cbTipoLoteria" prefHeight="25.0" prefWidth="224.0" promptText="Tipo">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </JFXComboBox>
-                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="18.0" prefWidth="253.0" promptText="Concurso" unFocusColor="#e8e8e8">
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" labelFloat="true" prefHeight="18.0" prefWidth="253.0" promptText="Concurso">
                            <padding>
                               <Insets right="10.0" />
                            </padding>

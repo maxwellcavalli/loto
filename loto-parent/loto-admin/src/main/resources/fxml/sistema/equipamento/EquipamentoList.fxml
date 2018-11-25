@@ -31,10 +31,7 @@
                <children>
                   <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
                      <children>
-                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="18.0" prefWidth="308.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
-                           <font>
-                              <Font name="Segoe UI" size="14.0" />
-                           </font>
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" labelFloat="true" prefHeight="18.0" prefWidth="308.0" promptText="Pesquisar">
                            <padding>
                               <Insets right="10.0" />
                            </padding>

@@ -12,6 +12,7 @@ import br.com.loto.admin.domain.Cidade;
 import br.com.loto.admin.domain.Deploy;
 import br.com.loto.admin.domain.Estabelecimento;
 import br.com.loto.admin.domain.Estado;
+import br.com.loto.admin.domain.helper.ComboHelper;
 import br.com.loto.admin.domain.type.SituacaoDeploy;
 import br.com.loto.admin.service.CidadeService;
 import br.com.loto.admin.util.FxmlUtil;
@@ -19,6 +20,8 @@ import br.com.loto.admin.service.DeployService;
 import br.com.loto.admin.service.EstabelecimentoService;
 import br.com.loto.admin.service.EstadoService;
 import br.com.loto.core.fx.datatable.util.TableColumnUtil;
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import java.io.IOException;
 import java.net.URL;
@@ -68,6 +71,14 @@ public class DeployListController implements Initializable {
     @FXML
     public JFXAutoComplete<Estabelecimento> txtEstabelecimento;
 
+    @FXML
+    public JFXComboBox<ComboHelper> cbSituacao;
+
+    @FXML
+    public JFXCheckBox ckVersao;
+
+    private List<ComboHelper> situacoes;
+
     final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     final SimpleDateFormat sdfNH = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -77,9 +88,35 @@ public class DeployListController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         popularEstados();
+        popularSituacao();
+        
+        this.ckVersao.setSelected(true);
 
         configAutoCompleteCidade();
         configuraAutocompleteEstabelecimento();
+    }
+
+    void popularSituacao() {
+        this.situacoes = new ArrayList<>();
+
+        for (SituacaoDeploy sd : SituacaoDeploy.values()) {
+            this.situacoes.add(new ComboHelper(sd.getKey(), sd.getDescription()));
+        }
+
+        this.cbSituacao.getItems().add(new ComboHelper());
+        this.situacoes.forEach(sit -> this.cbSituacao.getItems().add(sit));
+
+        cbSituacao.setConverter(new StringConverter<ComboHelper>() {
+            @Override
+            public String toString(ComboHelper object) {
+                return object.getDescricao();
+            }
+
+            @Override
+            public ComboHelper fromString(String string) {
+                return null;
+            }
+        });
     }
 
     void configAutoCompleteCidade() {
@@ -168,8 +205,16 @@ public class DeployListController implements Initializable {
             Long cidade = cidadeO == null || cidadeO.getId() == null ? null : cidadeO.getId();
             Long estado = estadoO == null || estadoO.getId() == null ? null : estadoO.getId();
             Long estabelecimento = estabelecimentoO == null ? null : estabelecimentoO.getId();
+            
+            boolean somenteUltVersao = this.ckVersao.isSelected(); 
+            
+            Integer situacao = null;
+            ComboHelper oSituacao = cbSituacao.getSelectionModel().getSelectedItem();
+            if (oSituacao != null){
+                situacao = oSituacao.getCodigo();
+            }    
 
-            List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estado, cidade, estabelecimento);
+            List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estado, cidade, estabelecimento, situacao, somenteUltVersao);
 
             TableColumn<Deploy, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 200, (Deploy s) -> s.getDescricao());
             TableColumn<Deploy, String> estabelecimentoColumn = TableColumnUtil.createStringColumn("Estabelecimento", 200, (Deploy s)
@@ -190,12 +235,15 @@ public class DeployListController implements Initializable {
 
             TableColumn<Deploy, String> situacaoColumn = TableColumnUtil.createStringColumn("Situação", 140, (Deploy s)
                     -> SituacaoDeploy.get(s.getSituacao()).getDescription());
+            
+            TableColumn<Deploy, String> versaoColumn = TableColumnUtil.createStringColumn("Versão", 60, (Deploy s)
+                    -> s.getVersao().toString());
 
             TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
 
             datatable.getColumns().clear();
             datatable.getColumns().setAll(estabelecimentoColumn, descricaoColumn, cidadeColumn, estadoColumn,
-                    dataColumn, dataValidadeColumn, situacaoColumn, ativoColumn);
+                    dataColumn, dataValidadeColumn, situacaoColumn, versaoColumn, ativoColumn);
             datatable.setItems(FXCollections.observableArrayList(list));
 
             try {

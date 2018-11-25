@@ -45,29 +45,11 @@
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label focusTraversable="false" text="Sigla">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtSigla" maxWidth="-Infinity" prefHeight="28.0" prefWidth="83.0" GridPane.columnIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Descrição" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="2">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Sigla" />
+                  <TextField fx:id="txtSigla" maxWidth="-Infinity" prefHeight="28.0" prefWidth="83.0" GridPane.columnIndex="1" />
+                  <Label focusTraversable="false" text="Descrição" GridPane.rowIndex="1" />
+                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="2" />
                   <CheckBox fx:id="ckAtivo" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
                <padding>

@@ -14,6 +14,9 @@ public class ComboHelper {
     public int codigo;
     public String descricao;
 
+    public ComboHelper() {
+    }
+
     public ComboHelper(int codigo, String descricao) {
         this.codigo = codigo;
         this.descricao = descricao;

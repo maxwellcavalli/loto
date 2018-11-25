@@ -9,6 +9,7 @@
                 <goal>install</goal>
                 <goal>process-classes</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+                
             </goals>
             <properties>
                 <runfx.args>-Dconfig.file=C:\tmp\loto-client-tv\desktop.properties -jar "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
@@ -30,6 +31,22 @@
                 
                 <exec.workingdir>C:\tmp\loto-client-tv</exec.workingdir>
                 <jpda.listen>true</jpda.listen>
+            </properties>
+        </action>
+        <action>
+            <actionName>run.single.main</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>install</goal>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-classpath %classpath ${packageClassName}</exec.args>
+                <exec.executable>java</exec.executable>
+                <exec.classpathScope>${classPathScope}</exec.classpathScope>
             </properties>
         </action>
     </actions>

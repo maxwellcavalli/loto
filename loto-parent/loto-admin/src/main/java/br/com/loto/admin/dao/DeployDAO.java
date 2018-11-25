@@ -40,7 +40,9 @@ public class DeployDAO extends BaseDAO<Deploy> {
         return super.persistir(t); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento) throws SQLException {
+    public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento, Integer situacao, 
+            boolean somenteUltVersao) throws SQLException {
+        
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT ");
         sql.append("    _d.ID as _d_ID, ");
@@ -50,6 +52,7 @@ public class DeployDAO extends BaseDAO<Deploy> {
         sql.append("    _d.DATA_VALIDADE as _d_DATA_VALIDADE, ");
         sql.append("    _d.SITUACAO AS _d_SITUACAO, ");
         sql.append("    _d.UUID AS _d_UUID, ");
+         sql.append("    _d.VERSAO AS _d_VERSAO, ");
 
         sql.append("    _e.id as _e_id,  ");
         sql.append("    _e.descricao as _e_descricao,  ");
@@ -73,6 +76,17 @@ public class DeployDAO extends BaseDAO<Deploy> {
         sql.append("  WHERE 1 = 1 ");
 
         List<Object> parameters = new ArrayList<>();
+        
+        if (situacao != null){
+            sql.append("  AND _D.SITUACAO = ? ");
+            parameters.add(situacao);
+        }
+        
+        if (somenteUltVersao){
+            sql.append("  AND _D.VERSAO = (SELECT MAX(DM.VERSAO) ");
+            sql.append("                     FROM DEPLOY DM ");
+            sql.append("                    WHERE DM.ID_ESTABELECIMENTO = _D.ID_ESTABELECIMENTO ) ");           
+        }
 
         if (descricao != null && !descricao.trim().isEmpty()) {
             sql.append("  AND UPPER(_d.DESCRICAO) LIKE ? ");
@@ -94,7 +108,7 @@ public class DeployDAO extends BaseDAO<Deploy> {
             parameters.add(cidade);
         }
 
-        sql.append(" ORDER BY _d.DESCRICAO ");
+        sql.append(" ORDER BY _d.ID_ESTABELECIMENTO, _D.VERSAO, _D.DESCRICAO ");
 
         return super.pesquisar(sql.toString(), parameters, (ResultSet rs) -> {
             Cidade c = null;
@@ -130,8 +144,24 @@ public class DeployDAO extends BaseDAO<Deploy> {
             d.setSituacao(rs.getInt("_d_SITUACAO"));
             d.setUuid(rs.getString("_d_UUID"));
             d.setEstabelecimento(e);
+            d.setVersao(rs.getInt("_d_VERSAO"));
 
             return d;
         });
     }
+    
+    public Integer ultimaVersao(Long estabelecimento) throws SQLException {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT MAX(VERSAO) AS ULT_VERSAO ");
+        sql.append("   FROM DEPLOY  ");
+        sql.append("  WHERE ID_ESTABELECIMENTO = ?  ");        
+
+        List<Object> parameters = new ArrayList<>();
+        parameters.add(estabelecimento);
+      
+        return super.carregarCustom(sql.toString(), parameters, (ResultSet rs) -> {
+            return rs.getInt("ULT_VERSAO");
+        });
+    }
+    
 }

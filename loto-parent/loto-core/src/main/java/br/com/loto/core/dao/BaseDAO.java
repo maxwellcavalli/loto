@@ -58,7 +58,7 @@ public class BaseDAO<T> {
             }
 
             try (ResultSet rs = stmt.executeQuery();) {
-                rs.setFetchSize(maxResults.intValue());
+                rs.setFetchSize(maxResults);
                 rs.setFetchDirection(ResultSet.FETCH_FORWARD);
 
                 List<T> ret = new ArrayList<>();
@@ -137,6 +137,34 @@ public class BaseDAO<T> {
             throw e;
         }
     }
+    
+    protected <X extends Object> X carregarCustom(String sql, List<Object> parameters, DatabaseRecord<X> databaseRecord) throws SQLException {
+        Connection conn = JdbcUtil.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql);) {
+            int index = 1;
+            for (Object paramValue : parameters) {
+                stmt.setObject(index++, paramValue);
+            }
+
+            try (ResultSet rs = stmt.executeQuery();) {
+                if (rs.next()) {
+                    return databaseRecord.onRecord(rs);
+                } else {
+                    return null;
+                }
+
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                JdbcUtil.getInstance().rollback();
+            }
+        } catch (Exception e) {
+            JdbcUtil.getInstance().rollback();
+            throw e;
+        }
+    }
+
+    
 
     protected T persistir(T t) throws IllegalArgumentException, IllegalAccessException, SQLException, Exception {
 

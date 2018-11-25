@@ -45,7 +45,7 @@
                               <Insets right="10.0" />
                            </HBox.margin>
                         </JFXAutoComplete>
-                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="25.0" prefWidth="294.0" promptText="Cliente" unFocusColor="#e8e8e8">
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" labelFloat="true" prefHeight="25.0" prefWidth="294.0" promptText="Cliente">
                            <padding>
                               <Insets right="10.0" />
                            </padding>

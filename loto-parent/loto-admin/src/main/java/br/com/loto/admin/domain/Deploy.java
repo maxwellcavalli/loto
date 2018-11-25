@@ -43,6 +43,9 @@ public class Deploy implements Cloneable {
 
     @Campo(name = "UUID")
     private String uuid;
+    
+    @Campo(name = "VERSAO")
+    private Integer versao = 1;
 
     //usado para retorno
     private List<DeployPropaganda> deployPropagandas;
@@ -126,6 +129,14 @@ public class Deploy implements Cloneable {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public Integer getVersao() {
+        return versao;
+    }
+
+    public void setVersao(Integer versao) {
+        this.versao = versao;
     }
 
 }

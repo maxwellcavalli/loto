@@ -47,36 +47,14 @@
                   <RowConstraints maxHeight="48.0" minHeight="10.0" prefHeight="39.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label focusTraversable="false" text="Serial">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtSerial" maxWidth="-Infinity" prefHeight="25.0" prefWidth="262.0" GridPane.columnIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Descrição" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font></TextField>
-                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="3">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Serial" />
+                  <TextField fx:id="txtSerial" maxWidth="-Infinity" prefHeight="25.0" prefWidth="262.0" GridPane.columnIndex="1" />
+                  <Label focusTraversable="false" text="Descrição" GridPane.rowIndex="1" />
+                  <TextField fx:id="txtDescricao" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label focusTraversable="false" text="Ativo" GridPane.rowIndex="3" />
                   <CheckBox fx:id="ckAtivo" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <DatePicker fx:id="dpAquisicao" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label focusTraversable="false" text="Data Aquisição" GridPane.rowIndex="2">
-                     <font>
-                        <Font name="Segoe UI" size="14.0" />
-                     </font>
-                  </Label>
+                  <Label focusTraversable="false" text="Data Aquisição" GridPane.rowIndex="2" />
                   <Label text="UUID" GridPane.rowIndex="4" />
                   <TextField fx:id="txtUuid" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>

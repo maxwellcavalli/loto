@@ -118,6 +118,9 @@ public class DeployFormController implements Initializable {
     public ComboBox<ComboHelper> cbSituacao;
 
     @FXML
+    public TextField txtVersao;
+
+    @FXML
     public TableView<DeployPropaganda> tablePropaganda;
 
     @FXML
@@ -132,6 +135,9 @@ public class DeployFormController implements Initializable {
     @FXML
     public JFXButton btClonar;
 
+    @FXML
+    public TableView<Deploy> tableVersoes;
+
     //variaveis globais
     private Deploy deploy;
 
@@ -145,6 +151,7 @@ public class DeployFormController implements Initializable {
     private boolean disabled = false;
 
     final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    final SimpleDateFormat sdfNH = new SimpleDateFormat("dd/MM/yyyy");
 
     //--
     /**
@@ -162,6 +169,75 @@ public class DeployFormController implements Initializable {
         configAutoCompletePropagandaCliente();
 
         inicializaDadosPropaganda();
+    }
+
+    void popularOutrasVersoes() {
+        Estabelecimento estabelecimentoO = deploy.getEstabelecimento();
+        if (estabelecimentoO != null) {
+
+            try {
+                Long estabelecimento = estabelecimentoO == null ? null : estabelecimentoO.getId();
+
+                boolean somenteUltVersao = false;
+                String descricao = null;
+                Long estado = null;
+                Long cidade = null;
+                Integer situacao = null;
+
+                List<Deploy> list = DeployService.getInstance().pesquisar(descricao, estado, cidade, estabelecimento, situacao, somenteUltVersao);
+
+                TableColumn<Deploy, String> descricaoColumn = TableColumnUtil.createStringColumn("Descrição", 200, (Deploy s) -> s.getDescricao());
+                TableColumn<Deploy, String> estabelecimentoColumn = TableColumnUtil.createStringColumn("Estabelecimento", 200, (Deploy s)
+                        -> s.getEstabelecimento().getDescricao());
+
+                TableColumn<Deploy, String> cidadeColumn = TableColumnUtil.createStringColumn("Cidade", 200, (Deploy s)
+                        -> s.getEstabelecimento().getEstabelecimentoEndereco() == null ? "" : s.getEstabelecimento().getEstabelecimentoEndereco().getCidade().getNome());
+
+                TableColumn<Deploy, String> estadoColumn = TableColumnUtil.createStringColumn("UF", 60, (Deploy s)
+                        -> s.getEstabelecimento().getEstabelecimentoEndereco() == null ? ""
+                        : s.getEstabelecimento().getEstabelecimentoEndereco().getCidade().getEstado().getSigla());
+
+                TableColumn<Deploy, String> dataColumn = TableColumnUtil.createStringColumn("Data", 120, (Deploy s)
+                        -> sdf.format(s.getData()));
+
+                TableColumn<Deploy, String> dataValidadeColumn = TableColumnUtil.createStringColumn("Data Validade", 120, (Deploy s)
+                        -> s.getDataValidade() == null ? "" : sdfNH.format(s.getDataValidade()));
+
+                TableColumn<Deploy, String> situacaoColumn = TableColumnUtil.createStringColumn("Situação", 140, (Deploy s)
+                        -> SituacaoDeploy.get(s.getSituacao()).getDescription());
+
+                TableColumn<Deploy, String> versaoColumn = TableColumnUtil.createStringColumn("Versão", 60, (Deploy s)
+                        -> s.getVersao().toString());
+
+                TableColumn<Deploy, String> ativoColumn = TableColumnUtil.createStringColumn("Ativo", 50, (Deploy s) -> s.getAtivoStr());
+
+                tableVersoes.getColumns().clear();
+                tableVersoes.getColumns().setAll(estabelecimentoColumn, descricaoColumn, cidadeColumn, estadoColumn,
+                        dataColumn, dataValidadeColumn, situacaoColumn, versaoColumn, ativoColumn);
+                tableVersoes.setItems(FXCollections.observableArrayList(list));
+
+                try {
+                    tableVersoes.setOnMouseClicked((MouseEvent event) -> {
+                        if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+
+                            Deploy d = (Deploy) tableVersoes.getSelectionModel().getSelectedItem();
+
+                            initData(d, true);
+                            
+                        }
+                    });
+
+                } catch (Exception e) {
+                    throw e;
+                }
+
+            } catch (Exception ex) {
+                Logger.getLogger(DeployListController.class.getName()).log(Level.SEVERE, null, ex);
+                
+                //FxmlUtil.getInstance().openMessageDialog(acEvent, ex);
+            }
+
+        }
 
     }
 
@@ -172,6 +248,8 @@ public class DeployFormController implements Initializable {
             this.initData(newDeploy, false);
 
         } catch (SQLException | CloneNotSupportedException ex) {
+            FxmlUtil.getInstance().openMessageDialog(event, ex);
+        } catch (Exception ex) {
             FxmlUtil.getInstance().openMessageDialog(event, ex);
         }
     }
@@ -434,6 +512,8 @@ public class DeployFormController implements Initializable {
             try {
                 this.deploy = DeployService.getInstance().persistir(this.deploy, this.deployPropagandas);
 
+                txtVersao.setText(this.deploy.getVersao().toString());
+                
                 this.deployPropagandas = this.deploy.getDeployPropagandas();
 
                 SituacaoDeploy sd = SituacaoDeploy.get(this.deploy.getSituacao());
@@ -442,6 +522,7 @@ public class DeployFormController implements Initializable {
 
                 this.btClonar.setVisible(deploy.getId() != null && deploy.getId() > 0);
 
+                popularOutrasVersoes();
             } catch (IllegalArgumentException | IllegalAccessException | SQLException ex) {
                 Logger.getLogger(DeployFormController.class
                         .getName()).log(Level.SEVERE, null, ex);
@@ -485,6 +566,9 @@ public class DeployFormController implements Initializable {
             dpValidade.setValue(DateUtils.asLocalDate(deploy.getDataValidade()));
         }
 
+        txtVersao.setText(deploy.getVersao().toString());
+        txtVersao.setDisable(true);
+
         this.btClonar.setVisible(deploy.getId() != null && deploy.getId() > 0);
 
         Optional<ComboHelper> oSituacao = situacoesDeploy.stream().filter(el -> el.getCodigo() == deploy.getSituacao()).findFirst();
@@ -520,18 +604,22 @@ public class DeployFormController implements Initializable {
         }
 
         this.deploy = deploy;
+        if (this.deployPropagandas == null) {
+            this.deployPropagandas = new ArrayList<>(1);
+        }
 
         SituacaoDeploy sd = SituacaoDeploy.get(deploy.getSituacao());
         alterarSituacaoComponentes(sd);
 
         this.popularPropagandas(reloadPropagandas);
 
-        if (this.deployPropagandas == null) {
-            this.deployPropagandas = new ArrayList<>(1);
-        }
-
         validaDisableEstabelecimento(sd);
 
+        
+        if (this.deploy.getId() != null){
+            popularOutrasVersoes();
+        }
+        
     }
 
     void inicializaDadosPropaganda() {

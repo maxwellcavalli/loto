@@ -9,7 +9,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="1174.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.deploy.DeployListController">
+<AnchorPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="1212.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.loto.admin.controller.sistema.deploy.DeployListController">
    <children>
       <HBox maxHeight="93.0" maxWidth="1.7976931348623157E308" prefHeight="93.0" style="-fx-background-color: #19b38a;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
@@ -32,32 +32,36 @@
                <children>
                   <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
                      <children>
-                        <JFXComboBox fx:id="cbEstado" onAction="#changeEstado" promptText="UF">
+                        <JFXComboBox fx:id="cbEstado" onAction="#changeEstado" prefHeight="30.0" prefWidth="57.0" promptText="UF">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </JFXComboBox>
-                        <JFXAutoComplete fx:id="txtCidade" prefHeight="25.0" prefWidth="262.0" promptText="Cidade">
+                        <JFXAutoComplete fx:id="txtCidade" prefHeight="30.0" prefWidth="189.0" promptText="Cidade">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </JFXAutoComplete>
-                        <JFXAutoComplete fx:id="txtEstabelecimento" focusColor="WHITE" prefHeight="28.0" prefWidth="263.0" promptText="Estabelecimento" unFocusColor="#e8e8e8">
+                        <JFXAutoComplete fx:id="txtEstabelecimento" prefHeight="30.0" prefWidth="188.0" promptText="Estabelecimento">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
                         </JFXAutoComplete>
-                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" focusColor="WHITE" labelFloat="true" prefHeight="28.0" prefWidth="174.0" promptText="Pesquisar" unFocusColor="#e8e8e8">
-                           <font>
-                              <Font name="Segoe UI" size="14.0" />
-                           </font>
+                        <JFXTextField id="txtFiltro" fx:id="txtFiltro" labelFloat="true" prefHeight="30.0" prefWidth="174.0" promptText="Descrição">
                            <padding>
                               <Insets right="10.0" />
                            </padding>
                         </JFXTextField>
+                        <JFXComboBox fx:id="cbSituacao" prefHeight="30.0" prefWidth="106.0" promptText="Situação">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXComboBox>
+                        <JFXCheckBox fx:id="ckVersao" text="Ult. Versão">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                        </JFXCheckBox>
                         <JFXButton buttonType="RAISED" defaultButton="true" onAction="#pesquisar" ripplerFill="WHITE" style="-fx-background-color: #41c146;" text="Pesquisar" textFill="WHITE">
                            <font>
                               <Font name="Segoe UI" size="14.0" />

@@ -8,6 +8,7 @@ package br.com.loto.admin.service;
 import br.com.loto.admin.dao.DeployDAO;
 import br.com.loto.admin.domain.Deploy;
 import br.com.loto.admin.domain.DeployPropaganda;
+import br.com.loto.admin.domain.Estabelecimento;
 import br.com.loto.admin.domain.type.SituacaoDeploy;
 import br.com.loto.core.util.JdbcUtil;
 import java.sql.SQLException;
@@ -40,6 +41,18 @@ public class DeployService {
             deploy.setUuid(UUID.randomUUID().toString());
         }
         
+        if (deploy.getId() == null){
+            Estabelecimento estabelecimento = deploy.getEstabelecimento();
+
+            Integer ultVersao = ultimaVersao(estabelecimento.getId());
+            if (ultVersao == null){
+                ultVersao = 0;
+            }
+
+            ultVersao++;
+            deploy.setVersao(ultVersao);
+        }
+        
         deploy = DeployDAO.getInstance().persistir(deploy);
         deployPropagandas = DeployPropagandaService.getInstance().persistir(deploy, deployPropagandas);
 
@@ -49,11 +62,16 @@ public class DeployService {
         return deploy;
     }
 
-    public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento) throws SQLException {
-        return DeployDAO.getInstance().pesquisar(descricao, estado, cidade, estabelecimento);
+    public List<Deploy> pesquisar(String descricao, Long estado, Long cidade, Long estabelecimento, Integer situacao, boolean somenteUltVersao) throws SQLException {
+        return DeployDAO.getInstance().pesquisar(descricao, estado, cidade, estabelecimento, situacao, somenteUltVersao);
     }
     
-    public Deploy clonar(Deploy deploy) throws SQLException, CloneNotSupportedException, CloneNotSupportedException{
+    public Deploy clonar(Deploy deploy) throws SQLException, CloneNotSupportedException, CloneNotSupportedException, Exception{
+       Integer versaoDB = ultimaVersao(deploy.getEstabelecimento().getId());
+       if (deploy.getVersao() < versaoDB){
+           throw new Exception("Para clonar um registro, o mesmo deverá estar na última versão");
+       }
+        
         Deploy newDeploy = (Deploy) deploy.clone();
         newDeploy.setData(new Date());
         newDeploy.setAtivo(true);
@@ -61,6 +79,7 @@ public class DeployService {
         newDeploy.setSituacao(SituacaoDeploy.CADASTRANDO.getKey());
         newDeploy.setUuid(null);
         newDeploy.setId(null);
+        newDeploy.setVersao(deploy.getVersao() + 1);
         
         List<DeployPropaganda> propagandas = DeployPropagandaService.getInstance().pesquisar(deploy);
 
@@ -76,6 +95,10 @@ public class DeployService {
         newDeploy.setDeployPropagandas(newPropagandas);
         
         return newDeploy;
+    }
+    
+    public Integer ultimaVersao(Long estabelecimento) throws SQLException {
+        return DeployDAO.getInstance().ultimaVersao(estabelecimento);
     }
 
 }
