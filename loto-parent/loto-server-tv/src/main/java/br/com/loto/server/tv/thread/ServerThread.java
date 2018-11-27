@@ -6,30 +6,30 @@
 package br.com.loto.server.tv.thread;
 
 import br.com.loto.crypto.AdvancedEncryptionStandard;
-import br.com.loto.crypto.EncriptaDecriptaRSA;
 import br.com.loto.server.tv.business.service.DeployService;
 import br.com.loto.server.tv.business.service.EquipamentoService;
 import br.com.loto.server.tv.business.service.ResultadoLoteriaService;
 import br.com.loto.shared.ComandoDTO;
 import br.com.loto.shared.DeployDTO;
+import br.com.loto.shared.DeployPropagandaDTO;
 import br.com.loto.shared.ResultadoLoteriaTransferDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.security.PublicKey;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -125,7 +125,19 @@ public class ServerThread extends Thread {
         if (comandoDTO.getComando().equals("verify")) {
             Gson gson = new GsonBuilder().create();
 
-            DeployDTO deployDTO = DeployService.getInstance().loadDeployByUuid(comandoDTO.getUniqueId());
+            List<String> uuidsInClient = Collections.emptyList();
+            String dataReceived = comandoDTO.getData();
+            if (dataReceived  != null && !"".equals(dataReceived)) {
+                byte[] bytes = Base64.getDecoder().decode(dataReceived);
+                byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
+                DeployDTO dTO = gson.fromJson(new String(decripted), DeployDTO.class);
+
+                List<DeployPropagandaDTO> propagandas = dTO.getPropagandas();
+                propagandas = propagandas == null ? Collections.emptyList() : propagandas;
+                uuidsInClient = propagandas.stream().map(dp -> dp.getUuidPropaganda()).collect(Collectors.toList());
+            }
+
+            DeployDTO deployDTO = DeployService.getInstance().loadDeployByUuid(comandoDTO.getUniqueId(), uuidsInClient);
 
             ComandoDTO c = new ComandoDTO();
             c.setUniqueId(comandoDTO.getUniqueId());

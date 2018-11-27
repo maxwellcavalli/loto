@@ -8,8 +8,10 @@ package br.com.loto.server.tv.business.service;
 import br.com.loto.server.tv.business.dao.DeployDAO;
 import br.com.loto.shared.DeployDTO;
 import br.com.loto.shared.DeployPropagandaDTO;
+import br.com.loto.shared.domain.type.AcaoDeploy;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -39,10 +41,26 @@ public class DeployService {
         return deployDTO;
     }
 
-    public DeployDTO loadDeployByUuid(String uuid) throws SQLException {
+    public DeployDTO loadDeployByUuid(String uuid, List<String> uuidsInClient) throws SQLException {
         DeployDTO deployDTO = DeployDAO.getInstance().loadDeployByUuid(uuid);
         if (deployDTO != null) {
             List<DeployPropagandaDTO> list = DeployPropagandaService.getInstance().loadDeployPropaganda(deployDTO.getId());
+            
+            uuidsInClient.forEach(uuidClient -> {
+                Optional<DeployPropagandaDTO> op = list.stream().filter(dp -> dp.getUuidPropaganda().equals(uuidClient)).findFirst();
+                if (op.isPresent()){
+                    op.get().setAcao(AcaoDeploy.NADA.getCode());
+                    op.get().setConteudo(null);
+                } else {
+                    DeployPropagandaDTO dpE = new DeployPropagandaDTO();
+                    dpE.setUuidPropaganda(uuidClient);
+                    dpE.setAcao(AcaoDeploy.EXCLUSAO.getCode());
+                    
+                    list.add(dpE);
+                    
+                }
+            });
+            
             deployDTO.setPropagandas(list);
         }
         return deployDTO;

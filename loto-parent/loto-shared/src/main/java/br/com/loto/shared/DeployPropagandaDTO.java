@@ -19,6 +19,9 @@ public class DeployPropagandaDTO {
     private String conteudo;
     private String nomeArquivo;
 
+    private String uuidPropaganda;
+    private Integer acao;
+
     public Integer getDuracaoPropaganda() {
         return duracaoPropaganda;
     }
@@ -73,6 +76,22 @@ public class DeployPropagandaDTO {
 
     public void setNomeArquivo(String nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
+    }
+
+    public String getUuidPropaganda() {
+        return uuidPropaganda;
+    }
+
+    public void setUuidPropaganda(String uuidPropaganda) {
+        this.uuidPropaganda = uuidPropaganda;
+    }
+
+    public Integer getAcao() {
+        return acao;
+    }
+
+    public void setAcao(Integer acao) {
+        this.acao = acao;
     }
 
 }

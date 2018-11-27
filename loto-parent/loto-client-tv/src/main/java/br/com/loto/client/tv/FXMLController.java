@@ -169,7 +169,7 @@ public class FXMLController implements Initializable {
         while (!fileExists) {
             LOG.log(Level.INFO, "Tentando ler arquivo de propagandas");
             f = new File(properties.getProperty("propagandas.file"));
-            if (f.exists()) {
+            if (f.exists() && f.length() > 0) {
                 LOG.log(Level.INFO, "Arquivo de propagandas existente");
                 fileExists = true;
             } else {
@@ -523,6 +523,7 @@ public class FXMLController implements Initializable {
         slideshow.stop();
         clearSlidesFromSlideShow(slideshow);
 
+        createDynamicSlideShow(slideshow);
         createStaticSlideShow(slideshow, dTO);
 
         dTO = null;

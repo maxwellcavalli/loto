@@ -8,11 +8,14 @@ package br.com.loto.client.tv.thread;
 import br.com.loto.crypto.AdvancedEncryptionStandard;
 import br.com.loto.shared.ComandoDTO;
 import br.com.loto.shared.DeployDTO;
+import br.com.loto.shared.DeployPropagandaDTO;
+import br.com.loto.shared.domain.type.AcaoDeploy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,8 +25,10 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -117,6 +122,7 @@ public class ClientThread extends Thread {
                     }
 
                     verify();
+                    forceToLoadLastDeploy();
                     verifyResultados();
 
                     Thread.sleep(Long.parseLong(properties.getProperty("time.to.run.main.sync.thread")));
@@ -163,12 +169,26 @@ public class ClientThread extends Thread {
         }
 
         LOG.log(Level.INFO, "Running verify...");
-
         map.put(cmd, LocalTime.now());
+
+        String dataToSend = null;
+        File fControl = new File(properties.getProperty("propagandas.control.file"));
+        if (fControl.exists()) {
+            try {
+                byte[] bytes = Files.readAllBytes(fControl.toPath());
+                //byte[] encrypted = AdvancedEncryptionStandard.encrypt(password, bytes);
+
+                dataToSend = new String(Base64.getEncoder().encode(bytes));
+
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
 
         ComandoDTO comando = new ComandoDTO();
         comando.setUniqueId(localUUID);
         comando.setComando("verify");
+        comando.setData(dataToSend);
 
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(comando);
@@ -185,21 +205,8 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running verify has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(properties.getProperty("propagandas.file"));
-                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-                        byte[] bytes = Base64.getDecoder().decode(data);
-
-                        out.write(bytes);
-                        out.flush();
-
-                        byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
-
-                        DeployDTO dTO = gson.fromJson(new String(decripted), DeployDTO.class);
-
-                        LOG.log(Level.INFO, "Data saved");
-
-                        updateDeploy(dTO.getUuidDeploy());
-                    }
+                    DeployDTO savedDTO = savePropagandaToFile(data);
+                    updateDeploy(savedDTO.getUuidDeploy());
                 } catch (IOException e) {
                     LOG.log(Level.SEVERE, null, e);
                 } catch (Exception e) {
@@ -207,15 +214,51 @@ public class ClientThread extends Thread {
                 }
             } else {
                 LOG.log(Level.INFO, "Running verify has not data");
-
-                File f = new File(properties.getProperty("propagandas.file"));
-                if (!f.exists()) {
-                    lastDeploy();
-                }
+                forceToLoadLastDeploy();
             }
         }
 
         gson = null;
+    }
+
+    void forceToLoadLastDeploy() throws IOException {
+        File f = new File(properties.getProperty("propagandas.file"));
+        if (!f.exists()) {
+            lastDeploy();
+        }
+    }
+
+    void writeControlPropaganda(DeployDTO dTO) throws FileNotFoundException, IOException, Exception {
+        if (dTO.getPropagandas() != null) {
+            File fControl = new File(properties.getProperty("propagandas.control.file"));
+            try {
+                try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(fControl))) {
+                    List<DeployPropagandaDTO> newPropagandas = new ArrayList<>();
+
+                    dTO.getPropagandas().forEach(dp -> {
+                        DeployPropagandaDTO newDp = new DeployPropagandaDTO();
+                        newDp.setUuidPropaganda(dp.getUuidPropaganda());
+
+                        newPropagandas.add(newDp);
+                    });
+
+                    DeployDTO newDeploy = new DeployDTO();
+                    newDeploy.setPropagandas(newPropagandas);
+
+                    Gson gson = new GsonBuilder().create();
+                    String json = gson.toJson(newDeploy);
+
+                    //byte[] bytes = Base64.getEncoder().encode(json.getBytes());
+                    byte[] encrypted = AdvancedEncryptionStandard.encrypt(password, json.getBytes());
+                    out.write(encrypted);
+                    out.flush();
+                }
+            } catch (IOException e) {
+                throw e;
+            }
+
+        }
+
     }
 
     void lastDeploy() throws IOException {
@@ -241,21 +284,8 @@ public class ClientThread extends Thread {
                 LOG.log(Level.INFO, "Running last-deploy has data");
                 String data = comandoDTO.getData();
                 try {
-                    File f = new File(properties.getProperty("propagandas.file"));
-                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
-                        byte[] bytes = Base64.getDecoder().decode(data);
-
-                        out.write(bytes);
-                        out.flush();
-
-                        byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
-
-                        DeployDTO dTO = gson.fromJson(new String(decripted), DeployDTO.class);
-
-                        LOG.log(Level.INFO, "Data saved");
-
-                        updateDeploy(dTO.getUuidDeploy());
-                    }
+                    DeployDTO savedDTO = savePropagandaToFile(data);
+                    updateDeploy(savedDTO.getUuidDeploy());
                 } catch (IOException e) {
                     LOG.log(Level.SEVERE, null, e);
                 } catch (Exception e) {
@@ -268,6 +298,81 @@ public class ClientThread extends Thread {
         }
 
         gson = null;
+    }
+
+    DeployDTO savePropagandaToFile(String receivedData) throws IOException, Exception {
+        Gson gson = new GsonBuilder().create();
+
+        File f = new File(properties.getProperty("propagandas.file"));
+        DeployDTO savedDTO = null;
+        if (f.exists()) {
+            byte[] savedBytes = Files.readAllBytes(f.toPath());
+
+            byte[] decriptedSaved = AdvancedEncryptionStandard.decrypt(password, savedBytes);
+            savedDTO = gson.fromJson(new String(decriptedSaved), DeployDTO.class);
+        }
+
+        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
+
+            if (savedDTO == null) {
+                savedDTO = new DeployDTO();
+            }
+
+            byte[] bytes = Base64.getDecoder().decode(receivedData);
+            byte[] decripted = AdvancedEncryptionStandard.decrypt(password, bytes);
+
+            DeployDTO receivedDTO = gson.fromJson(new String(decripted), DeployDTO.class);
+            savedDTO.setDataValidade(receivedDTO.getDataValidade());
+            savedDTO.setId(receivedDTO.getId());
+            savedDTO.setUuid(receivedDTO.getUuid());
+            savedDTO.setUuidDeploy(receivedDTO.getUuidDeploy());
+            
+            for (DeployPropagandaDTO dp : receivedDTO.getPropagandas()) {
+                AcaoDeploy acaoDeploy = AcaoDeploy.get(dp.getAcao());
+
+                int index = -1;
+                for (int i = 0; i < savedDTO.getPropagandas().size(); i++) {
+                     DeployPropagandaDTO dpV = savedDTO.getPropagandas().get(i);
+                    if (dpV.getUuidPropaganda().equals(dp.getUuidPropaganda())) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                switch (acaoDeploy) {
+                    case EXCLUSAO:
+                        if (index > -1) {
+                            savedDTO.getPropagandas().remove(index);
+                        }
+                        break;
+                    case INSERCAO:
+                        savedDTO.getPropagandas().add(dp);
+                        break;
+                    case ALTERACAO:
+                        if (index > -1) {
+                            savedDTO.getPropagandas().set(index, dp);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            String jsonToSave = gson.toJson(savedDTO);
+            //byte[] encodedToSave = Base64.getEncoder().encode(jsonToSave.getBytes());
+
+            byte[] encryptedToSave = AdvancedEncryptionStandard.encrypt(password, jsonToSave.getBytes());
+
+            out.write(encryptedToSave);
+            out.flush();
+
+            LOG.log(Level.INFO, "Data saved");
+
+            writeControlPropaganda(savedDTO);
+
+            return savedDTO;
+        }
+
     }
 
     void verifyResultados() throws IOException, Exception {

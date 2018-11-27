@@ -5,6 +5,8 @@
  */
 package br.com.loto.shared;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +23,10 @@ public class DeployDTO {
     private String uuidDeploy;
 
     private List<DeployPropagandaDTO> propagandas;
+
+    public DeployDTO() {
+        this.propagandas = new ArrayList<>();
+    }
 
     public String getNumSerie() {
         return numSerie;

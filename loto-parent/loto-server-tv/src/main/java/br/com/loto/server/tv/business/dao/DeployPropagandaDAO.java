@@ -7,6 +7,7 @@ package br.com.loto.server.tv.business.dao;
 
 import br.com.loto.core.dao.BaseDAO;
 import br.com.loto.shared.DeployPropagandaDTO;
+import br.com.loto.shared.domain.type.AcaoDeploy;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Normalizer;
@@ -43,7 +44,8 @@ public class DeployPropagandaDAO extends BaseDAO<DeployPropagandaDTO> {
         sql.append("        _dp.id_tipo_transicao, ");
         sql.append("        _dp.ordem, ");
         sql.append("        _p.conteudo, ");
-        sql.append("        _p.nome_arquivo ");
+        sql.append("        _p.nome_arquivo, ");
+        sql.append("        _p.uuid as _p_uuid ");
 
         sql.append("   from deploy_propaganda _dp ");
         sql.append("  inner join cliente_propaganda _cp on _cp.id = _dp.id_cliente_propaganda ");
@@ -75,7 +77,9 @@ public class DeployPropagandaDAO extends BaseDAO<DeployPropagandaDTO> {
             dp.setTipoMidia(rs.getInt("id_tipo_midia"));
             dp.setTipoTransicao(rs.getInt("id_tipo_transicao"));
             dp.setOrdem(rs.getInt("ordem"));
-
+            dp.setUuidPropaganda(rs.getString("_p_uuid"));
+            dp.setAcao(AcaoDeploy.INSERCAO.getCode());
+            
             return dp;
         });
 
